@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
         'track',
         'student_id',
         'course',
@@ -54,5 +55,45 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Check if user has a specific role
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    /**
+     * Check if user is a student
+     */
+    public function isStudent(): bool
+    {
+        return $this->hasRole('student');
+    }
+
+    /**
+     * Check if user is faculty
+     */
+    public function isFaculty(): bool
+    {
+        return $this->hasRole('faculty');
+    }
+
+    /**
+     * Check if user is dean
+     */
+    public function isDean(): bool
+    {
+        return $this->hasRole('dean');
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
     }
 }

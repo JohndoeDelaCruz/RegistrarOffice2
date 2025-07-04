@@ -18,9 +18,16 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'role' => 'admin',
         ]);
 
         // Seed student users with tracks
         $this->call(StudentUsersSeeder::class);
+        
+        // Seed faculty members (both Faculty table and User account)
+        $this->call(FacultySeeder::class);
+        
+        // Seed dean user
+        $this->call(DeanUserSeeder::class);
     }
 }

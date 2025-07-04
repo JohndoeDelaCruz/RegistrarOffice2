@@ -60,7 +60,7 @@
         <div class="bg-white bg-opacity-95 rounded-lg shadow-2xl p-8 w-full max-w-md">
             <!-- Header -->
             <div class="bg-uc-orange text-white text-center py-3 -mx-8 -mt-8 mb-6 rounded-t-lg">
-                <h1 class="text-lg font-bold">Student/Parent/New Student Login</h1>
+                <h1 class="text-lg font-bold">UC Portal Login</h1>
             </div>
 
             <!-- Login Form -->
@@ -83,20 +83,34 @@
                     </div>
                 @endif
                 
-                <!-- Student ID Field -->
+                <!-- Login Type Selection -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Login As:</label>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="setLoginType('student')" id="btn-student" class="login-type-btn active bg-blue-500 text-white px-3 py-1 rounded text-sm">Student</button>
+                        <button type="button" onclick="setLoginType('faculty')" id="btn-faculty" class="login-type-btn bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm">Faculty</button>
+                        <button type="button" onclick="setLoginType('dean')" id="btn-dean" class="login-type-btn bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm">Dean</button>
+                    </div>
+                </div>
+
+                <!-- Login ID Field (changes based on type) -->
                 <div class="flex items-center">
-                    <label class="bg-teal-600 text-white py-2 px-4 rounded-l-lg text-sm font-medium w-32 text-center">
-                        Student ID Number
+                    <label id="login-label" class="bg-teal-600 text-white py-2 px-4 rounded-l-lg text-sm font-medium w-32 text-center">
+                        Student ID
                     </label>
                     <input 
                         type="text" 
-                        name="student_id" 
-                        value="{{ old('student_id') }}"
+                        name="login_id" 
+                        id="login-input"
+                        value="{{ old('login_id') }}"
                         placeholder="01-2345-678"
-                        class="flex-1 py-2 px-3 border border-l-0 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-uc-blue focus:border-transparent @error('student_id') border-red-500 @enderror"
+                        class="flex-1 py-2 px-3 border border-l-0 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-uc-blue focus:border-transparent @error('login_id') border-red-500 @enderror"
                         required
                     >
                 </div>
+
+                <!-- Hidden field to track login type -->
+                <input type="hidden" name="login_type" id="login-type" value="student">
 
                 <!-- Password Field -->
                 <div class="flex items-center">
@@ -133,5 +147,42 @@
             <i class="fas fa-university text-lg"></i>
         </div>
     </div>
+
+    <script>
+        function setLoginType(type) {
+            // Update hidden field
+            document.getElementById('login-type').value = type;
+            
+            // Update button styles
+            document.querySelectorAll('.login-type-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white');
+                btn.classList.add('bg-gray-300', 'text-gray-700');
+            });
+            
+            document.getElementById('btn-' + type).classList.remove('bg-gray-300', 'text-gray-700');
+            document.getElementById('btn-' + type).classList.add('bg-blue-500', 'text-white');
+            
+            // Update label and placeholder
+            const label = document.getElementById('login-label');
+            const input = document.getElementById('login-input');
+            
+            switch(type) {
+                case 'student':
+                    label.textContent = 'Student ID';
+                    input.placeholder = '01-2345-678';
+                    break;
+                case 'faculty':
+                    label.textContent = 'Email';
+                    input.placeholder = 'faculty@uc.edu.ph';
+                    input.type = 'email';
+                    break;
+                case 'dean':
+                    label.textContent = 'Email';
+                    input.placeholder = 'dean@uc.edu.ph';
+                    input.type = 'email';
+                    break;
+            }
+        }
+    </script>
 </body>
 </html>

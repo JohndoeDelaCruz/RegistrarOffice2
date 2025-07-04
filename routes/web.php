@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\DeanController;
-use App\Http\Controllers\Auth\StudentLoginController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Models\User;
 
 Route::get('/', function () {
@@ -21,9 +21,9 @@ Route::get('/dean', function () {
     return redirect('/dean/dashboard');
 });
 
-// Student Login
-Route::post('/student-login', [StudentLoginController::class, 'login'])->name('student.login');
-Route::post('/logout', [StudentLoginController::class, 'logout'])->name('logout');
+// Login Routes
+Route::post('/student-login', [LoginController::class, 'login'])->name('login');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Student Dashboard Routes
 Route::prefix('student')->name('student.')->group(function () {

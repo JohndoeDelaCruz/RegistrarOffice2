@@ -4,18 +4,6 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header Card -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Dean Profile</h1>
-                <p class="text-gray-600 mt-2">Manage your personal information and account settings</p>
-            </div>
-            <div class="bg-gradient-to-br from-dean-purple to-purple-700 p-4 rounded-full">
-                <i class="fas fa-user text-white text-2xl"></i>
-            </div>
-        </div>
-    </div>
 
     <!-- Profile Form -->
     <div class="bg-white rounded-lg shadow-md p-6">

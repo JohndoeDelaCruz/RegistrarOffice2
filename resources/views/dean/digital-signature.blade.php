@@ -4,18 +4,6 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header Card -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Digital Signature Management</h1>
-                <p class="text-gray-600 mt-2">Manage and approve digital signatures for official documents</p>
-            </div>
-            <div class="bg-gradient-to-br from-purple-500 to-purple-700 p-4 rounded-full">
-                <i class="fas fa-signature text-white text-2xl"></i>
-            </div>
-        </div>
-    </div>
 
     <!-- Signature Actions -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

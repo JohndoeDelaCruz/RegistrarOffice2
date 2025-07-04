@@ -4,18 +4,7 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Welcome Card -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Welcome to Dean Dashboard</h1>
-                <p class="text-gray-600 mt-2">Administrative overview and management system</p>
-            </div>
-            <div class="bg-gradient-to-br from-dean-purple to-purple-600 p-4 rounded-full">
-                <i class="fas fa-university text-white text-2xl"></i>
-            </div>
-        </div>
-    </div>
+    
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

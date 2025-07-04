@@ -24,6 +24,13 @@ class User extends Authenticatable
         'track',
         'student_id',
         'course',
+        'phone',
+        'date_of_birth',
+        'gender',
+        'address',
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'emergency_contact_relationship',
     ];
 
     /**

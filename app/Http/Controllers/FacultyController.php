@@ -3,53 +3,44 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Models\Faculty;
 
-class StudentController extends Controller
+class FacultyController extends Controller
 {
-    private function getLoggedInStudent()
+    private function getLoggedInFaculty()
     {
-        $studentId = session('student_id');
-        if ($studentId) {
-            return User::find($studentId);
-        }
-        // Fallback for demo purposes
-        return User::whereNotNull('track')->first();
+        // For demo purposes, get the first faculty user
+        // In a real system, this would get from session/auth
+        return Faculty::first();
     }
 
     public function dashboard()
     {
-        $student = $this->getLoggedInStudent();
-        return view('student.dashboard', compact('student'));
+        $faculty = $this->getLoggedInFaculty();
+        return view('faculty.dashboard', compact('faculty'));
+    }
+
+    public function studentsChecklist()
+    {
+        $faculty = $this->getLoggedInFaculty();
+        return view('faculty.students-checklist', compact('faculty'));
     }
 
     public function announcement()
     {
-        $student = $this->getLoggedInStudent();
-        return view('student.announcement', compact('student'));
-    }
-
-    public function gradeCompletion()
-    {
-        $student = $this->getLoggedInStudent();
-        return view('student.grade-completion', compact('student'));
+        $faculty = $this->getLoggedInFaculty();
+        return view('faculty.announcement', compact('faculty'));
     }
 
     public function profile()
     {
-        $student = $this->getLoggedInStudent();
-        return view('student.profile', compact('student'));
-    }
-
-    public function checklist()
-    {
-        $student = $this->getLoggedInStudent();
-        return view('student.checklist', compact('student'));
+        $faculty = $this->getLoggedInFaculty();
+        return view('faculty.profile', compact('faculty'));
     }
 
     public function updateProfile(Request $request)
     {
-        $student = $this->getLoggedInStudent();
+        $faculty = $this->getLoggedInFaculty();
         
         $request->validate([
             'name' => 'required|string|max:255',
@@ -58,23 +49,29 @@ class StudentController extends Controller
             'date_of_birth' => 'nullable|date',
             'gender' => 'nullable|in:Male,Female,Other',
             'address' => 'nullable|string|max:500',
+            'office_location' => 'nullable|string|max:255',
+            'specialization' => 'nullable|string|max:255',
+            'education_level' => 'nullable|string|max:255',
             'emergency_contact_name' => 'nullable|string|max:255',
             'emergency_contact_phone' => 'nullable|string|max:20',
             'emergency_contact_relationship' => 'nullable|string|max:100',
         ]);
 
-        $student->update([
+        $faculty->update([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'date_of_birth' => $request->date_of_birth,
             'gender' => $request->gender,
             'address' => $request->address,
+            'office_location' => $request->office_location,
+            'specialization' => $request->specialization,
+            'education_level' => $request->education_level,
             'emergency_contact_name' => $request->emergency_contact_name,
             'emergency_contact_phone' => $request->emergency_contact_phone,
             'emergency_contact_relationship' => $request->emergency_contact_relationship,
         ]);
 
-        return redirect()->route('student.profile')->with('success', 'Profile updated successfully!');
+        return redirect()->route('faculty.profile')->with('success', 'Profile updated successfully!');
     }
 }

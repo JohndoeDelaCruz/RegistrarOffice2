@@ -92,7 +92,7 @@
                         type="text" 
                         name="student_id" 
                         value="{{ old('student_id') }}"
-                        placeholder="22-2014-166"
+                        placeholder="01-2345-678"
                         class="flex-1 py-2 px-3 border border-l-0 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-uc-blue focus:border-transparent @error('student_id') border-red-500 @enderror"
                         required
                     >

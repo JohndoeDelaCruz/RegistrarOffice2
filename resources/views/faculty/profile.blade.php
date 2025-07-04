@@ -1,4 +1,4 @@
-@extends('layouts.student')
+@extends('layouts.faculty')
 
 @section('page-title', 'Profile')
 
@@ -25,12 +25,12 @@
     <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
         <div class="flex items-center space-x-4 mb-4">
             <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                <span class="text-2xl font-bold text-white">{{ substr($student->name, 0, 1) }}</span>
+                <span class="text-2xl font-bold text-white">{{ substr($faculty->name, 0, 1) }}</span>
             </div>
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">{{ $student->name }}</h1>
-                <p class="text-gray-600">{{ $student->course }} - {{ $student->track }}</p>
-                <p class="text-sm text-gray-500">Student ID: {{ $student->student_id }}</p>
+                <h1 class="text-2xl font-bold text-gray-800">{{ $faculty->name }}</h1>
+                <p class="text-gray-600">{{ $faculty->position }}, {{ $faculty->department }}</p>
+                <p class="text-sm text-gray-500">Faculty ID: {{ $faculty->faculty_id }}</p>
             </div>
         </div>
     </div>
@@ -44,7 +44,7 @@
             </button>
         </div>
 
-        <form id="profileForm" action="{{ route('student.profile.update') }}" method="POST">
+        <form id="profileForm" action="{{ route('faculty.profile.update') }}" method="POST">
             @csrf
             @method('PUT')
             
@@ -55,35 +55,35 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                        <input type="text" name="name" value="{{ $student->name }}" 
+                        <input type="text" name="name" value="{{ $faculty->name }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
                                disabled>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
-                        <input type="text" name="student_id" value="{{ $student->student_id }}" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Faculty ID</label>
+                        <input type="text" name="faculty_id" value="{{ $faculty->faculty_id }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" 
                                disabled readonly>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                        <input type="email" name="email" value="{{ $student->email }}" 
+                        <input type="email" name="email" value="{{ $faculty->email }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
                                disabled>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                        <input type="tel" name="phone" value="{{ $student->phone ?? '' }}" 
+                        <input type="tel" name="phone" value="{{ $faculty->phone ?? '' }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
                                disabled>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                        <input type="date" name="date_of_birth" value="{{ $student->date_of_birth ?? '' }}" 
+                        <input type="date" name="date_of_birth" value="{{ $faculty->date_of_birth ? $faculty->date_of_birth->format('Y-m-d') : '' }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
                                disabled>
                     </div>
@@ -92,57 +92,85 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
                         <select name="gender" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" disabled>
                             <option value="">Select Gender</option>
-                            <option value="Male" {{ ($student->gender ?? '') == 'Male' ? 'selected' : '' }}>Male</option>
-                            <option value="Female" {{ ($student->gender ?? '') == 'Female' ? 'selected' : '' }}>Female</option>
-                            <option value="Other" {{ ($student->gender ?? '') == 'Other' ? 'selected' : '' }}>Other</option>
+                            <option value="Male" {{ ($faculty->gender ?? '') == 'Male' ? 'selected' : '' }}>Male</option>
+                            <option value="Female" {{ ($faculty->gender ?? '') == 'Female' ? 'selected' : '' }}>Female</option>
+                            <option value="Other" {{ ($faculty->gender ?? '') == 'Other' ? 'selected' : '' }}>Other</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Academic & Contact Information -->
+                <!-- Professional & Contact Information -->
                 <div class="space-y-4">
-                    <h3 class="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">Academic & Contact Information</h3>
+                    <h3 class="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">Professional & Contact Information</h3>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Course</label>
-                        <input type="text" name="course" value="{{ $student->course }}" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                        <input type="text" name="department" value="{{ $faculty->department }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" 
                                disabled readonly>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Track</label>
-                        <input type="text" name="track" value="{{ $student->track }}" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                        <input type="text" name="position" value="{{ $faculty->position }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" 
                                disabled readonly>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Office Location</label>
+                        <input type="text" name="office_location" value="{{ $faculty->office_location ?? '' }}" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
+                               disabled>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+                        <input type="text" name="specialization" value="{{ $faculty->specialization ?? '' }}" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
+                               disabled>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Education Level</label>
+                        <input type="text" name="education_level" value="{{ $faculty->education_level ?? '' }}" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
+                               placeholder="e.g., PhD in Computer Science"
+                               disabled>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
                         <textarea name="address" rows="3" 
                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
-                                  disabled>{{ $student->address ?? '' }}</textarea>
+                                  disabled>{{ $faculty->address ?? '' }}</textarea>
                     </div>
+                </div>
+            </div>
 
+            <!-- Emergency Contact Information -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2 mb-4">Emergency Contact Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Name</label>
-                        <input type="text" name="emergency_contact_name" value="{{ $student->emergency_contact_name ?? '' }}" 
+                        <input type="text" name="emergency_contact_name" value="{{ $faculty->emergency_contact_name ?? '' }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
                                disabled>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Phone</label>
-                        <input type="tel" name="emergency_contact_phone" value="{{ $student->emergency_contact_phone ?? '' }}" 
+                        <input type="tel" name="emergency_contact_phone" value="{{ $faculty->emergency_contact_phone ?? '' }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
                                disabled>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Relationship</label>
-                        <input type="text" name="emergency_contact_relationship" value="{{ $student->emergency_contact_relationship ?? '' }}" 
+                        <input type="text" name="emergency_contact_relationship" value="{{ $faculty->emergency_contact_relationship ?? '' }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed" 
-                               placeholder="e.g., Parent, Guardian, Sibling"
+                               placeholder="e.g., Spouse, Parent, Sibling"
                                disabled>
                     </div>
                 </div>

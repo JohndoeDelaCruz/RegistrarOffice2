@@ -111,15 +111,3 @@
         </div>
     </div>
 
-    <!-- Empty Content Notice -->
-    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <div class="flex items-center">
-            <i class="fas fa-info-circle text-yellow-600 text-xl mr-3"></i>
-            <div>
-                <h3 class="text-lg font-semibold text-yellow-800">Announcement System</h3>
-                <p class="text-yellow-700 mt-1">This is an empty announcement management template. Functionality for creating, editing, and managing announcements will be implemented in future updates.</p>
-            </div>
-        </div>
-    </div>
-</div>
-@endsection

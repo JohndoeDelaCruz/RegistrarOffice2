@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\FacultyController;
+use App\Http\Controllers\DeanController;
 use App\Http\Controllers\Auth\StudentLoginController;
 use App\Models\User;
 
@@ -13,6 +14,11 @@ Route::get('/', function () {
 // Direct access to faculty dashboard for testing
 Route::get('/faculty', function () {
     return redirect('/faculty/dashboard');
+});
+
+// Direct access to dean dashboard for testing
+Route::get('/dean', function () {
+    return redirect('/dean/dashboard');
 });
 
 // Student Login
@@ -36,6 +42,14 @@ Route::prefix('faculty')->name('faculty.')->group(function () {
     Route::get('/announcement', [FacultyController::class, 'announcement'])->name('announcement');
     Route::get('/profile', [FacultyController::class, 'profile'])->name('profile');
     Route::put('/profile', [FacultyController::class, 'updateProfile'])->name('profile.update');
+});
+
+// Dean Dashboard Routes
+Route::prefix('dean')->name('dean.')->group(function () {
+    Route::get('/dashboard', [DeanController::class, 'dashboard'])->name('dashboard');
+    Route::get('/digital-signature', [DeanController::class, 'digitalSignature'])->name('digital-signature');
+    Route::get('/announcement', [DeanController::class, 'announcement'])->name('announcement');
+    Route::get('/profile', [DeanController::class, 'profile'])->name('profile');
 });
 
 // Routes to switch between students for testing

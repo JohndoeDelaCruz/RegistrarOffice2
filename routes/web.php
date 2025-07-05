@@ -33,6 +33,7 @@ Route::prefix('student')->name('student.')->group(function () {
     Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
     Route::put('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
     Route::get('/checklist', [StudentController::class, 'checklist'])->name('checklist');
+    Route::post('/grade-completion/apply', [StudentController::class, 'applyForGradeCompletion'])->name('grade-completion.apply');
 });
 
 // Faculty Dashboard Routes
@@ -45,6 +46,11 @@ Route::prefix('faculty')->name('faculty.')->group(function () {
     Route::get('/announcement', [FacultyController::class, 'announcement'])->name('announcement');
     Route::get('/profile', [FacultyController::class, 'profile'])->name('profile');
     Route::put('/profile', [FacultyController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/grade-completion-applications', [FacultyController::class, 'gradeCompletionApplications'])->name('grade-completion-applications');
+    Route::post('/grade-completion-applications/{application}/process', [FacultyController::class, 'processGradeApplication'])->name('grade-completion-applications.process');
+    Route::get('/grade-completion-applications/{application}/details', [FacultyController::class, 'getGradeApplicationDetails'])->name('grade-completion-applications.details');
+    Route::get('/grade-completion-applications/{application}/document', [FacultyController::class, 'viewApplicationDocument'])->name('grade-completion-applications.document');
+    Route::get('/grade-completion-applications/{application}/signed-document', [FacultyController::class, 'generateSignedDocument'])->name('grade-completion-applications.signed-document');
 });
 
 // Dean Dashboard Routes
@@ -53,6 +59,13 @@ Route::prefix('dean')->name('dean.')->group(function () {
     Route::get('/digital-signature', [DeanController::class, 'digitalSignature'])->name('digital-signature');
     Route::get('/announcement', [DeanController::class, 'announcement'])->name('announcement');
     Route::get('/profile', [DeanController::class, 'profile'])->name('profile');
+    Route::get('/grade-completion-applications', [DeanController::class, 'gradeCompletionApplications'])->name('grade-completion-applications');
+    Route::get('/approved-applications', [DeanController::class, 'approvedApplications'])->name('approved-applications');
+    Route::post('/grade-completion-applications/{application}/review', [DeanController::class, 'reviewApplication'])->name('grade-completion-applications.review');
+    Route::get('/grade-completion-applications/{application}/details', [DeanController::class, 'getApplicationDetails'])->name('grade-completion-applications.details');
+    Route::get('/grade-completion-applications/{application}/document', [DeanController::class, 'viewDocument'])->name('grade-completion-applications.document');
+    Route::get('/grade-completion-applications/{application}/signature', [DeanController::class, 'viewSignature'])->name('grade-completion-applications.signature');
+    Route::get('/grade-completion-applications/{application}/signed-document', [DeanController::class, 'generateSignedDocument']);
 });
 
 // Routes to switch between students for testing

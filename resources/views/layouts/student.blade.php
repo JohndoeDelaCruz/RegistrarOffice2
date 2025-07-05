@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Student Dashboard - Registrar Office</title>
     
     <!-- Fonts -->
@@ -66,7 +67,7 @@
             <i class="fas fa-university text-lg"></i>
             <span class="font-semibold text-lg">UC Registrar</span>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 relative">
             <span class="text-sm font-medium hidden sm:block">
                 @isset($student)
                     {{ $student->name }}
@@ -81,7 +82,27 @@
                     Student
                 @endisset
             </span>
-            <i class="fas fa-chevron-down cursor-pointer"></i>
+            <button onclick="toggleUserDropdown()" class="p-1 rounded hover:bg-white/10 transition-colors">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            
+            <!-- User Dropdown Menu -->
+            <div id="userDropdown" class="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 hidden z-50">
+                <div class="py-1">
+                    <a href="{{ route('student.profile') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <i class="fas fa-user mr-3 w-4 h-4"></i>
+                        Profile
+                    </a>
+                    <div class="border-t border-gray-100"></div>
+                    <form action="{{ route('logout') }}" method="POST" class="block">
+                        @csrf
+                        <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
+                            <i class="fas fa-sign-out-alt mr-3 w-4 h-4"></i>
+                            Log Out
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -235,6 +256,22 @@
         window.addEventListener('resize', function() {
             if (window.innerWidth >= 1024) {
                 closeMobileMenu();
+            }
+        });
+
+        // User dropdown functionality
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Close user dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const userButton = event.target.closest('[onclick="toggleUserDropdown()"]');
+            
+            if (!dropdown.contains(event.target) && !userButton && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
             }
         });
     </script>

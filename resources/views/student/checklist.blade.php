@@ -73,10 +73,21 @@
                                             <tr class="{{ $index % 2 == 1 ? 'bg-gray-50' : '' }}">
                                                 <td class="px-4 py-2 text-sm {{ $year == 3 && $trimester == 3 ? 'font-medium' : '' }}">{{ $subject->code }}</td>
                                                 <td class="px-4 py-2 text-sm">{{ $subject->description }}</td>
-                                                <td class="px-4 py-2 text-center text-sm">{{ $subject->units }}</td>
-                                                <td class="px-4 py-2 text-center text-sm text-gray-400">
-                                                    {{ $subject->grade_info->grade ?? '' }}
-                                                </td>
+                                                <td class="px-4 py-2 text-center text-sm">{{ $subject->units }}</td>                                <td class="px-4 py-2 text-center text-sm">
+                                    @if($subject->grade_info)
+                                        @if(in_array($subject->grade_info->grade, ['NFE', 'INC']))
+                                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium">
+                                                {{ $subject->grade_info->grade }}
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
+                                                {{ $subject->grade_info->grade }}
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span class="text-gray-400 text-xs">Not graded</span>
+                                    @endif
+                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>

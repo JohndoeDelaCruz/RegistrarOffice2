@@ -41,8 +41,8 @@ class FacultySeeder extends Seeder
             'password' => Hash::make('faculty123'),
             'role' => 'faculty',
             'course' => 'Computer Science',
-            'track' => null, // Faculty doesn't need a track
-            'student_id' => 'FAC-2020-001', // Using faculty_id as identifier
+            'track' => null,
+            'student_id' => 'FAC-2020-001',
             'phone' => '+63 917 123 4567',
             'date_of_birth' => '1980-05-15',
             'gender' => 'Female',

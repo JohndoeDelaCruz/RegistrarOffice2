@@ -29,6 +29,14 @@ class Subject extends Model
     }
 
     /**
+     * Get grades for this subject (alias for studentGrades)
+     */
+    public function grades()
+    {
+        return $this->hasMany(StudentGrade::class, 'subject_id');
+    }
+
+    /**
      * Get the grade for a specific student
      */
     public function gradeForStudent($studentId)

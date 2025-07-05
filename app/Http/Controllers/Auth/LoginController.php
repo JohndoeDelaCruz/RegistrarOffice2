@@ -26,9 +26,12 @@ class LoginController extends Controller
                        ->where('role', 'student')
                        ->first();
         } else {
-            // For faculty and dean, use email
-            $user = User::where('email', $request->login_id)
-                       ->where('role', $loginType)
+            // For faculty and dean, check both email and student_id (which contains their ID number)
+            $user = User::where('role', $loginType)
+                       ->where(function($query) use ($request) {
+                           $query->where('email', $request->login_id)
+                                 ->orWhere('student_id', $request->login_id);
+                       })
                        ->first();
         }
 

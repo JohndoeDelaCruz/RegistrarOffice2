@@ -170,16 +170,17 @@
                 case 'student':
                     label.textContent = 'Student ID';
                     input.placeholder = '01-2345-678';
+                    input.type = 'text';
                     break;
                 case 'faculty':
-                    label.textContent = 'Email';
-                    input.placeholder = 'faculty@uc.edu.ph';
-                    input.type = 'email';
+                    label.textContent = 'Email/ID';
+                    input.placeholder = 'faculty@uc.edu.ph or FAC-2020-001';
+                    input.type = 'text';
                     break;
                 case 'dean':
-                    label.textContent = 'Email';
-                    input.placeholder = 'dean@uc.edu.ph';
-                    input.type = 'email';
+                    label.textContent = 'Email/ID';
+                    input.placeholder = 'dean@uc.edu.ph or DEAN-2025-001';
+                    input.type = 'text';
                     break;
             }
         }

@@ -45,7 +45,26 @@ class StudentController extends Controller
     public function gradeCompletion()
     {
         $student = $this->getLoggedInStudent();
-        return view('student.grade-completion', compact('student'));
+        
+        // Get subjects with INC or NFE grades that need completion
+        $incompleteSubjects = \App\Models\Subject::whereHas('grades', function ($query) use ($student) {
+            $query->where('user_id', $student->id)
+                  ->whereIn('grade', ['INC', 'NFE']);
+        })->with(['grades' => function ($query) use ($student) {
+            $query->where('user_id', $student->id);
+        }])->get();
+
+        // Get existing applications for this student with their status
+        $existingApplications = \App\Models\GradeCompletionApplication::where('student_id', $student->id)
+            ->pluck('subject_id')
+            ->toArray();
+
+        // Get detailed application status for each subject
+        $applicationStatus = \App\Models\GradeCompletionApplication::where('student_id', $student->id)
+            ->get()
+            ->keyBy('subject_id');
+
+        return view('student.grade-completion', compact('student', 'incompleteSubjects', 'existingApplications', 'applicationStatus'));
     }
 
     public function profile()
@@ -99,5 +118,61 @@ class StudentController extends Controller
         ]);
 
         return redirect()->route('student.profile')->with('success', 'Profile updated successfully!');
+    }
+    
+    public function applyForGradeCompletion(Request $request)
+    {
+        $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
+            'reason' => 'required|string|min:20|max:500',
+            'supporting_document' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120' // 5MB max
+        ]);
+
+        $student = $this->getLoggedInStudent();
+        
+        // Check if student has INC or NFE grade for this subject
+        $grade = StudentGrade::where('user_id', $student->id)
+                           ->where('subject_id', $request->subject_id)
+                           ->whereIn('grade', ['INC', 'NFE'])
+                           ->first();
+        
+        if (!$grade) {
+            // Debug: Let's check what grades exist for this student and subject
+            $existingGrade = StudentGrade::where('user_id', $student->id)
+                                       ->where('subject_id', $request->subject_id)
+                                       ->first();
+            
+            if ($existingGrade) {
+                return response()->json(['success' => false, 'message' => 'You can only apply for completion if you have INC or NFE grade. Your current grade is: ' . $existingGrade->grade]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'No grade found for this subject.']);
+            }
+        }
+
+        // Check if there's already a pending application
+        $existingApplication = \App\Models\GradeCompletionApplication::where('student_id', $student->id)
+                                                                   ->where('subject_id', $request->subject_id)
+                                                                   ->where('status', 'pending')
+                                                                   ->first();
+        
+        if ($existingApplication) {
+            return response()->json(['success' => false, 'message' => 'You already have a pending application for this subject.']);
+        }
+
+        $documentPath = null;
+        if ($request->hasFile('supporting_document')) {
+            $documentPath = $request->file('supporting_document')->store('grade_completion_documents', 'public');
+        }
+
+        \App\Models\GradeCompletionApplication::create([
+            'student_id' => $student->id,
+            'subject_id' => $request->subject_id,
+            'current_grade' => $grade->grade,
+            'reason' => $request->reason,
+            'supporting_document' => $documentPath,
+            'status' => 'pending'
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Your grade completion application has been submitted successfully!']);
     }
 }

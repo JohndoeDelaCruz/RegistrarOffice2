@@ -3,15 +3,28 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Faculty;
+use App\Models\User;
 
 class FacultyController extends Controller
 {
     private function getLoggedInFaculty()
     {
-        // For demo purposes, get the first faculty user
-        // In a real system, this would get from session/auth
-        return Faculty::first();
+        // First try to get from Laravel's built-in auth
+        if (auth()->check() && auth()->user()->role === 'faculty') {
+            return auth()->user();
+        }
+        
+        // Then try to get from session
+        $userId = session('user_id');
+        if ($userId) {
+            $user = User::find($userId);
+            if ($user && $user->role === 'faculty') {
+                return $user;
+            }
+        }
+        
+        // Fallback for demo purposes - this should ideally redirect to login
+        return User::where('role', 'faculty')->first();
     }
 
     public function dashboard()
@@ -23,7 +36,32 @@ class FacultyController extends Controller
     public function studentsChecklist()
     {
         $faculty = $this->getLoggedInFaculty();
-        return view('faculty.students-checklist', compact('faculty'));
+        
+        // Get all students with their basic information
+        $students = User::where('role', 'student')
+                       ->orderBy('name')
+                       ->get(['id', 'name', 'student_id', 'course', 'track', 'email']);
+        
+        return view('faculty.students-checklist', compact('faculty', 'students'));
+    }
+
+    public function studentChecklistDetail($studentId)
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        // Get the specific student
+        $student = User::where('role', 'student')->findOrFail($studentId);
+        
+        // Get subjects grouped by year and trimester for the student's course and track
+        $subjectsByYear = $student->getSubjectsByYearAndTrimester();
+        
+        // Get current academic year
+        $currentAcademicYear = \App\Models\AcademicYear::getCurrentYear();
+        
+        // Calculate total units
+        $totalUnits = $student->getAvailableSubjects()->sum('units');
+        
+        return view('faculty.student-checklist-detail', compact('faculty', 'student', 'subjectsByYear', 'currentAcademicYear', 'totalUnits'));
     }
 
     public function announcement()

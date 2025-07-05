@@ -4,17 +4,30 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Subject;
+use App\Models\StudentGrade;
+use App\Models\AcademicYear;
 
 class StudentController extends Controller
 {
     private function getLoggedInStudent()
     {
-        $studentId = session('student_id');
-        if ($studentId) {
-            return User::find($studentId);
+        // First try to get from Laravel's built-in auth
+        if (auth()->check() && auth()->user()->role === 'student') {
+            return auth()->user();
         }
-        // Fallback for demo purposes
-        return User::whereNotNull('track')->first();
+        
+        // Then try to get from session
+        $userId = session('user_id');
+        if ($userId) {
+            $user = User::find($userId);
+            if ($user && $user->role === 'student') {
+                return $user;
+            }
+        }
+        
+        // Fallback for demo purposes - this should ideally redirect to login
+        return User::where('role', 'student')->whereNotNull('track')->first();
     }
 
     public function dashboard()
@@ -44,7 +57,17 @@ class StudentController extends Controller
     public function checklist()
     {
         $student = $this->getLoggedInStudent();
-        return view('student.checklist', compact('student'));
+        
+        // Get subjects grouped by year and trimester for the student's course and track
+        $subjectsByYear = $student->getSubjectsByYearAndTrimester();
+        
+        // Get current academic year
+        $currentAcademicYear = \App\Models\AcademicYear::getCurrentYear();
+        
+        // Calculate total units
+        $totalUnits = $student->getAvailableSubjects()->sum('units');
+        
+        return view('student.checklist', compact('student', 'subjectsByYear', 'currentAcademicYear', 'totalUnits'));
     }
 
     public function updateProfile(Request $request)

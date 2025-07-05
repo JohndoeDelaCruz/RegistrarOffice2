@@ -29,5 +29,11 @@ class DatabaseSeeder extends Seeder
         
         // Seed dean user
         $this->call(DeanUserSeeder::class);
+        
+        // Seed academic years
+        $this->call(AcademicYearSeeder::class);
+        
+        // Seed subjects
+        $this->call(SubjectSeeder::class);
     }
 }

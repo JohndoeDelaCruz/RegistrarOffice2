@@ -33,7 +33,10 @@ class LoginController extends Controller
         }
 
         if ($user && Hash::check($request->password, $user->password)) {
-            // Store the logged-in user ID and role in session
+            // Use Laravel's built-in authentication
+            auth()->login($user);
+            
+            // Also store in session for backward compatibility
             session([
                 'user_id' => $user->id,
                 'user_role' => $user->role
@@ -62,6 +65,9 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        // Logout from Laravel's built-in auth
+        auth()->logout();
+        
         // Clear all user session data
         session()->forget(['user_id', 'user_role', 'student_id']);
         session()->flush();

@@ -96,4 +96,67 @@ class User extends Authenticatable
     {
         return $this->hasRole('admin');
     }
+
+    /**
+     * Get student grades
+     */
+    public function studentGrades()
+    {
+        return $this->hasMany(StudentGrade::class);
+    }
+
+    /**
+     * Get subjects available for this student based on course and track
+     */
+    public function getAvailableSubjects()
+    {
+        return Subject::byCourse($this->course)
+                     ->byTrack($this->track)
+                     ->orderBy('year_level')
+                     ->orderBy('trimester')
+                     ->orderBy('sort_order')
+                     ->get();
+    }
+
+    /**
+     * Get subjects grouped by year and trimester
+     */
+    public function getSubjectsByYearAndTrimester()
+    {
+        $subjects = $this->getAvailableSubjects();
+        $grouped = [];
+
+        foreach ($subjects as $subject) {
+            $year = $subject->year_level;
+            $trimester = $subject->trimester;
+            
+            if (!isset($grouped[$year])) {
+                $grouped[$year] = [];
+            }
+            if (!isset($grouped[$year][$trimester])) {
+                $grouped[$year][$trimester] = [];
+            }
+            
+            // Get grade for this subject if exists
+            $grade = $subject->gradeForStudent($this->id);
+            $subject->grade_info = $grade;
+            
+            $grouped[$year][$trimester][] = $subject;
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * Get current year level and trimester
+     */
+    public function getCurrentYearAndTrimester()
+    {
+        // This is a simple implementation - you might want to make this more sophisticated
+        // For now, let's assume 3rd year, 3rd trimester as shown in the original view
+        return [
+            'year' => 3,
+            'trimester' => 3
+        ];
+    }
 }

@@ -40,6 +40,8 @@ Route::prefix('faculty')->name('faculty.')->group(function () {
     Route::get('/dashboard', [FacultyController::class, 'dashboard'])->name('dashboard');
     Route::get('/students-checklist', [FacultyController::class, 'studentsChecklist'])->name('students-checklist');
     Route::get('/student/{student}/checklist', [FacultyController::class, 'studentChecklistDetail'])->name('student-checklist-detail');
+    Route::post('/student/{student}/subject/{subject}/grade', [FacultyController::class, 'updateGrade'])->name('student.update-grade');
+    Route::delete('/student/{student}/subject/{subject}/grade', [FacultyController::class, 'removeGrade'])->name('student.remove-grade');
     Route::get('/announcement', [FacultyController::class, 'announcement'])->name('announcement');
     Route::get('/profile', [FacultyController::class, 'profile'])->name('profile');
     Route::put('/profile', [FacultyController::class, 'updateProfile'])->name('profile.update');

@@ -112,4 +112,90 @@ class FacultyController extends Controller
 
         return redirect()->route('faculty.profile')->with('success', 'Profile updated successfully!');
     }
+
+    public function updateGrade(Request $request, $studentId, $subjectId)
+    {
+        try {
+            $faculty = $this->getLoggedInFaculty();
+            
+            // Validate the request
+            $request->validate([
+                'grade' => 'required|string|max:10'
+            ]);
+            
+            // Get the student and subject
+            $student = User::where('role', 'student')->findOrFail($studentId);
+            $subject = \App\Models\Subject::findOrFail($subjectId);
+            
+            // Get current academic year
+            $currentAcademicYear = \App\Models\AcademicYear::getCurrentYear();
+            $academicYearString = $currentAcademicYear ? $currentAcademicYear->year : '2024-2025';
+            
+            // Check if grade already exists
+            $existingGrade = \App\Models\StudentGrade::where('user_id', $studentId)
+                                                   ->where('subject_id', $subjectId)
+                                                   ->first();
+            
+            if ($existingGrade) {
+                // Update existing grade
+                $existingGrade->update([
+                    'grade' => $request->grade,
+                    'is_completed' => true,
+                    'completed_at' => now()
+                ]);
+            } else {
+                // Create new grade
+                \App\Models\StudentGrade::create([
+                    'user_id' => $studentId,
+                    'subject_id' => $subjectId,
+                    'grade' => $request->grade,
+                    'academic_year' => $academicYearString,
+                    'is_completed' => true,
+                    'completed_at' => now()
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Grade updated successfully'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating grade: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function removeGrade(Request $request, $studentId, $subjectId)
+    {
+        try {
+            $faculty = $this->getLoggedInFaculty();
+            
+            // Find and delete the grade
+            $grade = \App\Models\StudentGrade::where('user_id', $studentId)
+                                            ->where('subject_id', $subjectId)
+                                            ->first();
+            
+            if ($grade) {
+                $grade->delete();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Grade removed successfully'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Grade not found'
+                ], 404);
+            }
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error removing grade: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

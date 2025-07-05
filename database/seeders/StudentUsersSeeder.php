@@ -25,15 +25,15 @@ class StudentUsersSeeder extends Seeder
             'student_id' => '22-2014-166',
         ]);
 
-        // Create BSIT - Network Security Track student
+        // Create BSIT - Cybersecurity Track student
         User::create([
-            'name' => 'Jane Smith',
+            'name' => 'Jane Doe',
             'email' => 'jane.netsec@student.uc.edu.ph',
             'password' => Hash::make('password'),
             'role' => 'student',
             'course' => 'BSIT',
-            'track' => 'Network Security Track',
-            'student_id' => '22-2014-167',
+            'track' => 'Cybersecurity Track',
+            'student_id' => '22-2015-167',
         ]);
     }
 }

@@ -75,7 +75,7 @@
                                                 <td class="px-4 py-2 text-sm">{{ $subject->description }}</td>
                                                 <td class="px-4 py-2 text-center text-sm">{{ $subject->units }}</td>
                                                 <td class="px-4 py-2 text-center text-sm text-gray-400">
-                                                    {{ $subject->grade_info->grade ?? '-' }}
+                                                    {{ $subject->grade_info->grade ?? '' }}
                                                 </td>
                                             </tr>
                                         @endforeach

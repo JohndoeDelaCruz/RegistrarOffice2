@@ -23,6 +23,7 @@ class GradeCompletionApplication extends Model
         'dean_signature',
         'dean_signature_type',
         'dean_signature_date',
+        'completion_deadline',
         'faculty_status',
         'final_grade',
         'faculty_processed_at',
@@ -36,6 +37,7 @@ class GradeCompletionApplication extends Model
         'reviewed_at' => 'datetime',
         'dean_reviewed_at' => 'datetime',
         'dean_signature_date' => 'datetime',
+        'completion_deadline' => 'datetime',
         'faculty_processed_at' => 'datetime'
     ];
 
@@ -94,5 +96,44 @@ class GradeCompletionApplication extends Model
     public function scopeDeanRejected($query)
     {
         return $query->where('dean_status', 'rejected');
+    }
+
+    // Deadline utility methods
+    public function isDeadlinePassed()
+    {
+        return $this->completion_deadline && now()->isAfter($this->completion_deadline);
+    }
+
+    public function isDeadlineApproaching($days = 30)
+    {
+        return $this->completion_deadline && 
+               now()->addDays($days)->isAfter($this->completion_deadline) &&
+               !$this->isDeadlinePassed();
+    }
+
+    public function getDaysUntilDeadline()
+    {
+        if (!$this->completion_deadline) {
+            return null;
+        }
+        
+        return now()->diffInDays($this->completion_deadline, false);
+    }
+
+    public function getDeadlineStatusAttribute()
+    {
+        if (!$this->completion_deadline) {
+            return 'no_deadline';
+        }
+
+        $daysUntil = $this->getDaysUntilDeadline();
+        
+        if ($daysUntil < 0) {
+            return 'overdue';
+        } elseif ($daysUntil <= 30) {
+            return 'approaching';
+        } else {
+            return 'active';
+        }
     }
 }

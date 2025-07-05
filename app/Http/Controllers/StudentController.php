@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Subject;
 use App\Models\StudentGrade;
 use App\Models\AcademicYear;
+use App\Models\GradeCompletionApplication;
 
 class StudentController extends Controller
 {
@@ -33,7 +34,33 @@ class StudentController extends Controller
     public function dashboard()
     {
         $student = $this->getLoggedInStudent();
-        return view('student.dashboard', compact('student'));
+        
+        // Get student's grade completion applications with deadline information
+        $applications = GradeCompletionApplication::where('student_id', $student->id)
+            ->with(['subject'])
+            ->whereNotNull('completion_deadline')
+            ->orderBy('completion_deadline', 'asc')
+            ->get();
+            
+        $overdueCount = $applications->filter(function($app) {
+            return $app->isDeadlinePassed();
+        })->count();
+        
+        $approachingDeadlineCount = $applications->filter(function($app) {
+            return $app->isDeadlineApproaching(30);
+        })->count();
+        
+        $activeCount = $applications->filter(function($app) {
+            return $app->deadline_status === 'active';
+        })->count();
+        
+        return view('student.dashboard', compact(
+            'student', 
+            'applications',
+            'overdueCount',
+            'approachingDeadlineCount', 
+            'activeCount'
+        ));
     }
 
     public function announcement()

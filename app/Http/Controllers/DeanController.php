@@ -22,7 +22,32 @@ class DeanController extends Controller
         $studentsCount = User::where('role', 'student')->count();
         $facultyCount = User::where('role', 'faculty')->count();
         
-        return view('dean.dashboard', compact('dean', 'pendingApplicationsCount', 'studentsCount', 'facultyCount'));
+        // Get deadline statistics for approved applications
+        $approvedApplications = GradeCompletionApplication::where('dean_status', 'approved')
+            ->whereNotNull('completion_deadline')
+            ->get();
+            
+        $overdueCount = $approvedApplications->filter(function($app) {
+            return $app->isDeadlinePassed();
+        })->count();
+        
+        $approachingDeadlineCount = $approvedApplications->filter(function($app) {
+            return $app->isDeadlineApproaching(30);
+        })->count();
+        
+        $activeCount = $approvedApplications->filter(function($app) {
+            return $app->deadline_status === 'active';
+        })->count();
+        
+        return view('dean.dashboard', compact(
+            'dean', 
+            'pendingApplicationsCount', 
+            'studentsCount', 
+            'facultyCount',
+            'overdueCount',
+            'approachingDeadlineCount',
+            'activeCount'
+        ));
     }
 
     public function announcement()
@@ -88,15 +113,20 @@ class DeanController extends Controller
                 'dean_reviewed_by' => $dean->id
             ];
 
-            // Handle signature upload for approved applications
-            if ($request->action === 'approve' && $request->hasFile('dean_signature_file')) {
-                $file = $request->file('dean_signature_file');
-                $fileName = 'dean_signature_' . $application->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-                $filePath = $file->storeAs('dean_signatures', $fileName, 'public');
+            // Handle signature upload and deadline for approved applications
+            if ($request->action === 'approve') {
+                // Set deadline to 3 months (1 term) from approval date
+                $updateData['completion_deadline'] = Carbon::now()->addMonths(3);
                 
-                $updateData['dean_signature'] = $filePath;
-                $updateData['dean_signature_type'] = 'uploaded_file';
-                $updateData['dean_signature_date'] = Carbon::now();
+                if ($request->hasFile('dean_signature_file')) {
+                    $file = $request->file('dean_signature_file');
+                    $fileName = 'dean_signature_' . $application->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filePath = $file->storeAs('dean_signatures', $fileName, 'public');
+                    
+                    $updateData['dean_signature'] = $filePath;
+                    $updateData['dean_signature_type'] = 'uploaded_file';
+                    $updateData['dean_signature_date'] = Carbon::now();
+                }
             }
 
             $application->update($updateData);

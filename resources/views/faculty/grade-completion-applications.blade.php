@@ -4,19 +4,7 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header Section -->
-    <div class="bg-white rounded-lg shadow-lg p-6">
-        <div class="flex justify-between items-start">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">Grade Completion Applications</h1>
-                <p class="text-gray-600">Review applications approved by the Dean</p>
-            </div>
-            <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
-                <span class="text-sm font-medium text-blue-800">{{ $applications->count() }} pending application(s)</span>
-            </div>
-        </div>
-    </div>
-
+    
     @if($applications->count() > 0)
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
             <div class="overflow-x-auto">
@@ -37,6 +25,9 @@
                             </th>
                             <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
                                 <i class="fas fa-calendar mr-2"></i>Dean Approved
+                            </th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                <i class="fas fa-hourglass-half mr-2"></i>Deadline
                             </th>
                             <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
                                 <i class="fas fa-signature mr-2"></i>Dean Signature
@@ -96,6 +87,26 @@
                                         <span class="font-medium">{{ $application->dean_reviewed_at->format('M j, Y') }}</span>
                                         <span class="text-xs text-gray-500">{{ $application->dean_reviewed_at->format('g:i A') }}</span>
                                     </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                    @if($application->completion_deadline)
+                                        <div class="flex flex-col items-center">
+                                            <span class="font-medium {{ $application->deadline_status === 'overdue' ? 'text-red-600' : ($application->deadline_status === 'approaching' ? 'text-yellow-600' : 'text-green-600') }}">
+                                                {{ $application->completion_deadline->format('M j, Y') }}
+                                            </span>
+                                            <span class="text-xs {{ $application->deadline_status === 'overdue' ? 'text-red-500' : ($application->deadline_status === 'approaching' ? 'text-yellow-500' : 'text-gray-500') }}">
+                                                @if($application->deadline_status === 'overdue')
+                                                    {{ abs($application->getDaysUntilDeadline()) }} days overdue
+                                                @elseif($application->deadline_status === 'approaching')
+                                                    {{ $application->getDaysUntilDeadline() }} days left
+                                                @else
+                                                    {{ $application->getDaysUntilDeadline() }} days left
+                                                @endif
+                                            </span>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-400">No deadline set</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="flex flex-col items-center space-y-1">

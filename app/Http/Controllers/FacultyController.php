@@ -41,7 +41,31 @@ class FacultyController extends Controller
         // Get total students count
         $studentsCount = User::where('role', 'student')->count();
         
-        return view('faculty.dashboard', compact('faculty', 'pendingGradeApplications', 'studentsCount'));
+        // Get deadline statistics for approved applications
+        $approvedApplications = GradeCompletionApplication::where('dean_status', 'approved')
+            ->whereNotNull('completion_deadline')
+            ->get();
+            
+        $overdueCount = $approvedApplications->filter(function($app) {
+            return $app->isDeadlinePassed();
+        })->count();
+        
+        $approachingDeadlineCount = $approvedApplications->filter(function($app) {
+            return $app->isDeadlineApproaching(30);
+        })->count();
+        
+        $activeCount = $approvedApplications->filter(function($app) {
+            return $app->deadline_status === 'active';
+        })->count();
+        
+        return view('faculty.dashboard', compact(
+            'faculty', 
+            'pendingGradeApplications', 
+            'studentsCount',
+            'overdueCount',
+            'approachingDeadlineCount',
+            'activeCount'
+        ));
     }
 
     public function studentsChecklist()

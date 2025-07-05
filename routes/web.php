@@ -56,7 +56,6 @@ Route::prefix('faculty')->name('faculty.')->group(function () {
 // Dean Dashboard Routes
 Route::prefix('dean')->name('dean.')->group(function () {
     Route::get('/dashboard', [DeanController::class, 'dashboard'])->name('dashboard');
-    Route::get('/digital-signature', [DeanController::class, 'digitalSignature'])->name('digital-signature');
     Route::get('/announcement', [DeanController::class, 'announcement'])->name('announcement');
     Route::get('/profile', [DeanController::class, 'profile'])->name('profile');
     Route::get('/grade-completion-applications', [DeanController::class, 'gradeCompletionApplications'])->name('grade-completion-applications');

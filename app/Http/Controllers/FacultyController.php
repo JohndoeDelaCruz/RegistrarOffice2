@@ -38,7 +38,10 @@ class FacultyController extends Controller
             ->whereNull('faculty_status')
             ->count();
         
-        return view('faculty.dashboard', compact('faculty', 'pendingGradeApplications'));
+        // Get total students count
+        $studentsCount = User::where('role', 'student')->count();
+        
+        return view('faculty.dashboard', compact('faculty', 'pendingGradeApplications', 'studentsCount'));
     }
 
     public function studentsChecklist()

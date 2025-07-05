@@ -213,93 +213,55 @@
                             ></textarea>
                         </div>
                         
-                        <!-- Digital Signature Section (shown only for approvals) -->
+                        <!-- Digital Signature Upload Section (shown only for approvals) -->
                         <div id="signatureSection" class="bg-blue-50 border border-blue-200 rounded-lg p-4 hidden">
                             <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
                                 <i class="fas fa-signature text-blue-600 mr-2"></i>
-                                Digital Signature Required
+                                Upload Digital Signature <span class="text-gray-500 text-sm font-normal">(Optional)</span>
                             </h4>
                             <p class="text-sm text-gray-600 mb-4">
-                                Your digital signature is required to approve this application. Choose one of the following options:
+                                You can upload your signature image to digitally sign this approval.
                             </p>
                             
                             <div class="space-y-4">
                                 <div>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="radio" name="signatureType" value="auto" checked class="form-radio text-blue-600">
-                                        <span class="text-sm font-medium text-gray-700">Use Auto-Generated Signature</span>
-                                    </label>
-                                    <div class="mt-2 ml-6 p-3 bg-white border border-gray-200 rounded-lg">
-                                        <pre id="autoSignaturePreview" class="text-xs text-gray-600 whitespace-pre-wrap font-mono"></pre>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="radio" name="signatureType" value="custom" class="form-radio text-blue-600">
-                                        <span class="text-sm font-medium text-gray-700">Provide Custom Text Signature</span>
-                                    </label>
-                                    <div class="mt-2 ml-6">
-                                        <textarea 
-                                            id="customSignature" 
-                                            rows="3" 
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
-                                            placeholder="Enter your custom digital signature..."
-                                            disabled
-                                        ></textarea>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="radio" name="signatureType" value="upload" class="form-radio text-blue-600">
-                                        <span class="text-sm font-medium text-gray-700">Upload Signature Image</span>
-                                    </label>
-                                    <div class="mt-2 ml-6">
-                                        <div class="flex items-center space-x-4">
-                                            <div class="flex-1">
-                                                <!-- Hidden file input -->
-                                                <input 
-                                                    type="file" 
-                                                    id="signatureFile" 
-                                                    accept="image/*,.pdf"
-                                                    class="hidden"
-                                                    disabled
-                                                >
-                                                <!-- Custom file upload button -->
-                                                <div class="flex items-center space-x-2">
-                                                    <button 
-                                                        type="button" 
-                                                        id="uploadSignatureBtn"
-                                                        onclick="triggerFileUpload()"
-                                                        class="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                                                        disabled
-                                                    >
-                                                        <i class="fas fa-upload mr-2"></i>
-                                                        Choose File
-                                                    </button>
-                                                    <span id="selectedFileName" class="text-sm text-gray-500">No file selected</span>
-                                                </div>
-                                            </div>
-                                            <button 
-                                                type="button" 
-                                                id="clearSignatureFile" 
-                                                onclick="clearSignatureFile()"
-                                                class="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50"
-                                                disabled
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-1">
+                                            <!-- Hidden file input -->
+                                            <input 
+                                                type="file" 
+                                                id="signatureFile" 
+                                                accept="image/*"
+                                                class="hidden"
                                             >
-                                                <i class="fas fa-times mr-1"></i>
-                                                Clear
-                                            </button>
+                                            <!-- Custom file upload button -->
+                                            <div class="flex items-center space-x-2">
+                                                <button 
+                                                    type="button" 
+                                                    id="uploadSignatureBtn"
+                                                    onclick="triggerFileUpload()"
+                                                    class="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 text-sm font-medium"
+                                                >
+                                                    <i class="fas fa-upload mr-2"></i>
+                                                    Choose Signature File
+                                                </button>
+                                                <span id="selectedFileName" class="text-sm text-gray-500">No file selected</span>
+                                            </div>
                                         </div>
-                                        <div id="signaturePreview" class="mt-2 hidden">
-                                            <img id="signaturePreviewImage" src="" alt="Signature Preview" class="max-w-xs max-h-24 border border-gray-300 rounded">
-                                        </div>
-                                        <p class="text-xs text-gray-500 mt-1">Supported formats: PNG, JPG, JPEG, PDF (Max size: 2MB)</p>
+                                        <button 
+                                            type="button" 
+                                            id="clearSignatureFile" 
+                                            onclick="clearSignatureFile()"
+                                            class="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hidden"
+                                        >
+                                            <i class="fas fa-times mr-1"></i>
+                                            Clear
+                                        </button>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+                                    <div id="signaturePreview" class="mt-2 hidden">
+                                        <img id="signaturePreviewImage" src="" alt="Signature Preview" class="max-w-xs max-h-24 border border-gray-300 rounded">
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Supported formats: PNG, JPG, JPEG (Max size: 2MB)</p>
                                 </div>
                             </div>
                         </div>
@@ -311,9 +273,9 @@
                             Cancel
                         </button>
                         <button type="button" onclick="submitReview()" 
-                                class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 font-medium">
+                                class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium">
                             <i class="fas fa-check mr-2"></i>
-                            Submit Decision
+                            Approve
                         </button>
                     </div>
                 </form>
@@ -473,7 +435,6 @@ function reviewApplication(applicationId, action) {
     const signatureSection = document.getElementById('signatureSection');
     if (action === 'approve') {
         signatureSection.classList.remove('hidden');
-        generateAutoSignature();
     } else {
         signatureSection.classList.add('hidden');
     }
@@ -482,26 +443,11 @@ function reviewApplication(applicationId, action) {
     document.getElementById('reviewModal').classList.remove('hidden');
 }
 
-function generateAutoSignature() {
-    const autoSignature = `Digitally signed by: {{ $dean->first_name }} {{ $dean->last_name }}
-Position: Dean
-Date: ${new Date().toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    })}
-Signature ID: DEAN-{{ $dean->id }}-${Date.now()}`;
-    
-    document.getElementById('autoSignaturePreview').textContent = autoSignature;
-}
-
 function triggerFileUpload() {
     const fileInput = document.getElementById('signatureFile');
     const uploadBtn = document.getElementById('uploadSignatureBtn');
     
-    if (fileInput && !fileInput.disabled) {
+    if (fileInput) {
         // Add visual feedback
         uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Opening...';
         
@@ -509,45 +455,18 @@ function triggerFileUpload() {
         
         // Reset button text after a brief delay
         setTimeout(() => {
-            uploadBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Choose File';
+            uploadBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Choose Signature File';
         }, 500);
     }
 }
 
 // Handle signature type radio button changes
 document.addEventListener('DOMContentLoaded', function() {
-    const signatureRadios = document.querySelectorAll('input[name="signatureType"]');
-    const customSignatureTextarea = document.getElementById('customSignature');
-    const signatureFileInput = document.getElementById('signatureFile');
-    const uploadSignatureBtn = document.getElementById('uploadSignatureBtn');
-    const clearSignatureButton = document.getElementById('clearSignatureFile');
-    const selectedFileName = document.getElementById('selectedFileName');
-    
-    signatureRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            // Reset all inputs first
-            customSignatureTextarea.disabled = true;
-            customSignatureTextarea.value = '';
-            signatureFileInput.disabled = true;
-            signatureFileInput.value = '';
-            uploadSignatureBtn.disabled = true;
-            clearSignatureButton.disabled = true;
-            selectedFileName.textContent = 'No file selected';
-            document.getElementById('signaturePreview').classList.add('hidden');
-            
-            // Enable the selected input
-            if (this.value === 'custom') {
-                customSignatureTextarea.disabled = false;
-                customSignatureTextarea.focus();
-            } else if (this.value === 'upload') {
-                signatureFileInput.disabled = false;
-                uploadSignatureBtn.disabled = false;
-                clearSignatureButton.disabled = false;
-            }
-        });
-    });
-    
     // Handle file upload preview
+    const signatureFileInput = document.getElementById('signatureFile');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const clearButton = document.getElementById('clearSignatureFile');
+    
     signatureFileInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         const preview = document.getElementById('signaturePreview');
@@ -556,40 +475,38 @@ document.addEventListener('DOMContentLoaded', function() {
         if (file) {
             // Update file name display
             selectedFileName.textContent = file.name;
+            clearButton.classList.remove('hidden');
             
             // Check file size (2MB limit)
             if (file.size > 2 * 1024 * 1024) {
                 showAlert('File size must be less than 2MB', 'error');
                 this.value = '';
                 selectedFileName.textContent = 'No file selected';
+                clearButton.classList.add('hidden');
                 return;
             }
             
             // Check file type
-            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
             if (!allowedTypes.includes(file.type)) {
-                showAlert('Please select a valid image file (PNG, JPG, JPEG) or PDF', 'error');
+                showAlert('Please select a valid image file (PNG, JPG, JPEG)', 'error');
                 this.value = '';
                 selectedFileName.textContent = 'No file selected';
+                clearButton.classList.add('hidden');
                 return;
             }
             
             // Show preview for images
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    preview.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                // For PDF, just show the filename
-                previewImage.src = '';
-                preview.classList.add('hidden');
-            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
         } else {
             selectedFileName.textContent = 'No file selected';
             preview.classList.add('hidden');
+            clearButton.classList.add('hidden');
         }
     });
 });
@@ -598,6 +515,7 @@ function clearSignatureFile() {
     document.getElementById('signatureFile').value = '';
     document.getElementById('selectedFileName').textContent = 'No file selected';
     document.getElementById('signaturePreview').classList.add('hidden');
+    document.getElementById('clearSignatureFile').classList.add('hidden');
 }
 
 function submitReview() {
@@ -608,49 +526,22 @@ function submitReview() {
         return;
     }
     
-    // Handle signature for approvals
-    let deanSignature = '';
-    let hasSignatureFile = false;
-    
-    if (currentReviewAction === 'approve') {
-        const signatureType = document.querySelector('input[name="signatureType"]:checked').value;
-        
-        if (signatureType === 'custom') {
-            deanSignature = document.getElementById('customSignature').value.trim();
-            if (!deanSignature) {
-                showAlert('Please provide a custom signature or choose another signature option', 'error');
-                return;
-            }
-        } else if (signatureType === 'upload') {
-            const fileInput = document.getElementById('signatureFile');
-            if (!fileInput.files || fileInput.files.length === 0) {
-                showAlert('Please select a signature file or choose another signature option', 'error');
-                return;
-            }
-            hasSignatureFile = true;
-        } else {
-            deanSignature = document.getElementById('autoSignaturePreview').textContent;
-        }
-    }
-    
     // Show loading state
     const submitButton = document.querySelector('[onclick="submitReview()"]');
     const originalText = submitButton.innerHTML;
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
     submitButton.disabled = true;
     
-    // Create FormData for file upload support
+    // Create FormData for the request (needed for file upload)
     const formData = new FormData();
     formData.append('action', currentReviewAction);
     formData.append('dean_remarks', remarks);
     
+    // Add signature file if uploaded and approving
     if (currentReviewAction === 'approve') {
-        if (hasSignatureFile) {
-            formData.append('dean_signature_file', document.getElementById('signatureFile').files[0]);
-            formData.append('signature_type', 'file');
-        } else {
-            formData.append('dean_signature', deanSignature);
-            formData.append('signature_type', document.querySelector('input[name="signatureType"]:checked').value);
+        const signatureFile = document.getElementById('signatureFile').files[0];
+        if (signatureFile) {
+            formData.append('dean_signature_file', signatureFile);
         }
     }
     
@@ -701,15 +592,10 @@ function closeReviewModal() {
     
     // Reset signature section
     document.getElementById('signatureSection').classList.add('hidden');
-    document.querySelector('input[name="signatureType"][value="auto"]').checked = true;
-    document.getElementById('customSignature').value = '';
-    document.getElementById('customSignature').disabled = true;
     document.getElementById('signatureFile').value = '';
-    document.getElementById('signatureFile').disabled = true;
-    document.getElementById('uploadSignatureBtn').disabled = true;
-    document.getElementById('clearSignatureFile').disabled = true;
     document.getElementById('selectedFileName').textContent = 'No file selected';
     document.getElementById('signaturePreview').classList.add('hidden');
+    document.getElementById('clearSignatureFile').classList.add('hidden');
     
     currentApplicationId = null;
     currentReviewAction = null;

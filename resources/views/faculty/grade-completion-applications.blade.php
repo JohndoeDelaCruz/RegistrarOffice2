@@ -9,7 +9,7 @@
         <div class="flex justify-between items-start">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800 mb-2">Grade Completion Applications</h1>
-                <p class="text-gray-600">Review and process applications approved by the Dean</p>
+                <p class="text-gray-600">Review applications approved by the Dean</p>
             </div>
             <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
                 <span class="text-sm font-medium text-blue-800">{{ $applications->count() }} pending application(s)</span>
@@ -109,20 +109,15 @@
                                         </button>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <div class="flex flex-col items-center space-y-2">
-                                        <button onclick="viewApplication({{ $application->id }})" 
-                                                class="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-800 rounded-lg hover:bg-indigo-200 transition-colors duration-200 text-xs font-medium">
-                                            <i class="fas fa-eye mr-1"></i>
-                                            View Details
-                                        </button>
-                                        <button onclick="processApplication({{ $application->id }})" 
-                                                class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors duration-200 text-xs font-medium">
-                                            <i class="fas fa-check mr-1"></i>
-                                            Process
-                                        </button>
-                                    </div>
-                                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <div class="flex flex-col items-center space-y-2">
+                        <button onclick="viewApplication({{ $application->id }})" 
+                                class="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-800 rounded-lg hover:bg-indigo-200 transition-colors duration-200 text-xs font-medium">
+                            <i class="fas fa-eye mr-1"></i>
+                            View Details
+                        </button>
+                    </div>
+                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -135,7 +130,7 @@
                 <div class="bg-blue-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-file-alt text-3xl text-blue-600"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">No Applications to Process</h3>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">No Applications Available</h3>
                 <p class="text-gray-600 mb-6">There are no grade completion applications approved by the Dean at this time.</p>
                 <a href="/faculty/dashboard" 
                    class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
@@ -169,89 +164,6 @@
                 <div id="applicationDetails" class="space-y-6">
                     <!-- Application details will be loaded here -->
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Process Application Modal -->
-<div id="processModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onclick="closeProcessModal()"></div>
-        
-        <div class="inline-block w-full max-w-2xl my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-            <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <h3 id="processModalTitle" class="text-xl font-bold text-white flex items-center">
-                        <i class="fas fa-cogs mr-3"></i>
-                        Process Application
-                    </h3>
-                    <button onclick="closeProcessModal()" class="text-white hover:text-gray-200 transition-colors duration-200">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="px-6 py-6">
-                <form id="processForm" class="space-y-6">
-                    <div id="processApplicationSummary" class="space-y-4">
-                        <!-- Application summary will be loaded here -->
-                    </div>
-                    
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <h4 class="font-semibold text-gray-800 mb-3">Choose Action</h4>
-                        <div class="space-y-3">
-                            <label class="flex items-center space-x-3">
-                                <input type="radio" name="action" value="complete" class="form-radio text-green-600" checked>
-                                <span class="text-sm font-medium text-gray-700">Complete Grade - Update student's grade</span>
-                            </label>
-                            <label class="flex items-center space-x-3">
-                                <input type="radio" name="action" value="reject" class="form-radio text-red-600">
-                                <span class="text-sm font-medium text-gray-700">Reject Application - Do not update grade</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div id="newGradeSection" class="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-star mr-2"></i>
-                            New Grade <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" 
-                               id="newGrade" 
-                               name="new_grade"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                               placeholder="Enter the new grade (e.g., 1.0, 2.5, 3.0)"
-                               required>
-                        <p class="text-xs text-gray-500 mt-1">Enter the final grade for this subject</p>
-                    </div>
-                    
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-comment mr-2"></i>
-                            Faculty Remarks <span class="text-gray-500">(Optional)</span>
-                        </label>
-                        <textarea 
-                            id="facultyRemarks" 
-                            name="faculty_remarks"
-                            rows="4" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Add any remarks or notes about this grade completion..."
-                        ></textarea>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-4 mt-6">
-                        <button type="button" onclick="closeProcessModal()" 
-                                class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium">
-                            Cancel
-                        </button>
-                        <button type="button" onclick="submitProcess()" 
-                                class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium">
-                            <i class="fas fa-check mr-2"></i>
-                            Process Application
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -461,91 +373,10 @@ function displayApplicationDetails(application) {
                 <i class="fas fa-file-signature mr-2"></i>
                 View Signed Document
             </button>
-            <button onclick="processApplication(${application.id})" 
-                    class="px-6 py-3 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors duration-200 font-medium">
-                <i class="fas fa-cogs mr-2"></i>
-                Process Application
-            </button>
         </div>
     `;
     
     document.getElementById('applicationDetails').innerHTML = detailsHtml;
-}
-
-function processApplication(applicationId) {
-    currentApplicationId = applicationId;
-    
-    // Close application modal if it's open
-    document.getElementById('applicationModal').classList.add('hidden');
-    
-    // Reset form
-    document.getElementById('facultyRemarks').value = '';
-    document.getElementById('newGrade').value = '';
-    document.querySelector('input[name="action"][value="complete"]').checked = true;
-    document.getElementById('newGradeSection').classList.remove('hidden');
-    
-    // Show process modal
-    document.getElementById('processModal').classList.remove('hidden');
-}
-
-function submitProcess() {
-    const action = document.querySelector('input[name="action"]:checked').value;
-    const remarks = document.getElementById('facultyRemarks').value.trim();
-    const newGrade = document.getElementById('newGrade').value.trim();
-    
-    if (action === 'complete' && !newGrade) {
-        showAlert('Please enter a new grade', 'error');
-        return;
-    }
-    
-    // Show loading state
-    const submitButton = document.querySelector('[onclick="submitProcess()"]');
-    const originalText = submitButton.innerHTML;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
-    submitButton.disabled = true;
-    
-    // Create FormData
-    const formData = new FormData();
-    formData.append('action', action);
-    formData.append('faculty_remarks', remarks);
-    if (action === 'complete') {
-        formData.append('new_grade', newGrade);
-    }
-    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-    
-    // Submit process
-    fetch(`/faculty/grade-completion-applications/${currentApplicationId}/process`, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            showAlert(data.message, 'success');
-            closeProcessModal();
-            // Reload page to update the list
-            setTimeout(() => location.reload(), 1500);
-        } else {
-            showAlert('Error: ' + (data.message || 'Failed to process application'), 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('An error occurred while processing the application: ' + error.message, 'error');
-    })
-    .finally(() => {
-        // Reset button state
-        submitButton.innerHTML = originalText;
-        submitButton.disabled = false;
-    });
 }
 
 function viewDeanSignature(applicationId) {
@@ -638,31 +469,8 @@ function viewSignedDocument(applicationId) {
     window.open(`/faculty/grade-completion-applications/${applicationId}/signed-document`, '_blank');
 }
 
-// Handle action radio button changes
-document.addEventListener('DOMContentLoaded', function() {
-    const actionRadios = document.querySelectorAll('input[name="action"]');
-    const newGradeSection = document.getElementById('newGradeSection');
-    
-    actionRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === 'complete') {
-                newGradeSection.classList.remove('hidden');
-                document.getElementById('newGrade').required = true;
-            } else {
-                newGradeSection.classList.add('hidden');
-                document.getElementById('newGrade').required = false;
-            }
-        });
-    });
-});
-
 function closeApplicationModal() {
     document.getElementById('applicationModal').classList.add('hidden');
-    currentApplicationId = null;
-}
-
-function closeProcessModal() {
-    document.getElementById('processModal').classList.add('hidden');
     currentApplicationId = null;
 }
 

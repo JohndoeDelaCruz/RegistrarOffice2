@@ -15,7 +15,7 @@
                 </div>
                 <div class="ml-4">
                     <h3 class="text-lg font-semibold text-gray-800">Students</h3>
-                    <p class="text-2xl font-bold text-blue-600">-</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ $studentsCount ?? 0 }}</p>
                 </div>
             </div>
         </div>
@@ -27,7 +27,7 @@
                 </div>
                 <div class="ml-4">
                     <h3 class="text-lg font-semibold text-gray-800">Faculty</h3>
-                    <p class="text-2xl font-bold text-green-600">-</p>
+                    <p class="text-2xl font-bold text-green-600">{{ $facultyCount ?? 0 }}</p>
                 </div>
             </div>
         </div>
@@ -79,11 +79,6 @@
                     <span class="font-medium text-gray-800">Approved Applications</span>
                     <span class="text-xs text-gray-500 block">View your signed applications</span>
                 </div>
-            </a>
-            
-            <a href="{{ route('dean.digital-signature') }}" class="flex items-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors duration-200">
-                <i class="fas fa-signature text-indigo-600 text-xl mr-3"></i>
-                <span class="font-medium text-gray-800">Manage Digital Signatures</span>
             </a>
             
             <a href="{{ route('dean.announcement') }}" class="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">

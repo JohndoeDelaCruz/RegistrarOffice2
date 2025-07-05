@@ -18,13 +18,11 @@ class DeanController extends Controller
         // Get pending applications count
         $pendingApplicationsCount = GradeCompletionApplication::deanPending()->count();
         
-        return view('dean.dashboard', compact('dean', 'pendingApplicationsCount'));
-    }
-
-    public function digitalSignature()
-    {
-        $dean = $this->getLoggedInDean();
-        return view('dean.digital-signature', compact('dean'));
+        // Get student and faculty counts
+        $studentsCount = User::where('role', 'student')->count();
+        $facultyCount = User::where('role', 'faculty')->count();
+        
+        return view('dean.dashboard', compact('dean', 'pendingApplicationsCount', 'studentsCount', 'facultyCount'));
     }
 
     public function announcement()
@@ -70,9 +68,7 @@ class DeanController extends Controller
             $request->validate([
                 'action' => 'required|in:approve,reject',
                 'dean_remarks' => 'nullable|string|max:1000',
-                'dean_signature' => 'nullable|string|max:5000',
-                'dean_signature_file' => 'nullable|file|mimes:png,jpg,jpeg,pdf|max:2048',
-                'signature_type' => 'nullable|string|in:auto,custom,file'
+                'dean_signature_file' => 'nullable|file|mimes:png,jpg,jpeg|max:2048'
             ]);
 
             $application = GradeCompletionApplication::findOrFail($application);
@@ -92,34 +88,21 @@ class DeanController extends Controller
                 'dean_reviewed_by' => $dean->id
             ];
 
-            // Add signature for approved applications
-            if ($request->action === 'approve') {
-                $signatureType = $request->signature_type ?? 'auto';
+            // Handle signature upload for approved applications
+            if ($request->action === 'approve' && $request->hasFile('dean_signature_file')) {
+                $file = $request->file('dean_signature_file');
+                $fileName = 'dean_signature_' . $application->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('dean_signatures', $fileName, 'public');
                 
-                if ($signatureType === 'file' && $request->hasFile('dean_signature_file')) {
-                    // Handle file upload
-                    $file = $request->file('dean_signature_file');
-                    $fileName = 'dean_signature_' . $application->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filePath = $file->storeAs('dean_signatures', $fileName, 'public');
-                    
-                    $updateData['dean_signature'] = $filePath;
-                    $updateData['dean_signature_type'] = 'uploaded_file';
-                } elseif ($signatureType === 'custom' && $request->dean_signature) {
-                    $updateData['dean_signature'] = $request->dean_signature;
-                    $updateData['dean_signature_type'] = 'custom_text';
-                } else {
-                    // Auto-generated signature
-                    $updateData['dean_signature'] = $this->getDeanDigitalSignature($dean);
-                    $updateData['dean_signature_type'] = 'auto_generated';
-                }
-                
+                $updateData['dean_signature'] = $filePath;
+                $updateData['dean_signature_type'] = 'uploaded_file';
                 $updateData['dean_signature_date'] = Carbon::now();
             }
 
             $application->update($updateData);
 
             if ($request->action === 'approve') {
-                $message = 'Application approved successfully with digital signature and forwarded to faculty.';
+                $message = 'Application approved successfully and forwarded to faculty.';
             } else {
                 $message = 'Application rejected. Student will be notified.';
             }
@@ -147,13 +130,6 @@ class DeanController extends Controller
         $application = GradeCompletionApplication::with(['student', 'subject'])
             ->findOrFail($application);
 
-        $signatureDisplay = '';
-        if ($application->dean_signature_type === 'uploaded_file') {
-            $signatureDisplay = 'Uploaded signature file';
-        } else {
-            $signatureDisplay = $application->dean_signature;
-        }
-
         return response()->json([
             'success' => true,
             'application' => [
@@ -168,9 +144,6 @@ class DeanController extends Controller
                 'created_at' => $application->created_at->format('F j, Y g:i A'),
                 'dean_status' => $application->dean_status,
                 'dean_remarks' => $application->dean_remarks,
-                'dean_signature' => $signatureDisplay,
-                'dean_signature_type' => $application->dean_signature_type,
-                'dean_signature_date' => $application->dean_signature_date ? $application->dean_signature_date->format('F j, Y g:i A') : null,
                 'dean_reviewed_at' => $application->dean_reviewed_at ? $application->dean_reviewed_at->format('F j, Y g:i A') : null
             ]
         ]);
@@ -204,6 +177,17 @@ class DeanController extends Controller
         }
     }
 
+    public function generateSignedDocument($application)
+    {
+        $application = GradeCompletionApplication::with(['student', 'subject'])->findOrFail($application);
+        
+        if ($application->dean_status !== 'approved') {
+            abort(403, 'Application not approved');
+        }
+        
+        return view('dean.signed-document', compact('application'));
+    }
+
     public function viewSignature($application)
     {
         $application = GradeCompletionApplication::findOrFail($application);
@@ -221,26 +205,11 @@ class DeanController extends Controller
         $fileName = basename($application->dean_signature);
         $mimeType = mime_content_type($filePath);
         
-        // For images and PDFs, display inline
-        if (str_contains($mimeType, 'pdf') || str_contains($mimeType, 'image')) {
-            return response()->file($filePath, [
-                'Content-Type' => $mimeType,
-                'Content-Disposition' => 'inline; filename="' . $fileName . '"'
-            ]);
-        } else {
-            return response()->download($filePath, $fileName);
-        }
-    }
-
-    public function generateSignedDocument($application)
-    {
-        $application = GradeCompletionApplication::with(['student', 'subject'])->findOrFail($application);
-        
-        if ($application->dean_status !== 'approved') {
-            abort(403, 'Application not approved');
-        }
-        
-        return view('dean.signed-document', compact('application'));
+        // Display signature image inline
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $fileName . '"'
+        ]);
     }
 
     /**
@@ -264,15 +233,5 @@ class DeanController extends Controller
         
         // Fallback for demo purposes - this should ideally redirect to login
         return User::where('role', 'dean')->first();
-    }
-
-    private function getDeanDigitalSignature($dean)
-    {
-        // This would typically come from a dean signatures table or user profile
-        // For now, we'll create a simple digital signature
-        return "Digitally signed by: " . $dean->first_name . " " . $dean->last_name . "\n" .
-               "Position: Dean\n" .
-               "Date: " . now()->format('F j, Y g:i A') . "\n" .
-               "Signature ID: DEAN-" . $dean->id . "-" . time();
     }
 }

@@ -169,7 +169,7 @@
             <div class="signature-area">
                 @if($application->dean_signature_type === 'uploaded_file')
                     <div class="text-center">
-                        <img src="{{ route('dean.view-signature', $application->id) }}" 
+                        <img src="{{ route('dean.grade-completion-applications.signature', $application->id) }}" 
                              alt="Dean's Digital Signature" 
                              class="signature-image">
                     </div>

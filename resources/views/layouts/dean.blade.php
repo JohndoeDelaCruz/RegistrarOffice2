@@ -51,11 +51,6 @@
                     <span>Dashboard</span>
                 </a>
 
-                <a href="{{ route('dean.digital-signature') }}" class="flex items-center px-6 py-3 text-white hover:bg-purple-600 transition-colors duration-200 {{ request()->routeIs('dean.digital-signature') ? 'bg-purple-600 border-r-4 border-purple-300' : '' }}">
-                    <i class="fas fa-signature w-5 h-5 mr-3"></i>
-                    <span>Digital Signature</span>
-                </a>
-
                 <a href="{{ route('dean.grade-completion-applications') }}" class="flex items-center px-6 py-3 text-white hover:bg-purple-600 transition-colors duration-200 {{ request()->routeIs('dean.grade-completion-applications') ? 'bg-purple-600 border-r-4 border-purple-300' : '' }}">
                     <i class="fas fa-file-alt w-5 h-5 mr-3"></i>
                     <span>Grade Completion Applications</span>

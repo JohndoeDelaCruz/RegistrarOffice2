@@ -21,13 +21,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
+            background: #B3EBF2;
         }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <!-- Header with UC Branding -->
-    <div class="absolute top-0 left-0 right-0 bg-uc-green text-white">
+    <div class="absolute top-0 left-0 right-0 bg-uc-green text-white z-20">
         <div class="flex justify-between items-center px-6 py-3">
             <div class="flex items-center gap-3">
                 <i class="fas fa-university text-xl"></i>
@@ -41,7 +41,10 @@
     </div>
 
     <!-- Side Navigation -->
-    <div class="fixed left-0 top-16 bottom-0 w-48 bg-teal-700">
+    <div class="fixed left-0 top-0 bottom-0 w-48 bg-teal-700 z-10">
+        <!-- Spacer for header height -->
+        <div class="h-16 w-full"></div>
+        <!-- Navigation buttons -->
         <div class="p-4">
             <button class="w-full bg-uc-orange text-white py-2 px-4 rounded mb-2 text-sm font-medium">
                 Home
@@ -140,7 +143,7 @@
     </div>
 
     <!-- Footer Branding -->
-    <div class="fixed bottom-0 left-48 right-0 bg-uc-green text-white text-center py-2">
+    <div class="fixed bottom-0 left-0 right-0 bg-uc-green text-white text-center py-2 z-20">
         <div class="flex justify-center items-center gap-4">
             <i class="fas fa-university text-lg"></i>
             <span class="font-semibold">UNIVERSITY OF THE CORDILLERAS</span>

@@ -140,7 +140,7 @@
                                             View Details
                                         </button>
                                         <button onclick="viewSignedDocument({{ $application->id }})" 
-                                                class="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-lg hover:bg-purple-200 transition-colors duration-200 text-xs font-medium">
+                                                class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors duration-200 text-xs font-medium">
                                             <i class="fas fa-file-signature mr-1"></i>
                                             Signed Document
                                         </button>
@@ -161,7 +161,7 @@
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">No Approved Applications</h3>
                 <p class="text-gray-600 mb-6">You haven't approved any grade completion applications yet.</p>
                 <a href="/dean/grade-completion-applications" 
-                   class="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 font-medium">
+                   class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium">
                     <i class="fas fa-clipboard-list mr-2"></i>
                     View Pending Applications
                 </a>
@@ -281,9 +281,9 @@ function displayApprovedApplicationDetails(application) {
                 </div>
             </div>
             
-            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                 <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
-                    <i class="fas fa-book text-purple-600 mr-2"></i>Subject Information
+                    <i class="fas fa-book text-green-600 mr-2"></i>Subject Information
                 </h4>
                 <div class="space-y-2">
                     <div class="flex justify-between">

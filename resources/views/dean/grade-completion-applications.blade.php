@@ -11,8 +11,8 @@
                 <h1 class="text-2xl font-bold text-gray-800 mb-2">Grade Completion Applications</h1>
                 <p class="text-gray-600">Review and approve or reject student applications for grade completion</p>
             </div>
-            <div class="bg-purple-50 border border-purple-200 rounded-lg px-4 py-2">
-                <span class="text-sm font-medium text-purple-800">{{ $applications->count() }} pending application(s)</span>
+            <div class="bg-green-50 border border-green-200 rounded-lg px-4 py-2">
+                <span class="text-sm font-medium text-green-800">{{ $applications->count() }} pending application(s)</span>
             </div>
         </div>
     </div>
@@ -21,7 +21,7 @@
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gradient-to-r from-purple-50 to-indigo-50">
+                    <thead class="bg-gradient-to-r from-green-50 to-green-100">
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                                 <i class="fas fa-user mr-2"></i>Student
@@ -131,16 +131,16 @@
         <div class="bg-white rounded-lg shadow-lg p-12">
             <div class="text-center">
                 <div class="max-w-md mx-auto">
-                    <div class="bg-gradient-to-r from-purple-100 to-indigo-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-inbox text-purple-600 text-4xl"></i>
+                    <div class="bg-gradient-to-r from-green-100 to-green-200 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-inbox text-uc-green text-4xl"></i>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-4">No Pending Applications</h3>
                     <p class="text-gray-600 mb-6 leading-relaxed">
                         There are currently no grade completion applications pending your review.
                     </p>
-                    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4">
+                    <div class="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
                         <div class="flex items-center justify-center space-x-2">
-                            <i class="fas fa-info-circle text-purple-600"></i>
+                            <i class="fas fa-info-circle text-uc-green"></i>
                             <span class="text-sm font-medium text-gray-700">
                                 New applications will appear here when students submit them.
                             </span>
@@ -157,13 +157,13 @@
     <div class="min-h-screen flex items-center justify-center p-4">
         <div class="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
             <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6">
+            <div class="bg-gradient-to-r from-uc-green to-uc-green-dark text-white p-6">
                 <button onclick="closeApplicationModal()" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors duration-200 p-2 rounded-full hover:bg-white hover:bg-opacity-20">
                     <i class="fas fa-times text-xl"></i>
                 </button>
                 <div class="pr-12">
                     <h3 class="text-2xl font-bold">Application Details</h3>
-                    <p class="text-purple-100 text-sm mt-1">Review grade completion application</p>
+                    <p class="text-green-100 text-sm mt-1">Review grade completion application</p>
                 </div>
             </div>
             
@@ -182,13 +182,13 @@
     <div class="min-h-screen flex items-center justify-center p-4">
         <div class="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full">
             <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6">
+            <div class="bg-gradient-to-r from-uc-green to-uc-green-dark text-white p-6">
                 <button onclick="closeReviewModal()" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors duration-200 p-2 rounded-full hover:bg-white hover:bg-opacity-20">
                     <i class="fas fa-times text-xl"></i>
                 </button>
                 <div class="pr-12">
                     <h3 class="text-2xl font-bold" id="reviewModalTitle">Review Application</h3>
-                    <p class="text-purple-100 text-sm mt-1">Make your decision on this application</p>
+                    <p class="text-green-100 text-sm mt-1">Make your decision on this application</p>
                 </div>
             </div>
             
@@ -208,7 +208,7 @@
                             <textarea 
                                 id="deanRemarks" 
                                 rows="4" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-uc-green focus:border-transparent"
                                 placeholder="Add your remarks or reasons for your decision..."
                             ></textarea>
                         </div>
@@ -292,7 +292,7 @@ function viewApplication(applicationId) {
     currentApplicationId = applicationId;
     
     // Show loading state
-    document.getElementById('applicationDetails').innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-purple-600"></i><p class="text-gray-600 mt-2">Loading application details...</p></div>';
+    document.getElementById('applicationDetails').innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-uc-green"></i><p class="text-gray-600 mt-2">Loading application details...</p></div>';
     document.getElementById('applicationModal').classList.remove('hidden');
     
     // Fetch application details

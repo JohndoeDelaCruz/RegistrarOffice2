@@ -14,6 +14,7 @@
                         'uc-green': '#2d7738',
                         'uc-blue': '#1e40af',
                         'uc-orange': '#ea580c',
+                        'uc-bg': '#b8e6c1',
                     }
                 }
             }
@@ -21,7 +22,7 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-100">
+<body class="bg-uc-bg">
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="bg-gradient-to-b from-uc-green to-green-700 text-white w-64 flex-shrink-0 shadow-xl">
@@ -120,7 +121,7 @@
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+            <main class="flex-1 overflow-y-auto bg-uc-bg p-6">
                 @yield('content')
             </main>
         </div>

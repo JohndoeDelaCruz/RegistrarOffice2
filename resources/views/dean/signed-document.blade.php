@@ -40,7 +40,7 @@
 <body class="bg-white">
     <!-- Print Controls -->
     <div class="no-print bg-gray-100 p-4 text-center">
-        <button onclick="window.print()" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 mr-4">
+        <button onclick="window.print()" class="px-6 py-2 bg-uc-green text-white rounded-lg hover:bg-uc-green-dark mr-4">
             <i class="fas fa-print mr-2"></i>Print Document
         </button>
         <button onclick="window.close()" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
@@ -85,8 +85,8 @@
             </div>
 
             <!-- Subject Information -->
-            <div class="bg-purple-50 border border-purple-200 rounded-lg p-6">
-                <h2 class="text-xl font-semibold text-purple-800 mb-4">Subject Information</h2>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-green-800 mb-4">Subject Information</h2>
                 <div class="space-y-3">
                     <div class="flex justify-between">
                         <span class="font-medium text-gray-700">Subject Code:</span>

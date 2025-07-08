@@ -3,17 +3,17 @@
 @section('page-title', 'Checklist')
 
 @section('content')
-<div class="bg-white rounded-lg shadow-lg p-6">
+<div class="bg-white rounded-lg shadow-lg p-4 sm:p-6">
     <!-- Header Section -->
     <div class="border-b border-gray-200 pb-4 mb-6">
-        <div class="flex justify-between items-start">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start space-y-4 lg:space-y-0">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">Trimester Program Checklist</h1>
-                <p class="text-gray-600">{{ $student->course }} - {{ $student->track }}</p>
-                <p class="text-sm text-gray-500">Student ID: {{ $student->student_id }} | {{ $student->name }}</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Trimester Program Checklist</h1>
+                <p class="text-sm sm:text-base text-gray-600">{{ $student->course }} - {{ $student->track }}</p>
+                <p class="text-xs sm:text-sm text-gray-500">Student ID: {{ $student->student_id }} | {{ $student->name }}</p>
             </div>
-            <div class="text-right">
-                <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+            <div class="lg:text-right">
+                <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs sm:text-sm font-medium inline-block">
                     Current: 3rd Year - 3rd Trimester
                 </div>
                 <p class="text-xs text-gray-500 mt-1">Academic Year {{ $currentAcademicYear->year ?? '2024-2025' }}</p>
@@ -22,10 +22,10 @@
     </div>
 
     <!-- Overall Progress -->
-    <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
+    <div class="grid grid-cols-1 gap-4 mb-6">
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center max-w-xs mx-auto">
-            <div class="text-2xl font-bold text-blue-600">{{ $totalUnits }}</div>
-            <div class="text-sm text-blue-800">Total Units</div>
+            <div class="text-xl sm:text-2xl font-bold text-blue-600">{{ $totalUnits }}</div>
+            <div class="text-xs sm:text-sm text-blue-800">Total Units</div>
         </div>
     </div>
 

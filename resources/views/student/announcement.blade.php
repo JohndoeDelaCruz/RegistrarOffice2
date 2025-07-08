@@ -3,7 +3,7 @@
 @section('page-title', 'Announcements')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-4 sm:space-y-6">
     @if($announcements->count() > 0)
         <!-- Announcements List -->
         @foreach($announcements as $announcement)
@@ -12,27 +12,30 @@
                 @elseif($announcement->priority == 'high') border-yellow-500
                 @else border-blue-500 @endif">
                 
-                <div class="p-6">
+                <div class="p-4 sm:p-6">
                     <div class="flex items-start justify-between mb-4">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-3 mb-2">
-                                <h2 class="text-xl font-semibold text-gray-800">{{ $announcement->title }}</h2>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-2 space-y-2 sm:space-y-0">
+                                <h2 class="text-lg sm:text-xl font-semibold text-gray-800">{{ $announcement->title }}</h2>
                                 
                                 <!-- Priority Badge -->
                                 @if($announcement->priority == 'urgent')
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                         <i class="fas fa-exclamation-circle mr-1"></i>
                                         Urgent
                                     </span>
                                 @elseif($announcement->priority == 'high')
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                         <i class="fas fa-exclamation-triangle mr-1"></i>
                                         High Priority
                                     </span>
                                 @endif
+                            </div>
 
+                            <!-- Mobile: Stack badges vertically -->
+                            <div class="flex flex-wrap gap-2 sm:gap-3 mb-3 sm:mb-0">
                                 <!-- Category Badge -->
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                                <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium 
                                     @if($announcement->category == 'academic') bg-blue-100 text-blue-800
                                     @elseif($announcement->category == 'administrative') bg-purple-100 text-purple-800
                                     @elseif($announcement->category == 'urgent') bg-red-100 text-red-800
@@ -43,12 +46,12 @@
 
                                 <!-- Source Badge -->
                                 @if($announcement->creator->role == 'dean')
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                         <i class="fas fa-university mr-1"></i>
                                         Dean's Office
                                     </span>
                                 @elseif($announcement->creator->role == 'faculty')
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                         <i class="fas fa-chalkboard-teacher mr-1"></i>
                                         Faculty
                                     </span>
@@ -57,15 +60,15 @@
                             
                             <!-- Announcement Content -->
                             <div class="prose prose-gray max-w-none mb-4">
-                                <p class="text-gray-700 leading-relaxed">{{ nl2br(e($announcement->content)) }}</p>
+                                <p class="text-sm sm:text-base text-gray-700 leading-relaxed">{{ nl2br(e($announcement->content)) }}</p>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Footer Information -->
                     <div class="border-t border-gray-200 pt-4">
-                        <div class="flex items-center justify-between text-sm text-gray-500">
-                            <div class="flex items-center space-x-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-gray-500 space-y-2 sm:space-y-0">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0">
                                 <span class="flex items-center">
                                     <i class="fas fa-user mr-2"></i>
                                     {{ $announcement->creator->name ?? 'Dean' }}
@@ -93,17 +96,17 @@
         @endforeach
     @else
         <!-- No Announcements -->
-        <div class="bg-white rounded-lg shadow-sm p-12">
+        <div class="bg-white rounded-lg shadow-sm p-8 sm:p-12">
             <div class="text-center">
-                <div class="bg-blue-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-bullhorn text-3xl text-blue-600"></i>
+                <div class="bg-blue-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-bullhorn text-2xl sm:text-3xl text-blue-600"></i>
                 </div>
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">No Announcements Yet</h3>
-                <p class="text-gray-600 mb-6">Check back later for announcements from the dean and faculty.</p>
+                <p class="text-sm sm:text-base text-gray-600 mb-6">Check back later for announcements from the dean and faculty.</p>
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
                     <div class="flex items-center justify-center space-x-2">
                         <i class="fas fa-info-circle text-blue-600"></i>
-                        <span class="text-sm font-medium text-blue-800">
+                        <span class="text-xs sm:text-sm font-medium text-blue-800">
                             You'll be notified when new announcements are posted.
                         </span>
                     </div>

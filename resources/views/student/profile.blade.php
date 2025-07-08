@@ -22,13 +22,13 @@
     @endif
 
     <!-- Profile Header -->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <div class="flex items-center space-x-4 mb-4">
-            <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                <span class="text-2xl font-bold text-white">{{ substr($student->name, 0, 1) }}</span>
+    <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="text-xl sm:text-2xl font-bold text-white">{{ substr($student->name, 0, 1) }}</span>
             </div>
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">{{ $student->name }}</h1>
+            <div class="text-center sm:text-left">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">{{ $student->name }}</h1>
                 <p class="text-gray-600">{{ $student->course }} - {{ $student->track }}</p>
                 <p class="text-sm text-gray-500">Student ID: {{ $student->student_id }}</p>
             </div>
@@ -36,10 +36,10 @@
     </div>
 
     <!-- Personal Information Form -->
-    <div class="bg-white rounded-lg shadow-lg p-6">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-gray-800">Personal Information</h2>
-            <button id="editBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200">
+    <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-2 sm:space-y-0">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800">Personal Information</h2>
+            <button id="editBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 text-sm sm:text-base">
                 <i class="fas fa-edit mr-2"></i>Edit Profile
             </button>
         </div>

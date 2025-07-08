@@ -3,60 +3,88 @@
 @section('page-title', 'Grade Completion')
 
 @section('content')
-<div class="bg-white rounded-lg shadow-lg p-6">
+<div class="bg-white rounded-lg shadow-lg p-4 sm:p-6">
     <!-- Header Section -->
     <div class="border-b border-gray-200 pb-4 mb-6">
-        <div class="flex justify-between items-start">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start space-y-4 lg:space-y-0">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">Grade Completion Applications</h1>
-                <p class="text-gray-600">Apply for completion of INC and NFE grades</p>
-                <p class="text-sm text    });
-}
-
-function showRejectionReason(reason) {
-    document.getElementById('rejectionReasonText').textContent = reason;
-    document.getElementById('rejectionReasonModal').classList.remove('hidden');
-    document.body.classList.add('overflow-hidden');
-}
-
-function closeRejectionModal() {
-    document.getElementById('rejectionReasonModal').classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
-}
-
-// Close modal when clicking outside
-document.addEventListener('click', function(event) {
-    const modal = document.getElementById('completionModal');
-    const modalContent = modal.querySelector('.bg-white');
-    
-    if (event.target === modal && !modalContent.contains(event.target)) {
-        closeCompletionModal();
-    }
-    
-    const rejectionModal = document.getElementById('rejectionReasonModal');
-    const rejectionModalContent = rejectionModal.querySelector('.bg-white');
-    
-    if (event.target === rejectionModal && !rejectionModalContent.contains(event.target)) {
-        closeRejectionModal();
-    }
-});tudent ID: {{ $student->student_id }} | {{ $student->name }}</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Grade Completion Applications</h1>
+                <p class="text-sm sm:text-base text-gray-600">Apply for completion of INC and NFE grades</p>
+                <p class="text-xs sm:text-sm text-gray-500">Student ID: {{ $student->student_id }} | {{ $student->name }}</p>
+            </div>
+        </div>
+    </div>
             </div>
         </div>
     </div>
 
     @if($incompleteSubjects->count() > 0)
         <div class="space-y-6">
-            <div class="flex items-center justify-between">
-                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center">
                     <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
                     Subjects Requiring Completion
                 </h2>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
-                    <span class="text-sm font-medium text-blue-800">{{ $incompleteSubjects->count() }} subject(s) pending</span>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg px-3 sm:px-4 py-2">
+                    <span class="text-xs sm:text-sm font-medium text-blue-800">{{ $incompleteSubjects->count() }} subject(s) pending</span>
                 </div>
             </div>
             
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <!-- Mobile Cards View -->
+            <div class="block lg:hidden space-y-4">
+                @foreach($incompleteSubjects as $index => $subject)
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-book-open text-blue-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-gray-900">{{ $subject->code }}</h3>
+                                    <p class="text-xs text-gray-600">{{ Str::limit($subject->description, 30) }}</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-medium text-gray-600">{{ $subject->units }} units</span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="text-xs text-gray-500 mb-1">Current Grade:</p>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                @if($subject->current_grade === 'INC') bg-yellow-100 text-yellow-800
+                                @elseif($subject->current_grade === 'NFE') bg-red-100 text-red-800
+                                @else bg-gray-100 text-gray-800 @endif">
+                                {{ $subject->current_grade }}
+                            </span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            @if($subject->application_status === 'pending')
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-clock mr-1"></i> Pending Review
+                                </span>
+                            @elseif($subject->application_status === 'approved')
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check-circle mr-1"></i> Approved
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <i class="fas fa-info-circle mr-1"></i> Available
+                                </span>
+                            @endif
+                            
+                            @if($subject->application_status !== 'pending' && $subject->application_status !== 'approved')
+                                <button onclick="openCompletionModal('{{ $subject->id }}', '{{ $subject->code }}', '{{ $subject->description }}')"
+                                        class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium transition duration-200">
+                                    <i class="fas fa-plus mr-1"></i> Apply
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            
+            <!-- Desktop Table View -->
+            <div class="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gradient-to-r from-gray-50 to-gray-100">

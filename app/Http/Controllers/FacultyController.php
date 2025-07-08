@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\GradeCompletionApplication;
+use App\Models\Announcement;
 use Carbon\Carbon;
 
 class FacultyController extends Controller
@@ -102,7 +103,64 @@ class FacultyController extends Controller
     public function announcement()
     {
         $faculty = $this->getLoggedInFaculty();
-        return view('faculty.announcement', compact('faculty'));
+        
+        // Get faculty's own announcements
+        $facultyAnnouncements = Announcement::where('created_by', $faculty->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        // Get dean announcements for faculty
+        $deanAnnouncements = Announcement::published()
+            ->forFaculty()
+            ->active()
+            ->with('creator')
+            ->orderBy('priority', 'desc')
+            ->orderBy('published_at', 'desc')
+            ->get();
+            
+        // Get drafts
+        $drafts = Announcement::where('created_by', $faculty->id)
+            ->where('status', 'draft')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('faculty.announcement', compact('faculty', 'facultyAnnouncements', 'deanAnnouncements', 'drafts'));
+    }
+
+    public function storeAnnouncement(Request $request)
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'category' => 'required|string|in:general,academic,administrative,urgent',
+            'audience' => 'required|string|in:all,students,faculty,staff',
+            'priority' => 'required|string|in:normal,high,urgent',
+            'action' => 'required|string|in:draft,publish',
+            'expires_at' => 'nullable|date|after:now',
+        ]);
+
+        $status = $request->action === 'publish' ? 'published' : 'draft';
+        $published_at = $request->action === 'publish' ? now() : null;
+
+        Announcement::create([
+            'title' => $request->title,
+            'content' => $request->content,
+            'category' => $request->category,
+            'audience' => $request->audience,
+            'priority' => $request->priority,
+            'status' => $status,
+            'created_by' => $faculty->id,
+            'published_at' => $published_at,
+            'expires_at' => $request->expires_at,
+        ]);
+
+        $message = $request->action === 'publish' ? 
+            'Announcement published successfully!' : 
+            'Announcement saved as draft!';
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function profile()

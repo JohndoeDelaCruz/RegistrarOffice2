@@ -44,6 +44,7 @@ Route::prefix('faculty')->name('faculty.')->group(function () {
     Route::post('/student/{student}/subject/{subject}/grade', [FacultyController::class, 'updateGrade'])->name('student.update-grade');
     Route::delete('/student/{student}/subject/{subject}/grade', [FacultyController::class, 'removeGrade'])->name('student.remove-grade');
     Route::get('/announcement', [FacultyController::class, 'announcement'])->name('announcement');
+    Route::post('/announcement', [FacultyController::class, 'storeAnnouncement'])->name('announcement.store');
     Route::get('/profile', [FacultyController::class, 'profile'])->name('profile');
     Route::put('/profile', [FacultyController::class, 'updateProfile'])->name('profile.update');
     Route::get('/grade-completion-applications', [FacultyController::class, 'gradeCompletionApplications'])->name('grade-completion-applications');
@@ -57,6 +58,7 @@ Route::prefix('faculty')->name('faculty.')->group(function () {
 Route::prefix('dean')->name('dean.')->group(function () {
     Route::get('/dashboard', [DeanController::class, 'dashboard'])->name('dashboard');
     Route::get('/announcement', [DeanController::class, 'announcement'])->name('announcement');
+    Route::post('/announcement', [DeanController::class, 'storeAnnouncement'])->name('announcement.store');
     Route::get('/profile', [DeanController::class, 'profile'])->name('profile');
     Route::get('/grade-completion-applications', [DeanController::class, 'gradeCompletionApplications'])->name('grade-completion-applications');
     Route::get('/approved-applications', [DeanController::class, 'approvedApplications'])->name('approved-applications');

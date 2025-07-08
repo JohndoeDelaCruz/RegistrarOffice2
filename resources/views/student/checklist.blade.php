@@ -37,7 +37,7 @@
                     $yearConfig = [
                         1 => ['name' => 'FIRST YEAR', 'icon' => 'fas fa-seedling', 'color' => 'text-green-500', 'badge' => 'bg-green-500', 'academic_year' => '2022-2023'],
                         2 => ['name' => 'SECOND YEAR', 'icon' => 'fas fa-tree', 'color' => 'text-green-600', 'badge' => 'bg-blue-500', 'academic_year' => '2023-2024'],
-                        3 => ['name' => 'THIRD YEAR', 'icon' => 'fas fa-graduation-cap', 'color' => 'text-purple-600', 'badge' => 'bg-purple-500', 'academic_year' => '2024-2025'],
+                        3 => ['name' => 'THIRD YEAR', 'icon' => 'fas fa-graduation-cap', 'color' => 'text-uc-green', 'badge' => 'bg-uc-green', 'academic_year' => '2024-2025'],
                     ];
                     $config = $yearConfig[$year] ?? ['name' => 'YEAR ' . $year, 'icon' => 'fas fa-book', 'color' => 'text-gray-600', 'badge' => 'bg-gray-500', 'academic_year' => '2024-2025'];
                 @endphp

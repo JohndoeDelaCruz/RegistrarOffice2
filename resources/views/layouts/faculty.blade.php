@@ -61,6 +61,11 @@
                     <span>Announcements</span>
                 </a>
 
+                <a href="{{ route('rules-guidelines') }}" class="flex items-center px-6 py-3 text-white hover:bg-green-600 transition-colors duration-200 {{ request()->routeIs('rules-guidelines') ? 'bg-green-600 border-r-4 border-green-300' : '' }}">
+                    <i class="fas fa-book w-5 h-5 mr-3"></i>
+                    <span>Rules & Guidelines</span>
+                </a>
+
                 <a href="{{ route('faculty.profile') }}" class="flex items-center px-6 py-3 text-white hover:bg-green-600 transition-colors duration-200 {{ request()->routeIs('faculty.profile') ? 'bg-green-600 border-r-4 border-green-300' : '' }}">
                     <i class="fas fa-user w-5 h-5 mr-3"></i>
                     <span>Profile</span>

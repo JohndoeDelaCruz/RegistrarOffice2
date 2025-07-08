@@ -5,11 +5,15 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\DeanController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\PageController;
 use App\Models\User;
 
 Route::get('/', function () {
     return view('student-select');
 });
+
+// Rules and Guidelines - accessible to all authenticated users
+Route::get('/rules-guidelines', [PageController::class, 'rulesGuidelines'])->name('rules-guidelines');
 
 // Direct access to faculty dashboard for testing
 Route::get('/faculty', function () {

@@ -186,7 +186,7 @@
         <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onclick="closeSignatureModal()"></div>
         
         <div class="inline-block w-full max-w-md my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-            <div class="bg-gradient-to-r from-purple-500 to-indigo-600 px-6 py-4">
+            <div class="bg-gradient-to-r from-uc-green to-green-600 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-xl font-bold text-white flex items-center">
                         <i class="fas fa-signature mr-3"></i>
@@ -268,7 +268,7 @@ function displayApplicationDetails(application) {
                 </div>
             </div>
             
-            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                 <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
                     <i class="fas fa-book text-purple-600 mr-2"></i>Subject Information
                 </h4>

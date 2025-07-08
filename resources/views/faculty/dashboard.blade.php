@@ -1,6 +1,11 @@
 @extends('layouts.faculty')
 
-@section('page-title', 'Dashboard')
+@section('page-tit                <div class="bg-green-100 p-3 rounded-full">
+                    <i class="fas fa-clipboard-check text-uc-green text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Completed Applications</h3>
+                    <p class="text-2xl font-bold text-uc-green">-</p>Dashboard')
 
 @section('content')
 <div class="space-y-6">
@@ -76,8 +81,8 @@
                 </div>
             </a>
             
-            <a href="{{ route('faculty.announcement') }}" class="flex items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors duration-200">
-                <i class="fas fa-bullhorn text-purple-600 text-xl mr-3"></i>
+            <a href="{{ route('faculty.announcement') }}" class="flex items-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors duration-200">
+                <i class="fas fa-bullhorn text-uc-green text-xl mr-3"></i>
                 <div>
                     <span class="font-medium text-gray-800">Announcements</span>
                     <p class="text-sm text-gray-600">Post announcements</p>

@@ -127,16 +127,22 @@
                 <span class="font-medium">Grade Completion</span>
             </a>
             
-            <a href="{{ route('student.profile') }}" 
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.profile') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
-                <i class="fas fa-user w-5 text-center"></i>
-                <span class="font-medium">Profile</span>
-            </a>
-            
             <a href="{{ route('student.checklist') }}" 
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.checklist') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
                 <i class="fas fa-list-check w-5 text-center"></i>
                 <span class="font-medium">Checklist</span>
+            </a>
+            
+            <a href="{{ route('rules-guidelines') }}" 
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+                <i class="fas fa-book w-5 text-center"></i>
+                <span class="font-medium">Rules & Guidelines</span>
+            </a>
+            
+            <a href="{{ route('student.profile') }}" 
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.profile') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+                <i class="fas fa-user w-5 text-center"></i>
+                <span class="font-medium">Profile</span>
             </a>
             
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
@@ -171,18 +177,25 @@
                 <span class="font-medium">Grade Completion</span>
             </a>
             
-            <a href="{{ route('student.profile') }}" 
-               onclick="closeMobileMenu()"
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.profile') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
-                <i class="fas fa-user w-5 text-center"></i>
-                <span class="font-medium">Profile</span>
-            </a>
-            
             <a href="{{ route('student.checklist') }}" 
                onclick="closeMobileMenu()"
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.checklist') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
                 <i class="fas fa-list-check w-5 text-center"></i>
                 <span class="font-medium">Checklist</span>
+            </a>
+            
+            <a href="{{ route('rules-guidelines') }}" 
+               onclick="closeMobileMenu()"
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+                <i class="fas fa-book w-5 text-center"></i>
+                <span class="font-medium">Rules & Guidelines</span>
+            </a>
+            
+            <a href="{{ route('student.profile') }}" 
+               onclick="closeMobileMenu()"
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.profile') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+                <i class="fas fa-user w-5 text-center"></i>
+                <span class="font-medium">Profile</span>
             </a>
             
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit(); closeMobileMenu();" 

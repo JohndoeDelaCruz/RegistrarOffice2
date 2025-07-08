@@ -187,8 +187,11 @@ class StudentController extends Controller
         }
 
         $documentPath = null;
+        $originalFilename = null;
         if ($request->hasFile('supporting_document')) {
-            $documentPath = $request->file('supporting_document')->store('grade_completion_documents', 'public');
+            $file = $request->file('supporting_document');
+            $documentPath = $file->store('grade_completion_documents', 'public');
+            $originalFilename = $file->getClientOriginalName();
         }
 
         \App\Models\GradeCompletionApplication::create([
@@ -197,6 +200,7 @@ class StudentController extends Controller
             'current_grade' => $grade->grade,
             'reason' => $request->reason,
             'supporting_document' => $documentPath,
+            'original_filename' => $originalFilename,
             'status' => 'pending'
         ]);
 

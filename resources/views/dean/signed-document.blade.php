@@ -40,7 +40,7 @@
 <body class="bg-white">
     <!-- Print Controls -->
     <div class="no-print bg-gray-100 p-4 text-center">
-        <button onclick="window.print()" class="px-6 py-2 bg-uc-green text-white rounded-lg hover:bg-uc-green-dark mr-4">
+        <button onclick="window.print()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-uc-green-dark mr-4">
             <i class="fas fa-print mr-2"></i>Print Document
         </button>
         <button onclick="window.close()" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">

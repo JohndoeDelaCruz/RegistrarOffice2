@@ -72,10 +72,10 @@
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     @if($application->supporting_document)
-                                        <a href="{{ route('dean.grade-completion-applications.document', $application->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors duration-200 text-sm font-medium">
+                                        <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-lg text-sm font-medium">
                                             <i class="fas fa-file mr-1"></i>
-                                            View
-                                        </a>
+                                            Available
+                                        </span>
                                     @else
                                         <span class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-sm">
                                             <i class="fas fa-minus mr-1"></i>
@@ -377,7 +377,7 @@ function displayApplicationDetails(application) {
                             <i class="fas fa-file mr-2"></i>
                             View Document
                         </a>
-                        <a href="/dean/grade-completion-applications/${application.id}/document" download class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors duration-200 text-sm">
+                        <a href="/dean/grade-completion-applications/${application.id}/document?download=1" class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors duration-200 text-sm">
                             <i class="fas fa-download mr-2"></i>
                             Download
                         </a>

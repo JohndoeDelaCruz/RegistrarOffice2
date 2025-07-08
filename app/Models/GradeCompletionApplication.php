@@ -15,6 +15,7 @@ class GradeCompletionApplication extends Model
         'current_grade',
         'reason',
         'supporting_document',
+        'original_filename',
         'status',
         'dean_status',
         'dean_remarks',

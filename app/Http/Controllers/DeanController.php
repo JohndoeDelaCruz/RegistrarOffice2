@@ -179,7 +179,7 @@ class DeanController extends Controller
         ]);
     }
 
-    public function viewDocument($application)
+    public function viewDocument(Request $request, $application)
     {
         $application = GradeCompletionApplication::findOrFail($application);
         
@@ -193,18 +193,20 @@ class DeanController extends Controller
             abort(404, 'Document file not found');
         }
         
-        $fileName = basename($application->supporting_document);
+        // Use original filename if available, otherwise fall back to stored filename
+        $fileName = $application->original_filename ?: basename($application->supporting_document);
         $mimeType = mime_content_type($filePath);
         
-        // For PDFs, display inline; for images, display inline; for other files, force download
-        if (str_contains($mimeType, 'pdf') || str_contains($mimeType, 'image')) {
-            return response()->file($filePath, [
-                'Content-Type' => $mimeType,
-                'Content-Disposition' => 'inline; filename="' . $fileName . '"'
-            ]);
-        } else {
+        // If download parameter is present, force download
+        if ($request->get('download')) {
             return response()->download($filePath, $fileName);
         }
+        
+        // Display all files inline by default
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $fileName . '"'
+        ]);
     }
 
     public function generateSignedDocument($application)

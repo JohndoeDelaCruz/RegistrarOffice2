@@ -272,10 +272,10 @@
                                 class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium">
                             Cancel
                         </button>
-                        <button type="button" onclick="submitReview()" 
+                        <button id="reviewSubmitButton" type="button" onclick="submitReview()" 
                                 class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium">
-                            <i class="fas fa-check mr-2"></i>
-                            Approve
+                            <i id="reviewSubmitIcon" class="fas fa-check mr-2"></i>
+                            <span id="reviewSubmitLabel">Approve</span>
                         </button>
                     </div>
                 </form>
@@ -441,6 +441,20 @@ function reviewApplication(applicationId, action) {
     
     // Show review modal
     document.getElementById('reviewModal').classList.remove('hidden');
+    
+    // Update submit button label, icon, and color
+    const submitButton = document.getElementById('reviewSubmitButton');
+    const submitIcon = document.getElementById('reviewSubmitIcon');
+    const submitLabel = document.getElementById('reviewSubmitLabel');
+    if (action === 'approve') {
+        submitButton.className = 'px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium';
+        submitIcon.className = 'fas fa-check mr-2';
+        submitLabel.textContent = 'Approve';
+    } else {
+        submitButton.className = 'px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium';
+        submitIcon.className = 'fas fa-times mr-2';
+        submitLabel.textContent = 'Reject';
+    }
 }
 
 function triggerFileUpload() {

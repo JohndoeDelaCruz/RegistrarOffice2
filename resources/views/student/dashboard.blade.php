@@ -12,24 +12,24 @@
     </div>
 
     <!-- Track Information -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
         <h3 class="text-lg font-semibold text-gray-800 mb-4">Track Information</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
                 <label class="text-sm font-medium text-gray-600">Course</label>
-                <p class="text-gray-800">{{ $student->course }}</p>
+                <p class="text-gray-800 font-medium">{{ $student->course }}</p>
             </div>
-            <div>
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
                 <label class="text-sm font-medium text-gray-600">Specialization Track</label>
-                <p class="text-gray-800">{{ $student->track }}</p>
+                <p class="text-gray-800 font-medium">{{ $student->track }}</p>
             </div>
-            <div>
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
                 <label class="text-sm font-medium text-gray-600">Student ID</label>
-                <p class="text-gray-800">{{ $student->student_id }}</p>
+                <p class="text-gray-800 font-medium">{{ $student->student_id }}</p>
             </div>
-            <div>
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
                 <label class="text-sm font-medium text-gray-600">Email</label>
-                <p class="text-gray-800">{{ $student->email }}</p>
+                <p class="text-gray-800 font-medium">{{ $student->email }}</p>
             </div>
         </div>
     </div>

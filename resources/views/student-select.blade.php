@@ -40,26 +40,8 @@
         </div>
     </div>
 
-    <!-- Side Navigation -->
-    <div class="fixed left-0 top-0 bottom-0 w-48 bg-teal-700 z-10">
-        <!-- Spacer for header height -->
-        <div class="h-16 w-full"></div>
-        <!-- Navigation buttons -->
-        <div class="p-4">
-            <button class="w-full bg-uc-orange text-white py-2 px-4 rounded mb-2 text-sm font-medium">
-                Home
-            </button>
-            <button class="w-full bg-uc-blue text-white py-2 px-4 rounded mb-2 text-sm font-medium">
-                Login
-            </button>
-            <button class="w-full bg-teal-600 text-white py-2 px-4 rounded text-sm font-medium">
-                Admission
-            </button>
-        </div>
-    </div>
-
     <!-- Main Login Form -->
-    <div class="ml-48 mt-16 flex-1 flex items-center justify-center">
+    <div class="mt-16 flex-1 flex items-center justify-center">
         <div class="bg-white bg-opacity-95 rounded-lg shadow-2xl p-8 w-full max-w-md">
             <!-- Header -->
             <div class="bg-uc-orange text-white text-center py-3 -mx-8 -mt-8 mb-6 rounded-t-lg">

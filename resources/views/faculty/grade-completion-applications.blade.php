@@ -90,18 +90,35 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                                     @if($application->completion_deadline)
+                                        @php
+                                            $deadline = $application->completion_deadline;
+                                            $now = now();
+                                            $daysUntil = (int) $now->diffInDays($deadline, false);
+                                            $isOverdue = $now->isAfter($deadline);
+                                            $deadlineTimestamp = $deadline->timestamp * 1000; // Convert to milliseconds for JavaScript
+                                        @endphp
+                                        
                                         <div class="flex flex-col items-center">
-                                            <span class="font-medium {{ $application->deadline_status === 'overdue' ? 'text-red-600' : ($application->deadline_status === 'approaching' ? 'text-yellow-600' : 'text-green-600') }}">
+                                            <span class="font-medium {{ $isOverdue ? 'text-red-600' : ($daysUntil <= 7 ? 'text-yellow-600' : 'text-green-600') }}">
                                                 {{ $application->completion_deadline->format('M j, Y') }}
                                             </span>
-                                            <span class="text-xs {{ $application->deadline_status === 'overdue' ? 'text-red-500' : ($application->deadline_status === 'approaching' ? 'text-yellow-500' : 'text-gray-500') }}">
-                                                @if($application->deadline_status === 'overdue')
-                                                    {{ abs($application->getDaysUntilDeadline()) }} days overdue
-                                                @elseif($application->deadline_status === 'approaching')
-                                                    {{ $application->getDaysUntilDeadline() }} days left
-                                                @else
-                                                    {{ $application->getDaysUntilDeadline() }} days left
-                                                @endif
+                                            
+                                            @if(!$isOverdue)
+                                                <!-- Real-time countdown timer -->
+                                                <div class="text-xs mt-1 font-mono" 
+                                                     data-deadline="{{ $deadlineTimestamp }}" 
+                                                     data-application-id="{{ $application->id }}"
+                                                     id="countdown-faculty-{{ $application->id }}">
+                                                    <span class="countdown-timer">Loading...</span>
+                                                </div>
+                                            @else
+                                                <span class="text-xs text-red-500 font-medium">
+                                                    {{ abs($daysUntil) }} day{{ abs($daysUntil) != 1 ? 's' : '' }} overdue
+                                                </span>
+                                            @endif
+                                            
+                                            <span class="text-xs text-gray-500 mt-1">
+                                                {{ $application->completion_deadline->format('g:i A') }}
                                             </span>
                                         </div>
                                     @else
@@ -507,5 +524,108 @@ function showAlert(message, type) {
         alert.remove();
     }, 5000);
 }
+
+// Countdown Timer Functions
+function updateCountdownTimers() {
+    const timers = document.querySelectorAll('[data-deadline]');
+    const now = new Date().getTime();
+    
+    timers.forEach(timer => {
+        const deadline = parseInt(timer.getAttribute('data-deadline'));
+        const timeLeft = deadline - now;
+        
+        if (timeLeft > 0) {
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            let timeString = '';
+            let colorClass = '';
+            
+            if (days > 0) {
+                timeString = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                if (days <= 1) {
+                    colorClass = 'text-orange-600 font-bold';
+                } else if (days <= 7) {
+                    colorClass = 'text-yellow-600 font-semibold';
+                } else if (days <= 30) {
+                    colorClass = 'text-blue-600';
+                } else {
+                    colorClass = 'text-green-600';
+                }
+            } else if (hours > 0) {
+                timeString = `${hours}h ${minutes}m ${seconds}s`;
+                colorClass = 'text-orange-600 font-bold animate-pulse';
+            } else if (minutes > 0) {
+                timeString = `${minutes}m ${seconds}s`;
+                colorClass = 'text-red-600 font-bold animate-pulse';
+            } else {
+                timeString = `${seconds}s`;
+                colorClass = 'text-red-600 font-bold animate-pulse';
+            }
+            
+            const timerElement = timer.querySelector('.countdown-timer');
+            if (timerElement) {
+                timerElement.textContent = timeString;
+                timerElement.className = `countdown-timer ${colorClass}`;
+            }
+        } else {
+            // Time's up!
+            const timerElement = timer.querySelector('.countdown-timer');
+            if (timerElement) {
+                timerElement.textContent = 'EXPIRED';
+                timerElement.className = 'countdown-timer text-red-600 font-bold animate-pulse';
+            }
+        }
+    });
+}
+
+// Start the countdown timers
+document.addEventListener('DOMContentLoaded', function() {
+    updateCountdownTimers();
+    // Update every second
+    setInterval(updateCountdownTimers, 1000);
+});
 </script>
+
+<style>
+/* Countdown Timer Styling */
+.countdown-timer {
+    display: inline-block;
+    padding: 2px 6px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    font-family: 'Courier New', 'Monaco', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.countdown-timer.animate-pulse {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Urgency-based styling */
+.countdown-timer.text-red-600 {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.countdown-timer.text-orange-600 {
+    background-color: rgba(234, 88, 12, 0.1);
+    border: 1px solid rgba(234, 88, 12, 0.3);
+}
+
+.countdown-timer.text-yellow-600 {
+    background-color: rgba(202, 138, 4, 0.1);
+    border: 1px solid rgba(202, 138, 4, 0.3);
+}
+</style>
+
 @endsection

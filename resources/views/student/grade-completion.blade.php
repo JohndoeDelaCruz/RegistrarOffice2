@@ -10,41 +10,94 @@
             <div>
                 <h1 class="text-2xl font-bold text-gray-800 mb-2">Grade Completion Applications</h1>
                 <p class="text-gray-600">Apply for completion of INC and NFE grades</p>
-                <p class="text-sm text    });
-}
-
-function showRejectionReason(reason) {
-    document.getElementById('rejectionReasonText').textContent = reason;
-    document.getElementById('rejectionReasonModal').classList.remove('hidden');
-    document.body.classList.add('overflow-hidden');
-}
-
-function closeRejectionModal() {
-    document.getElementById('rejectionReasonModal').classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
-}
-
-// Close modal when clicking outside
-document.addEventListener('click', function(event) {
-    const modal = document.getElementById('completionModal');
-    const modalContent = modal.querySelector('.bg-white');
-    
-    if (event.target === modal && !modalContent.contains(event.target)) {
-        closeCompletionModal();
-    }
-    
-    const rejectionModal = document.getElementById('rejectionReasonModal');
-    const rejectionModalContent = rejectionModal.querySelector('.bg-white');
-    
-    if (event.target === rejectionModal && !rejectionModalContent.contains(event.target)) {
-        closeRejectionModal();
-    }
-});tudent ID: {{ $student->student_id }} | {{ $student->name }}</p>
+                <p class="text-sm text-gray-500">Student ID: {{ $student->student_id }} | {{ $student->name }}</p>
             </div>
         </div>
     </div>
 
     @if($incompleteSubjects->count() > 0)
+        <!-- Deadline Summary Section -->
+        @php
+            $applicationsWithDeadlines = $applicationStatus->filter(function($app) {
+                return $app->completion_deadline;
+            });
+            
+            $overdueCount = $applicationsWithDeadlines->filter(function($app) {
+                return now()->isAfter($app->completion_deadline);
+            })->count();
+            
+            $dueSoonCount = $applicationsWithDeadlines->filter(function($app) {
+                $daysUntil = (int) now()->diffInDays($app->completion_deadline, false);
+                return $daysUntil >= 0 && $daysUntil <= 7;
+            })->count();
+            
+            $upcomingCount = $applicationsWithDeadlines->filter(function($app) {
+                $daysUntil = (int) now()->diffInDays($app->completion_deadline, false);
+                return $daysUntil > 7 && $daysUntil <= 30;
+            })->count();
+        @endphp
+        
+        @if($applicationsWithDeadlines->count() > 0)
+            <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-6 mb-6 border border-blue-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-clock text-blue-600 mr-2"></i>
+                    Completion Deadline Overview
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    @if($overdueCount > 0)
+                        <div class="bg-red-100 border border-red-200 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-red-800 mb-1">{{ $overdueCount }}</div>
+                            <div class="text-sm font-medium text-red-700">Overdue</div>
+                            <i class="fas fa-exclamation-triangle text-red-500 mt-2"></i>
+                        </div>
+                    @endif
+                    
+                    @if($dueSoonCount > 0)
+                        <div class="bg-yellow-100 border border-yellow-200 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-yellow-800 mb-1">{{ $dueSoonCount }}</div>
+                            <div class="text-sm font-medium text-yellow-700">Due Within 7 Days</div>
+                            <i class="fas fa-exclamation text-yellow-500 mt-2"></i>
+                        </div>
+                    @endif
+                    
+                    @if($upcomingCount > 0)
+                        <div class="bg-blue-100 border border-blue-200 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-blue-800 mb-1">{{ $upcomingCount }}</div>
+                            <div class="text-sm font-medium text-blue-700">Due Within 30 Days</div>
+                            <i class="fas fa-calendar text-blue-500 mt-2"></i>
+                        </div>
+                    @endif
+                    
+                    @if($overdueCount == 0 && $dueSoonCount == 0 && $upcomingCount == 0)
+                        <div class="col-span-full bg-green-100 border border-green-200 rounded-lg p-4 text-center">
+                            <div class="text-lg font-medium text-green-700 mb-1">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                No Urgent Deadlines
+                            </div>
+                            <div class="text-sm text-green-600">All deadlines are more than 30 days away</div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
+        <!-- Deadline Information Box -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-600 text-lg mr-3 mt-1"></i>
+                <div>
+                    <h4 class="font-semibold text-blue-800 mb-2">About Completion Deadlines</h4>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• Completion deadlines are set when your application is approved by the dean</li>
+                        <li>• You must complete your requirements before the deadline to avoid grade conversion to NG</li>
+                        <li>• Contact your faculty immediately if you need assistance meeting the deadline</li>
+                        <li>• Deadlines are typically set for one semester after approval</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <div class="space-y-6">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold text-gray-800 flex items-center">
@@ -61,22 +114,25 @@ document.addEventListener('click', function(event) {
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                <th class="px-3 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider min-w-[100px]">
                                     <i class="fas fa-code mr-2"></i>Subject Code
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                <th class="px-3 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider min-w-[200px]">
                                     <i class="fas fa-book mr-2"></i>Subject Description
                                 </th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                <th class="px-3 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider min-w-[80px]">
                                     <i class="fas fa-weight mr-2"></i>Units
                                 </th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                <th class="px-3 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider min-w-[100px]">
                                     <i class="fas fa-grade mr-2"></i>Current Grade
                                 </th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                <th class="px-3 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider min-w-[120px]">
                                     <i class="fas fa-info-circle mr-2"></i>Status
                                 </th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                <th class="px-3 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider min-w-[120px]">
+                                    <i class="fas fa-clock mr-2"></i>Deadline
+                                </th>
+                                <th class="px-3 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider min-w-[120px]">
                                     <i class="fas fa-cog mr-2"></i>Action
                                 </th>
                             </tr>
@@ -84,50 +140,50 @@ document.addEventListener('click', function(event) {
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach($incompleteSubjects as $index => $subject)
                                 <tr class="hover:bg-gray-50 transition-colors duration-150 {{ $index % 2 == 1 ? 'bg-gray-25' : '' }}">
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-3 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-book-open text-blue-600"></i>
+                                            <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-book-open text-blue-600 text-sm"></i>
                                             </div>
-                                            <div class="ml-4">
+                                            <div class="ml-3">
                                                 <div class="text-sm font-bold text-gray-900">{{ $subject->code }}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-3 py-4">
                                         <div class="text-sm text-gray-900 leading-relaxed">{{ $subject->description }}</div>
                                     </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            {{ $subject->units }} units
+                                    <td class="px-3 py-4 text-center">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            {{ $subject->units }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-100 text-red-800 border border-red-200">
+                                    <td class="px-3 py-4 text-center">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-sm font-bold bg-red-100 text-red-800 border border-red-200">
                                             <i class="fas fa-exclamation-triangle mr-1"></i>
                                             {{ $subject->grades->first()->grade }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 text-center">
+                                    <td class="px-3 py-4 text-center">
                                         @if(in_array($subject->id, $existingApplications))
                                             @php
                                                 $application = $applicationStatus[$subject->id] ?? null;
                                             @endphp
                                             @if($application)
                                                 @if($application->dean_status == 'pending')
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
                                                         <i class="fas fa-clock mr-1"></i>
-                                                        Pending Dean Review
+                                                        Pending Dean
                                                     </span>
                                                 @elseif($application->dean_status == 'approved')
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
                                                         <i class="fas fa-check mr-1"></i>
-                                                        Approved by Dean
+                                                        Approved
                                                     </span>
                                                 @elseif($application->dean_status == 'rejected')
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 border border-red-200">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
                                                         <i class="fas fa-times mr-1"></i>
-                                                        Rejected by Dean
+                                                        Rejected
                                                     </span>
                                                 @endif
                                             @else
@@ -144,14 +200,89 @@ document.addEventListener('click', function(event) {
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 text-center">
+                                        @if(in_array($subject->id, $existingApplications))
+                                            @php
+                                                $application = $applicationStatus[$subject->id] ?? null;
+                                            @endphp
+                                            @if($application && $application->completion_deadline)
+                                                @php
+                                                    $deadline = $application->completion_deadline;
+                                                    $now = now();
+                                                    $daysUntil = (int) $now->diffInDays($deadline, false);
+                                                    $hoursUntil = (int) $now->diffInHours($deadline, false);
+                                                    $isOverdue = $now->isAfter($deadline);
+                                                    $deadlineTimestamp = $deadline->timestamp * 1000; // Convert to milliseconds for JavaScript
+                                                @endphp
+                                                
+                                                @if($isOverdue)
+                                                    <div class="text-center">
+                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">
+                                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                            Overdue
+                                                        </span>
+                                                        <div class="text-xs text-red-600 mt-1">
+                                                            {{ abs($daysUntil) }} day{{ abs($daysUntil) != 1 ? 's' : '' }} ago
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="text-center">
+                                                        @if($daysUntil <= 0 && $hoursUntil > 0)
+                                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-200">
+                                                                <i class="fas fa-clock mr-1"></i>
+                                                                Due Today
+                                                            </span>
+                                                        @elseif($daysUntil <= 7)
+                                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                                <i class="fas fa-exclamation mr-1"></i>
+                                                                {{ $daysUntil }}d left
+                                                            </span>
+                                                        @elseif($daysUntil <= 30)
+                                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                                                <i class="fas fa-calendar mr-1"></i>
+                                                                {{ $daysUntil }}d left
+                                                            </span>
+                                                        @else
+                                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                                                <i class="fas fa-calendar-check mr-1"></i>
+                                                                {{ $daysUntil }}d left
+                                                            </span>
+                                                        @endif
+                                                        
+                                                        <!-- Real-time countdown timer -->
+                                                        <div class="text-xs mt-1 font-mono" 
+                                                             data-deadline="{{ $deadlineTimestamp }}" 
+                                                             data-subject-id="{{ $subject->id }}"
+                                                             id="countdown-{{ $subject->id }}">
+                                                            <span class="countdown-timer">Loading...</span>
+                                                        </div>
+                                                        
+                                                        <div class="text-xs text-gray-500 mt-1">
+                                                            Due {{ $deadline->format('M j, Y g:i A') }}
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            @else
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                                                    <i class="fas fa-minus mr-1"></i>
+                                                    No deadline set
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                                                <i class="fas fa-minus mr-1"></i>
+                                                Apply first
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-3 py-4 text-center">
                                         @if(!in_array($subject->id, $existingApplications))
                                             <button 
                                                 onclick="openCompletionModal({{ $subject->id }}, '{{ $subject->code }}', '{{ $subject->description }}', '{{ $subject->grades->first()->grade }}')"
-                                                class="inline-flex items-center px-4 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-black"
+                                                class="inline-flex items-center px-3 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium text-sm border border-gray-300"
                                                 title="Apply for Completion"
                                             >
-                                                <i class="fas fa-paper-plane mr-2"></i>
-                                                Apply for Completion
+                                                <i class="fas fa-paper-plane mr-1"></i>
+                                                Apply
                                             </button>
                                         @else
                                             @php
@@ -403,6 +534,43 @@ document.addEventListener('click', function(event) {
     font-weight: 600 !important;
     border: 2px solid #000000 !important;
 }
+
+/* Countdown Timer Styling */
+.countdown-timer {
+    display: inline-block;
+    padding: 2px 6px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    font-family: 'Courier New', 'Monaco', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.countdown-timer.animate-pulse {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Urgency-based styling */
+.countdown-timer.text-red-600 {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.countdown-timer.text-orange-600 {
+    background-color: rgba(234, 88, 12, 0.1);
+    border: 1px solid rgba(234, 88, 12, 0.3);
+}
+
+.countdown-timer.text-yellow-600 {
+    background-color: rgba(202, 138, 4, 0.1);
+    border: 1px solid rgba(202, 138, 4, 0.3);
+}
 </style>
 
 <script>
@@ -560,6 +728,69 @@ document.addEventListener('click', function(event) {
     if (event.target === modal && !modalContent.contains(event.target)) {
         closeCompletionModal();
     }
+});
+
+// Countdown Timer Functions
+function updateCountdownTimers() {
+    const timers = document.querySelectorAll('[data-deadline]');
+    const now = new Date().getTime();
+    
+    timers.forEach(timer => {
+        const deadline = parseInt(timer.getAttribute('data-deadline'));
+        const timeLeft = deadline - now;
+        
+        if (timeLeft > 0) {
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            let timeString = '';
+            let colorClass = '';
+            
+            if (days > 0) {
+                timeString = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                if (days <= 1) {
+                    colorClass = 'text-orange-600 font-bold';
+                } else if (days <= 7) {
+                    colorClass = 'text-yellow-600 font-semibold';
+                } else if (days <= 30) {
+                    colorClass = 'text-blue-600';
+                } else {
+                    colorClass = 'text-green-600';
+                }
+            } else if (hours > 0) {
+                timeString = `${hours}h ${minutes}m ${seconds}s`;
+                colorClass = 'text-orange-600 font-bold animate-pulse';
+            } else if (minutes > 0) {
+                timeString = `${minutes}m ${seconds}s`;
+                colorClass = 'text-red-600 font-bold animate-pulse';
+            } else {
+                timeString = `${seconds}s`;
+                colorClass = 'text-red-600 font-bold animate-pulse';
+            }
+            
+            const timerElement = timer.querySelector('.countdown-timer');
+            if (timerElement) {
+                timerElement.textContent = timeString;
+                timerElement.className = `countdown-timer ${colorClass}`;
+            }
+        } else {
+            // Time's up!
+            const timerElement = timer.querySelector('.countdown-timer');
+            if (timerElement) {
+                timerElement.textContent = 'EXPIRED';
+                timerElement.className = 'countdown-timer text-red-600 font-bold animate-pulse';
+            }
+        }
+    });
+}
+
+// Start the countdown timers
+document.addEventListener('DOMContentLoaded', function() {
+    updateCountdownTimers();
+    // Update every second
+    setInterval(updateCountdownTimers, 1000);
 });
 </script>
 @endsection

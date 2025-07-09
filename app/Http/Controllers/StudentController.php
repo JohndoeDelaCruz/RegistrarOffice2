@@ -8,14 +8,16 @@ use App\Models\Subject;
 use App\Models\StudentGrade;
 use App\Models\AcademicYear;
 use App\Models\GradeCompletionApplication;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
     private function getLoggedInStudent()
     {
         // First try to get from Laravel's built-in auth
-        if (auth()->check() && auth()->user()->role === 'student') {
-            return auth()->user();
+        if (Auth::check() && Auth::user()->role === 'student') {
+            return Auth::user();
         }
         
         // Then try to get from session
@@ -86,7 +88,7 @@ class StudentController extends Controller
             ->pluck('subject_id')
             ->toArray();
 
-        // Get detailed application status for each subject
+        // Get detailed application status for each subject with deadline information
         $applicationStatus = \App\Models\GradeCompletionApplication::where('student_id', $student->id)
             ->get()
             ->keyBy('subject_id');
@@ -186,24 +188,30 @@ class StudentController extends Controller
             return response()->json(['success' => false, 'message' => 'You already have a pending application for this subject.']);
         }
 
-        $documentPath = null;
-        $originalFilename = null;
-        if ($request->hasFile('supporting_document')) {
-            $file = $request->file('supporting_document');
-            $documentPath = $file->store('grade_completion_documents', 'public');
-            $originalFilename = $file->getClientOriginalName();
+        try {
+            $documentPath = null;
+            $originalFilename = null;
+            
+            if ($request->hasFile('supporting_document')) {
+                $file = $request->file('supporting_document');
+                $originalFilename = $file->getClientOriginalName();
+                $documentPath = $file->store('grade_completion_documents', 'public');
+            }
+            
+            \App\Models\GradeCompletionApplication::create([
+                'student_id' => $student->id,
+                'subject_id' => $request->subject_id,
+                'current_grade' => $grade->grade,
+                'reason' => $request->reason,
+                'supporting_document' => $documentPath,
+                'original_filename' => $originalFilename,
+                'status' => 'pending'
+            ]);
+            
+            return response()->json(['success' => true, 'message' => 'Your grade completion application has been submitted successfully!']);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Grade completion application error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'An error occurred while processing your application. Please try again later.'], 500);
         }
-
-        \App\Models\GradeCompletionApplication::create([
-            'student_id' => $student->id,
-            'subject_id' => $request->subject_id,
-            'current_grade' => $grade->grade,
-            'reason' => $request->reason,
-            'supporting_document' => $documentPath,
-            'original_filename' => $originalFilename,
-            'status' => 'pending'
-        ]);
-
-        return response()->json(['success' => true, 'message' => 'Your grade completion application has been submitted successfully!']);
     }
 }

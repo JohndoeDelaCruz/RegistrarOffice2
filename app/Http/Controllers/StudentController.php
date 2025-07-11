@@ -8,6 +8,7 @@ use App\Models\Subject;
 use App\Models\StudentGrade;
 use App\Models\AcademicYear;
 use App\Models\GradeCompletionApplication;
+use App\Models\Announcement;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
@@ -68,7 +69,14 @@ class StudentController extends Controller
     public function announcement()
     {
         $student = $this->getLoggedInStudent();
-        return view('student.announcement', compact('student'));
+        
+        // Get published announcements for students or all audiences
+        $announcements = Announcement::published()
+            ->forAudience('students')
+            ->orderBy('published_at', 'desc')
+            ->get();
+        
+        return view('student.announcement', compact('student', 'announcements'));
     }
 
     public function gradeCompletion()

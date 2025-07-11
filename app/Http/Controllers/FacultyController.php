@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\GradeCompletionApplication;
+use App\Models\Announcement;
 use Carbon\Carbon;
 
 class FacultyController extends Controller
@@ -102,7 +103,35 @@ class FacultyController extends Controller
     public function announcement()
     {
         $faculty = $this->getLoggedInFaculty();
-        return view('faculty.announcement', compact('faculty'));
+        
+        if (!$faculty) {
+            return redirect('/')->with('error', 'Please log in as faculty to access this page.');
+        }
+        
+        // Get dean announcements for faculty (audience: all or faculty)
+        $deanAnnouncements = Announcement::published()
+            ->forAudience('faculty')
+            ->orderBy('published_at', 'desc')
+            ->get();
+        
+        // Get faculty's own published announcements
+        $facultyPublishedAnnouncements = Announcement::published()
+            ->where('created_by', $faculty->id)
+            ->orderBy('published_at', 'desc')
+            ->get();
+        
+        // Get faculty's draft announcements
+        $facultyDraftAnnouncements = Announcement::draft()
+            ->where('created_by', $faculty->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('faculty.announcement', compact(
+            'faculty', 
+            'deanAnnouncements', 
+            'facultyPublishedAnnouncements', 
+            'facultyDraftAnnouncements'
+        ));
     }
 
     public function profile()
@@ -450,5 +479,94 @@ class FacultyController extends Controller
         }
         
         return view('faculty.signed-document', compact('application'));
+    }
+
+    /**
+     * Create a new announcement
+     */
+    public function createAnnouncement(Request $request)
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        if (!$faculty) {
+            return redirect('/')->with('error', 'Please log in as faculty to access this page.');
+        }
+        
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'category' => 'required|in:general,academic,administrative,urgent',
+            'priority' => 'required|in:normal,high,urgent',
+            'action' => 'required|in:save_draft,publish'
+        ]);
+        
+        $announcement = new Announcement();
+        $announcement->title = $request->title;
+        $announcement->content = $request->content;
+        $announcement->category = $request->category;
+        $announcement->audience = 'students'; // Faculty can only create announcements for students
+        $announcement->priority = $request->priority;
+        $announcement->created_by = $faculty->id;
+        
+        if ($request->action === 'publish') {
+            $announcement->is_published = true;
+            $announcement->is_draft = false;
+            $announcement->published_at = now();
+        } else {
+            $announcement->is_published = false;
+            $announcement->is_draft = true;
+            $announcement->published_at = null;
+        }
+        
+        $announcement->save();
+        
+        $message = $request->action === 'publish' ? 'Announcement published successfully!' : 'Announcement saved as draft!';
+        
+        return redirect()->route('faculty.announcement')->with('success', $message);
+    }
+
+    /**
+     * Publish a draft announcement
+     */
+    public function publishAnnouncement(Request $request, Announcement $announcement)
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        if (!$faculty) {
+            return redirect('/')->with('error', 'Please log in as faculty to access this page.');
+        }
+        
+        // Check if the faculty owns this announcement
+        if ($announcement->created_by !== $faculty->id) {
+            return redirect()->route('faculty.announcement')->with('error', 'You can only publish your own announcements.');
+        }
+        
+        $announcement->is_published = true;
+        $announcement->is_draft = false;
+        $announcement->published_at = now();
+        $announcement->save();
+        
+        return redirect()->route('faculty.announcement')->with('success', 'Announcement published successfully!');
+    }
+
+    /**
+     * Delete an announcement
+     */
+    public function deleteAnnouncement(Request $request, Announcement $announcement)
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        if (!$faculty) {
+            return redirect('/')->with('error', 'Please log in as faculty to access this page.');
+        }
+        
+        // Check if the faculty owns this announcement
+        if ($announcement->created_by !== $faculty->id) {
+            return redirect()->route('faculty.announcement')->with('error', 'You can only delete your own announcements.');
+        }
+        
+        $announcement->delete();
+        
+        return redirect()->route('faculty.announcement')->with('success', 'Announcement deleted successfully!');
     }
 }

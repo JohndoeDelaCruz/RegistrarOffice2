@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\GradeCompletionApplication;
 use App\Models\Subject;
+use App\Models\Announcement;
 use Carbon\Carbon;
 
 class DeanController extends Controller
@@ -53,7 +54,20 @@ class DeanController extends Controller
     public function announcement()
     {
         $dean = $this->getLoggedInDean();
-        return view('dean.announcement', compact('dean'));
+        
+        // Get published announcements
+        $publishedAnnouncements = Announcement::published()
+            ->where('created_by', $dean->id)
+            ->orderBy('published_at', 'desc')
+            ->get();
+        
+        // Get draft announcements
+        $draftAnnouncements = Announcement::draft()
+            ->where('created_by', $dean->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('dean.announcement', compact('dean', 'publishedAnnouncements', 'draftAnnouncements'));
     }
 
     public function profile()
@@ -265,5 +279,83 @@ class DeanController extends Controller
         
         // Fallback for demo purposes - this should ideally redirect to login
         return User::where('role', 'dean')->first();
+    }
+
+    /**
+     * Create a new announcement
+     */
+    public function createAnnouncement(Request $request)
+    {
+        $dean = $this->getLoggedInDean();
+        
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'category' => 'required|in:general,academic,administrative,urgent',
+            'audience' => 'required|in:all,students,faculty,staff',
+            'priority' => 'required|in:normal,high,urgent',
+            'action' => 'required|in:save_draft,publish'
+        ]);
+        
+        $announcement = new Announcement();
+        $announcement->title = $request->title;
+        $announcement->content = $request->content;
+        $announcement->category = $request->category;
+        $announcement->audience = $request->audience;
+        $announcement->priority = $request->priority;
+        $announcement->created_by = $dean->id;
+        
+        if ($request->action === 'publish') {
+            $announcement->is_published = true;
+            $announcement->is_draft = false;
+            $announcement->published_at = now();
+        } else {
+            $announcement->is_published = false;
+            $announcement->is_draft = true;
+            $announcement->published_at = null;
+        }
+        
+        $announcement->save();
+        
+        $message = $request->action === 'publish' ? 'Announcement published successfully!' : 'Announcement saved as draft!';
+        
+        return redirect()->route('dean.announcement')->with('success', $message);
+    }
+
+    /**
+     * Publish a draft announcement
+     */
+    public function publishAnnouncement(Request $request, Announcement $announcement)
+    {
+        $dean = $this->getLoggedInDean();
+        
+        // Check if the dean owns this announcement
+        if ($announcement->created_by !== $dean->id) {
+            return redirect()->route('dean.announcement')->with('error', 'You can only publish your own announcements.');
+        }
+        
+        $announcement->is_published = true;
+        $announcement->is_draft = false;
+        $announcement->published_at = now();
+        $announcement->save();
+        
+        return redirect()->route('dean.announcement')->with('success', 'Announcement published successfully!');
+    }
+
+    /**
+     * Delete an announcement
+     */
+    public function deleteAnnouncement(Request $request, Announcement $announcement)
+    {
+        $dean = $this->getLoggedInDean();
+        
+        // Check if the dean owns this announcement
+        if ($announcement->created_by !== $dean->id) {
+            return redirect()->route('dean.announcement')->with('error', 'You can only delete your own announcements.');
+        }
+        
+        $announcement->delete();
+        
+        return redirect()->route('dean.announcement')->with('success', 'Announcement deleted successfully!');
     }
 }

@@ -720,6 +720,74 @@ function showAlert(message, type) {
     }, 5000);
 }
 
+function showRejectionReason(reason) {
+    // Create modal for showing rejection reason
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+    modal.innerHTML = `
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-red-600 to-pink-600 text-white p-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold flex items-center">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        Application Rejected
+                    </h3>
+                    <button onclick="closeRejectionModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6">
+                <div class="mb-4">
+                    <h4 class="font-semibold text-gray-800 mb-2">Reason for Rejection:</h4>
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <p class="text-gray-700 leading-relaxed">${reason}</p>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-blue-600 text-lg mr-3 mt-1"></i>
+                        <div>
+                            <h5 class="font-semibold text-blue-800 mb-1">What's Next?</h5>
+                            <p class="text-sm text-blue-700">
+                                You can reapply for grade completion once you've addressed the concerns mentioned above. 
+                                Contact your faculty if you need clarification on the rejection reason.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="bg-gray-50 px-6 py-4 flex justify-end">
+                <button onclick="closeRejectionModal()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeRejectionModal();
+        }
+    });
+}
+
+function closeRejectionModal() {
+    const modal = document.querySelector('.fixed.inset-0.bg-black.bg-opacity-50');
+    if (modal) {
+        modal.remove();
+    }
+}
+
 // Close modal when clicking outside
 document.addEventListener('click', function(event) {
     const modal = document.getElementById('completionModal');
@@ -791,6 +859,14 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCountdownTimers();
     // Update every second
     setInterval(updateCountdownTimers, 1000);
+    
+    // Test function availability for debugging
+    console.log('showRejectionReason function available:', typeof showRejectionReason === 'function');
 });
+
+// Debug function to test the rejection reason modal
+function testRejectionReason() {
+    showRejectionReason('This is a test rejection reason to verify the modal functionality works properly.');
+}
 </script>
 @endsection

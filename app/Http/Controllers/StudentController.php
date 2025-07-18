@@ -83,10 +83,10 @@ class StudentController extends Controller
     {
         $student = $this->getLoggedInStudent();
         
-        // Get subjects with INC or NFE grades that need completion
+        // Get subjects with INC, NFE, or NG grades that need completion
         $incompleteSubjects = \App\Models\Subject::whereHas('grades', function ($query) use ($student) {
             $query->where('user_id', $student->id)
-                  ->whereIn('grade', ['INC', 'NFE']);
+                  ->whereIn('grade', ['INC', 'NFE', 'NG']);
         })->with(['grades' => function ($query) use ($student) {
             $query->where('user_id', $student->id);
         }])->get();
@@ -110,6 +110,8 @@ class StudentController extends Controller
         return view('student.profile', compact('student'));
     }
 
+    // Checklist functionality removed
+    /*
     public function checklist()
     {
         $student = $this->getLoggedInStudent();
@@ -125,6 +127,7 @@ class StudentController extends Controller
         
         return view('student.checklist', compact('student', 'subjectsByYear', 'currentAcademicYear', 'totalUnits'));
     }
+    */
 
     public function updateProfile(Request $request)
     {
@@ -167,10 +170,10 @@ class StudentController extends Controller
 
         $student = $this->getLoggedInStudent();
         
-        // Check if student has INC or NFE grade for this subject
+        // Check if student has INC, NFE, or NG grade for this subject
         $grade = StudentGrade::where('user_id', $student->id)
                            ->where('subject_id', $request->subject_id)
-                           ->whereIn('grade', ['INC', 'NFE'])
+                           ->whereIn('grade', ['INC', 'NFE', 'NG'])
                            ->first();
         
         if (!$grade) {
@@ -180,7 +183,7 @@ class StudentController extends Controller
                                        ->first();
             
             if ($existingGrade) {
-                return response()->json(['success' => false, 'message' => 'You can only apply for completion if you have INC or NFE grade. Your current grade is: ' . $existingGrade->grade]);
+                return response()->json(['success' => false, 'message' => 'You can only apply for completion if you have INC, NFE, or NG grade. Your current grade is: ' . $existingGrade->grade]);
             } else {
                 return response()->json(['success' => false, 'message' => 'No grade found for this subject.']);
             }

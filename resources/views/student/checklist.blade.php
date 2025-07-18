@@ -75,7 +75,7 @@
                                                 <td class="px-4 py-2 text-sm">{{ $subject->description }}</td>
                                                 <td class="px-4 py-2 text-center text-sm">{{ $subject->units }}</td>                                <td class="px-4 py-2 text-center text-sm">
                                     @if($subject->grade_info)
-                                        @if(in_array($subject->grade_info->grade, ['NFE', 'INC']))
+                                        @if(in_array($subject->grade_info->grade, ['NFE', 'INC', 'NG']))
                                             <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium">
                                                 {{ $subject->grade_info->grade }}
                                             </span>

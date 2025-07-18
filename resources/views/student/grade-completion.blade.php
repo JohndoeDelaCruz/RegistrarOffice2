@@ -9,7 +9,7 @@
         <div class="flex justify-between items-start">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800 mb-2">Grade Completion Applications</h1>
-                <p class="text-gray-600">Apply for completion of INC and NFE grades</p>
+                <p class="text-gray-600">Apply for completion of INC, NFE, and NG grades</p>
                 <p class="text-sm text-gray-500">Student ID: {{ $student->student_id }} | {{ $student->name }}</p>
             </div>
         </div>
@@ -326,14 +326,14 @@
                 </div>
                 <h3 class="text-2xl font-bold text-gray-800 mb-4">Great Job!</h3>
                 <p class="text-gray-600 mb-6 leading-relaxed">
-                    You don't have any subjects with INC or NFE grades that require completion. 
+                    You don't have any subjects with INC, NFE, or NG grades that require completion. 
                     Keep up the excellent work!
                 </p>
                 <div class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4">
                     <div class="flex items-center justify-center space-x-2">
                         <i class="fas fa-info-circle text-blue-600"></i>
                         <span class="text-sm font-medium text-gray-700">
-                            If you receive any INC or NFE grades in the future, you can return here to apply for completion.
+                            If you receive any INC, NFE, or NG grades in the future, you can return here to apply for completion.
                         </span>
                     </div>
                 </div>

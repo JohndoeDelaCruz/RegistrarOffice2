@@ -36,13 +36,16 @@ Route::prefix('student')->name('student.')->group(function () {
     Route::get('/grade-completion', [StudentController::class, 'gradeCompletion'])->name('grade-completion');
     Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
     Route::put('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
-    Route::get('/checklist', [StudentController::class, 'checklist'])->name('checklist');
+    // Route::get('/checklist', [StudentController::class, 'checklist'])->name('checklist'); // Removed checklist functionality
     Route::post('/grade-completion/apply', [StudentController::class, 'applyForGradeCompletion'])->name('grade-completion.apply');
 });
 
 // Faculty Dashboard Routes
 Route::prefix('faculty')->name('faculty.')->group(function () {
     Route::get('/dashboard', [FacultyController::class, 'dashboard'])->name('dashboard');
+    Route::get('/grade-management', [FacultyController::class, 'gradeManagement'])->name('grade-management');
+    Route::get('/grade-management/{student}/grades', [FacultyController::class, 'getStudentGrades'])->name('grade-management.student-grades');
+    Route::post('/grade-management/update', [FacultyController::class, 'updateStudentGrade'])->name('grade-management.update');
     Route::get('/students-checklist', [FacultyController::class, 'studentsChecklist'])->name('students-checklist');
     Route::get('/student/{student}/checklist', [FacultyController::class, 'studentChecklistDetail'])->name('student-checklist-detail');
     Route::post('/student/{student}/subject/{subject}/grade', [FacultyController::class, 'updateGrade'])->name('student.update-grade');
@@ -73,7 +76,6 @@ Route::prefix('dean')->name('dean.')->group(function () {
     Route::post('/grade-completion-applications/{application}/review', [DeanController::class, 'reviewApplication'])->name('grade-completion-applications.review');
     Route::get('/grade-completion-applications/{application}/details', [DeanController::class, 'getApplicationDetails'])->name('grade-completion-applications.details');
     Route::get('/grade-completion-applications/{application}/document', [DeanController::class, 'viewDocument'])->name('grade-completion-applications.document');
-    Route::get('/grade-completion-applications/{application}/signature', [DeanController::class, 'viewSignature'])->name('grade-completion-applications.signature');
     Route::get('/grade-completion-applications/{application}/signed-document', [DeanController::class, 'generateSignedDocument']);
 });
 

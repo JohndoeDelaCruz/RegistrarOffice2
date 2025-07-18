@@ -89,7 +89,7 @@
                                                 <td class="py-2 px-4 text-center">{{ $subject->units }}</td>
                                                 <td class="py-2 px-4 text-center">
                                                     @if($subject->grade_info)
-                                                        @if(in_array($subject->grade_info->grade, ['NFE', 'INC']))
+                                                        @if(in_array($subject->grade_info->grade, ['NFE', 'INC', 'NG']))
                                                             <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-sm font-medium">
                                                                 {{ $subject->grade_info->grade }}
                                                             </span>
@@ -151,13 +151,12 @@
             
             <form id="gradeForm">
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Grade</label>
-                    <select id="gradeSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Select Grade</option>
-                        <option value="Passed">Passed</option>
-                        <option value="NFE">NFE (No Final Exam)</option>
-                        <option value="INC">INC (Incomplete)</option>
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Grade (1-100)</label>
+                    <input type="number" id="numericGrade" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="Enter grade (1-100)" 
+                           min="1" 
+                           max="100">
                 </div>
                 
                 <div class="flex justify-end space-x-3">
@@ -189,7 +188,15 @@ function openGradeModal(studentId, subjectId, subjectCode, subjectDescription, c
     
     document.getElementById('modalSubjectCode').textContent = subjectCode;
     document.getElementById('modalSubjectDescription').textContent = subjectDescription;
-    document.getElementById('gradeSelect').value = currentGrade;
+    
+    // Set current grade if it's numeric
+    const numericInput = document.getElementById('numericGrade');
+    if (currentGrade && !isNaN(currentGrade)) {
+        numericInput.value = currentGrade;
+    } else {
+        numericInput.value = '';
+    }
+    
     document.getElementById('gradeModal').classList.remove('hidden');
 }
 
@@ -200,10 +207,23 @@ function closeGradeModal() {
 }
 
 function saveGrade() {
-    const grade = document.getElementById('gradeSelect').value;
+    const numericGrade = document.getElementById('numericGrade').value;
+    const statusGrade = document.getElementById('gradeSelect').value;
     
-    if (!grade) {
-        alert('Please select a grade');
+    let finalGrade = '';
+    
+    // Check which input has a value
+    if (numericGrade) {
+        const numericValue = parseInt(numericGrade);
+        if (numericValue < 1 || numericValue > 100) {
+            alert('Numeric grade must be between 1 and 100.');
+            return;
+        }
+        finalGrade = numericValue.toString();
+    } else if (statusGrade) {
+        finalGrade = statusGrade;
+    } else {
+        alert('Please enter a numeric grade (1-100) or select a status (INC/NFE/NG).');
         return;
     }
     
@@ -220,7 +240,7 @@ function saveGrade() {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: JSON.stringify({
-            grade: grade
+            grade: finalGrade
         })
     })
     .then(response => response.json())

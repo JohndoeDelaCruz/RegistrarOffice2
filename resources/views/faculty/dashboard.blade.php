@@ -58,7 +58,7 @@
 <!-- Quick Actions -->
 <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
     <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <a href="{{ route('faculty.students-checklist') }}" class="flex items-center p-3 sm:p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
             <i class="fas fa-list-check text-blue-600 text-lg sm:text-xl mr-3 flex-shrink-0"></i>
             <div class="min-w-0">
@@ -67,16 +67,24 @@
             </div>
         </a>
         
-        <a href="{{ route('faculty.grade-completion-applications') }}" class="flex items-center p-3 sm:p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors duration-200">
-            <i class="fas fa-file-signature text-green-600 text-lg sm:text-xl mr-3 flex-shrink-0"></i>
+        <a href="{{ route('faculty.grade-management') }}" class="flex items-center p-3 sm:p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors duration-200">
+            <i class="fas fa-chart-line text-green-600 text-lg sm:text-xl mr-3 flex-shrink-0"></i>
+            <div class="min-w-0">
+                <span class="font-medium text-gray-800 block">Grade Management</span>
+                <p class="text-sm text-gray-600">Manage grades for INC, NFE, and NG students</p>
+            </div>
+        </a>
+        
+        <a href="{{ route('faculty.grade-completion-applications') }}" class="flex items-center p-3 sm:p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors duration-200">
+            <i class="fas fa-file-signature text-purple-600 text-lg sm:text-xl mr-3 flex-shrink-0"></i>
             <div class="min-w-0">
                 <span class="font-medium text-gray-800 block">Grade Completion</span>
                 <p class="text-sm text-gray-600">Process dean-approved applications</p>
             </div>
         </a>
         
-        <a href="{{ route('faculty.announcement') }}" class="flex items-center p-3 sm:p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors duration-200">
-            <i class="fas fa-bullhorn text-uc-green text-lg sm:text-xl mr-3 flex-shrink-0"></i>
+        <a href="{{ route('faculty.announcement') }}" class="flex items-center p-3 sm:p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors duration-200">
+            <i class="fas fa-bullhorn text-yellow-600 text-lg sm:text-xl mr-3 flex-shrink-0"></i>
             <div class="min-w-0">
                 <span class="font-medium text-gray-800 block">Announcements</span>
                 <p class="text-sm text-gray-600">Post announcements</p>

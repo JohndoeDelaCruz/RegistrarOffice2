@@ -55,6 +55,10 @@ class DeanController extends Controller
     {
         $dean = $this->getLoggedInDean();
         
+        if (!$dean) {
+            return redirect()->route('login')->with('error', 'Please log in as a dean to access this page.');
+        }
+        
         // Get published announcements
         $publishedAnnouncements = Announcement::published()
             ->where('created_by', $dean->id)
@@ -106,8 +110,7 @@ class DeanController extends Controller
         try {
             $request->validate([
                 'action' => 'required|in:approve,reject',
-                'dean_remarks' => 'nullable|string|max:1000',
-                'dean_signature_file' => 'nullable|file|mimes:png,jpg,jpeg|max:2048'
+                'dean_remarks' => 'nullable|string|max:1000'
             ]);
 
             $application = GradeCompletionApplication::findOrFail($application);
@@ -127,20 +130,22 @@ class DeanController extends Controller
                 'dean_reviewed_by' => $dean->id
             ];
 
-            // Handle signature upload and deadline for approved applications
+            // Set deadline and signature for approved applications
             if ($request->action === 'approve') {
                 // Set deadline to 3 months (1 term) from approval date
                 $updateData['completion_deadline'] = Carbon::now()->addMonths(3);
                 
-                if ($request->hasFile('dean_signature_file')) {
-                    $file = $request->file('dean_signature_file');
-                    $fileName = 'dean_signature_' . $application->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filePath = $file->storeAs('dean_signatures', $fileName, 'public');
-                    
-                    $updateData['dean_signature'] = $filePath;
-                    $updateData['dean_signature_type'] = 'uploaded_file';
-                    $updateData['dean_signature_date'] = Carbon::now();
-                }
+                // Generate digital signature message
+                $deanName = $dean->name ?? $dean->username ?? 'Dean';
+                
+                $signatureMessage = "Approved by: " . $deanName . "\n";
+                $signatureMessage .= "Position: Dean\n";
+                $signatureMessage .= "Date: " . Carbon::now()->format('F j, Y') . " at " . Carbon::now()->format('g:i A') . "\n";
+                $signatureMessage .= "Reference: GCA-" . str_pad($application->id, 6, '0', STR_PAD_LEFT);
+                
+                $updateData['dean_signature'] = $signatureMessage;
+                $updateData['dean_signature_type'] = 'digital_approval';
+                $updateData['dean_signature_date'] = Carbon::now();
             }
 
             $application->update($updateData);
@@ -232,30 +237,6 @@ class DeanController extends Controller
         }
         
         return view('dean.signed-document', compact('application'));
-    }
-
-    public function viewSignature($application)
-    {
-        $application = GradeCompletionApplication::findOrFail($application);
-        
-        if (!$application->dean_signature || $application->dean_signature_type !== 'uploaded_file') {
-            abort(404, 'Signature file not found');
-        }
-        
-        $filePath = storage_path('app/public/' . $application->dean_signature);
-        
-        if (!file_exists($filePath)) {
-            abort(404, 'Signature file not found');
-        }
-        
-        $fileName = basename($application->dean_signature);
-        $mimeType = mime_content_type($filePath);
-        
-        // Display signature image inline
-        return response()->file($filePath, [
-            'Content-Type' => $mimeType,
-            'Content-Disposition' => 'inline; filename="' . $fileName . '"'
-        ]);
     }
 
     /**

@@ -30,7 +30,7 @@
                                 <i class="fas fa-hourglass-half mr-2"></i>Deadline
                             </th>
                             <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
-                                <i class="fas fa-signature mr-2"></i>Dean Signature
+                                <i class="fas fa-check-circle mr-2"></i>Dean Status
                             </th>
                             <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
                                 <i class="fas fa-cog mr-2"></i>Actions
@@ -127,14 +127,13 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="flex flex-col items-center space-y-1">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                                             <i class="fas fa-check-circle mr-1"></i>
-                                            Signed
+                                            Approved
                                         </span>
-                                        <button onclick="viewDeanSignature({{ $application->id }})" 
-                                                class="text-xs text-blue-600 hover:text-blue-800 underline">
-                                            View Signature
-                                        </button>
+                                        <span class="text-xs text-gray-500">
+                                            {{ $application->dean_reviewed_at->format('M j, Y') }}
+                                        </span>
                                     </div>
                                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -191,33 +190,6 @@
             <div class="px-6 py-6">
                 <div id="applicationDetails" class="space-y-6">
                     <!-- Application details will be loaded here -->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Dean Signature Modal -->
-<div id="signatureModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onclick="closeSignatureModal()"></div>
-        
-        <div class="inline-block w-full max-w-md my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-            <div class="bg-gradient-to-r from-uc-green to-green-600 px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xl font-bold text-white flex items-center">
-                        <i class="fas fa-signature mr-3"></i>
-                        Dean's Digital Signature
-                    </h3>
-                    <button onclick="closeSignatureModal()" class="text-white hover:text-gray-200 transition-colors duration-200">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="px-6 py-6">
-                <div id="signatureDetails" class="space-y-4">
-                    <!-- Signature details will be loaded here -->
                 </div>
             </div>
         </div>
@@ -357,39 +329,32 @@ function displayApplicationDetails(application) {
         <!-- Dean's Digital Signature Section -->
         <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6">
             <h4 class="font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-signature text-green-600 mr-2"></i>Dean's Digital Signature
+                <i class="fas fa-check-circle text-green-600 mr-2"></i>Dean's Approval Status
             </h4>
             <div class="bg-white border-2 border-green-300 rounded-lg p-4">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-sm font-medium text-gray-700">Status:</span>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                         <i class="fas fa-check-circle mr-1"></i>
-                        APPROVED & SIGNED
+                        APPROVED
                     </span>
                 </div>
                 <div class="border-t border-gray-200 pt-3">
-                    <div class="signature-display min-h-[100px] bg-gray-50 border border-gray-200 rounded p-4">
-                        ${application.dean_signature_type === 'uploaded_file' ? `
-                            <div class="flex items-center justify-center">
-                                <img src="/dean/grade-completion-applications/${application.id}/signature" 
-                                     alt="Dean's Digital Signature" 
-                                     class="max-h-20 max-w-full object-contain border border-gray-300 rounded"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <div style="display:none;" class="text-center text-gray-500">
-                                    <i class="fas fa-file-image text-2xl mb-2"></i>
-                                    <p class="text-sm">Signature Image</p>
-                                    <a href="/dean/grade-completion-applications/${application.id}/signature" target="_blank" class="text-blue-600 hover:text-blue-800 text-xs underline">View Full Size</a>
-                                </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Approved by:</span>
+                            <span class="font-medium text-gray-800">Dean's Office</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Approved on:</span>
+                            <span class="font-medium text-gray-800">${application.dean_reviewed_at || 'N/A'}</span>
+                        </div>
+                        ${application.dean_remarks ? `
+                            <div class="mt-3 pt-3 border-t border-gray-100">
+                                <span class="text-sm text-gray-600">Dean's Remarks:</span>
+                                <p class="text-sm text-gray-800 mt-1 bg-gray-50 p-2 rounded">${application.dean_remarks}</p>
                             </div>
-                        ` : `
-                            <div class="font-mono text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-                                ${application.dean_signature || 'Digital signature not available'}
-                            </div>
-                        `}
-                    </div>
-                    <div class="flex justify-between items-center mt-3 text-xs text-gray-500">
-                        <span>Signature Type: ${application.dean_signature_type ? application.dean_signature_type.replace('_', ' ').toUpperCase() : 'DIGITAL'}</span>
-                        <span>Signed: ${application.dean_signature_date || 'N/A'}</span>
+                        ` : ''}
                     </div>
                 </div>
             </div>
@@ -407,92 +372,6 @@ function displayApplicationDetails(application) {
     document.getElementById('applicationDetails').innerHTML = detailsHtml;
 }
 
-function viewDeanSignature(applicationId) {
-    // Show loading state
-    document.getElementById('signatureDetails').innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-purple-600"></i><p class="text-gray-600 mt-2">Loading signature...</p></div>';
-    document.getElementById('signatureModal').classList.remove('hidden');
-    
-    // Fetch signature details
-    fetch(`/faculty/grade-completion-applications/${applicationId}/details`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                displaySignatureDetails(data.application);
-            } else {
-                showAlert('Error loading signature details', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showAlert('An error occurred while loading signature details', 'error');
-        });
-}
-
-function displaySignatureDetails(application) {
-    let signatureContent = '';
-    
-    if (application.dean_signature_type === 'uploaded_file') {
-        signatureContent = `
-            <div class="signature-display min-h-[120px] bg-white border-2 border-purple-300 rounded-lg p-6 flex items-center justify-center">
-                <div class="text-center">
-                    <img src="/dean/grade-completion-applications/${application.id}/signature" 
-                         alt="Dean's Digital Signature" 
-                         class="max-h-24 max-w-full object-contain mx-auto border border-gray-300 rounded mb-2"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <div style="display:none;" class="text-center text-gray-500">
-                        <i class="fas fa-file-image text-3xl mb-2"></i>
-                        <p class="text-sm">Signature Image</p>
-                        <a href="/dean/grade-completion-applications/${application.id}/signature" target="_blank" class="text-purple-600 hover:text-purple-800 text-xs underline">View Full Size</a>
-                    </div>
-                </div>
-            </div>
-        `;
-    } else {
-        signatureContent = `
-            <div class="signature-display min-h-[120px] bg-white border-2 border-purple-300 rounded-lg p-6 flex items-center">
-                <div class="font-mono text-sm text-gray-800 whitespace-pre-wrap leading-relaxed w-full">
-                    ${application.dean_signature || 'Digital signature not available'}
-                </div>
-            </div>
-        `;
-    }
-    
-    const signatureHtml = `
-        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-6">
-            <div class="space-y-4">
-                <div class="text-center">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Dean's Digital Signature</h3>
-                    <div class="flex justify-center space-x-6 text-sm">
-                        <div class="flex items-center">
-                            <span class="text-gray-600">Type:</span>
-                            <span class="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                <i class="fas fa-signature mr-1"></i>
-                                ${application.dean_signature_type ? application.dean_signature_type.replace('_', ' ').toUpperCase() : 'DIGITAL'}
-                            </span>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="text-gray-600">Signed:</span>
-                            <span class="ml-2 text-gray-800 font-medium">${application.dean_signature_date || 'N/A'}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="text-center mb-3">
-                        <span class="text-sm font-medium text-gray-700">OFFICIAL SIGNATURE</span>
-                    </div>
-                    ${signatureContent}
-                    <div class="text-center mt-3 text-xs text-gray-500">
-                        This digital signature authenticates the Dean's approval of this application
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('signatureDetails').innerHTML = signatureHtml;
-}
-
 function viewSignedDocument(applicationId) {
     window.open(`/faculty/grade-completion-applications/${applicationId}/signed-document`, '_blank');
 }
@@ -500,10 +379,6 @@ function viewSignedDocument(applicationId) {
 function closeApplicationModal() {
     document.getElementById('applicationModal').classList.add('hidden');
     currentApplicationId = null;
-}
-
-function closeSignatureModal() {
-    document.getElementById('signatureModal').classList.add('hidden');
 }
 
 function showAlert(message, type) {

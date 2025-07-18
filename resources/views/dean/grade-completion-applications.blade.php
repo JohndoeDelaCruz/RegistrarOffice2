@@ -214,56 +214,20 @@
                         </div>
                         
                         <!-- Digital Signature Upload Section (shown only for approvals) -->
-                        <div id="signatureSection" class="bg-blue-50 border border-blue-200 rounded-lg p-4 hidden">
+                        <div id="approvalMessageSection" class="bg-green-50 border border-green-200 rounded-lg p-4 hidden">
                             <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
-                                <i class="fas fa-signature text-blue-600 mr-2"></i>
-                                Upload Digital Signature <span class="text-gray-500 text-sm font-normal">(Optional)</span>
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                Approval Confirmation
                             </h4>
-                            <p class="text-sm text-gray-600 mb-4">
-                                You can upload your signature image to digitally sign this approval.
+                            <p class="text-sm text-gray-700 mb-2">
+                                By approving this application, you confirm that:
                             </p>
-                            
-                            <div class="space-y-4">
-                                <div>
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex-1">
-                                            <!-- Hidden file input -->
-                                            <input 
-                                                type="file" 
-                                                id="signatureFile" 
-                                                accept="image/*"
-                                                class="hidden"
-                                            >
-                                            <!-- Custom file upload button -->
-                                            <div class="flex items-center space-x-2">
-                                                <button 
-                                                    type="button" 
-                                                    id="uploadSignatureBtn"
-                                                    onclick="triggerFileUpload()"
-                                                    class="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 text-sm font-medium"
-                                                >
-                                                    <i class="fas fa-upload mr-2"></i>
-                                                    Choose Signature File
-                                                </button>
-                                                <span id="selectedFileName" class="text-sm text-gray-500">No file selected</span>
-                                            </div>
-                                        </div>
-                                        <button 
-                                            type="button" 
-                                            id="clearSignatureFile" 
-                                            onclick="clearSignatureFile()"
-                                            class="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hidden"
-                                        >
-                                            <i class="fas fa-times mr-1"></i>
-                                            Clear
-                                        </button>
-                                    </div>
-                                    <div id="signaturePreview" class="mt-2 hidden">
-                                        <img id="signaturePreviewImage" src="" alt="Signature Preview" class="max-w-xs max-h-24 border border-gray-300 rounded">
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">Supported formats: PNG, JPG, JPEG (Max size: 2MB)</p>
-                                </div>
-                            </div>
+                            <ul class="text-sm text-gray-700 list-disc list-inside space-y-1">
+                                <li>The student's request meets the academic requirements</li>
+                                <li>The supporting documentation is adequate</li>
+                                <li>A completion deadline of 3 months will be set</li>
+                                <li>The application will be forwarded to the appropriate faculty</li>
+                            </ul>
                         </div>
                     </div>
                     
@@ -285,6 +249,7 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
 let currentApplicationId = null;
 let currentReviewAction = null;
 
@@ -408,128 +373,82 @@ function displayApplicationDetails(application) {
 }
 
 function reviewApplication(applicationId, action) {
+    console.log('reviewApplication called:', applicationId, action);
+    console.log('DOM elements available:', {
+        approvalMessageSection: !!document.getElementById('approvalMessageSection'),
+        reviewModal: !!document.getElementById('reviewModal'),
+        submitButton: !!document.getElementById('reviewSubmitButton')
+    });
+    
     currentApplicationId = applicationId;
     currentReviewAction = action;
     
     // Close application modal if it's open (but don't reset currentApplicationId)
-    document.getElementById('applicationModal').classList.add('hidden');
+    const applicationModal = document.getElementById('applicationModal');
+    if (applicationModal) {
+        applicationModal.classList.add('hidden');
+    }
     
     // Set modal title and summary
     const titleText = action === 'approve' ? 'Approve Application' : 'Reject Application';
     const actionText = action === 'approve' ? 'approve' : 'reject';
     
-    document.getElementById('reviewModalTitle').textContent = titleText;
-    document.getElementById('reviewApplicationSummary').innerHTML = `
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <p class="text-sm text-gray-700">
-                You are about to <strong class="${action === 'approve' ? 'text-green-600' : 'text-red-600'}">${actionText}</strong> this grade completion application.
-                ${action === 'approve' ? 'The application will be forwarded to the faculty for further processing.' : 'The student will be notified of the rejection and your remarks.'}
-            </p>
-        </div>
-    `;
+    const reviewModalTitle = document.getElementById('reviewModalTitle');
+    const reviewApplicationSummary = document.getElementById('reviewApplicationSummary');
+    
+    if (reviewModalTitle) {
+        reviewModalTitle.textContent = titleText;
+    }
+    
+    if (reviewApplicationSummary) {
+        reviewApplicationSummary.innerHTML = `
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <p class="text-sm text-gray-700">
+                    You are about to <strong class="${action === 'approve' ? 'text-green-600' : 'text-red-600'}">${actionText}</strong> this grade completion application.
+                    ${action === 'approve' ? 'The application will be forwarded to the faculty for further processing.' : 'The student will be notified of the rejection and your remarks.'}
+                </p>
+            </div>
+        `;
+    }
     
     // Reset form
-    document.getElementById('deanRemarks').value = '';
+    const deanRemarks = document.getElementById('deanRemarks');
+    if (deanRemarks) {
+        deanRemarks.value = '';
+    }
     
-    // Show/hide signature section based on action
-    const signatureSection = document.getElementById('signatureSection');
-    if (action === 'approve') {
-        signatureSection.classList.remove('hidden');
-    } else {
-        signatureSection.classList.add('hidden');
+    // Show/hide approval message section based on action
+    const approvalMessageSection = document.getElementById('approvalMessageSection');
+    if (approvalMessageSection) {
+        if (action === 'approve') {
+            approvalMessageSection.classList.remove('hidden');
+        } else {
+            approvalMessageSection.classList.add('hidden');
+        }
     }
     
     // Show review modal
-    document.getElementById('reviewModal').classList.remove('hidden');
+    const reviewModal = document.getElementById('reviewModal');
+    if (reviewModal) {
+        reviewModal.classList.remove('hidden');
+    }
     
     // Update submit button label, icon, and color
     const submitButton = document.getElementById('reviewSubmitButton');
     const submitIcon = document.getElementById('reviewSubmitIcon');
     const submitLabel = document.getElementById('reviewSubmitLabel');
-    if (action === 'approve') {
-        submitButton.className = 'px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium';
-        submitIcon.className = 'fas fa-check mr-2';
-        submitLabel.textContent = 'Approve';
-    } else {
-        submitButton.className = 'px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium';
-        submitIcon.className = 'fas fa-times mr-2';
-        submitLabel.textContent = 'Reject';
-    }
-}
-
-function triggerFileUpload() {
-    const fileInput = document.getElementById('signatureFile');
-    const uploadBtn = document.getElementById('uploadSignatureBtn');
     
-    if (fileInput) {
-        // Add visual feedback
-        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Opening...';
-        
-        fileInput.click();
-        
-        // Reset button text after a brief delay
-        setTimeout(() => {
-            uploadBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Choose Signature File';
-        }, 500);
-    }
-}
-
-// Handle signature type radio button changes
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle file upload preview
-    const signatureFileInput = document.getElementById('signatureFile');
-    const selectedFileName = document.getElementById('selectedFileName');
-    const clearButton = document.getElementById('clearSignatureFile');
-    
-    signatureFileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const preview = document.getElementById('signaturePreview');
-        const previewImage = document.getElementById('signaturePreviewImage');
-        
-        if (file) {
-            // Update file name display
-            selectedFileName.textContent = file.name;
-            clearButton.classList.remove('hidden');
-            
-            // Check file size (2MB limit)
-            if (file.size > 2 * 1024 * 1024) {
-                showAlert('File size must be less than 2MB', 'error');
-                this.value = '';
-                selectedFileName.textContent = 'No file selected';
-                clearButton.classList.add('hidden');
-                return;
-            }
-            
-            // Check file type
-            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-            if (!allowedTypes.includes(file.type)) {
-                showAlert('Please select a valid image file (PNG, JPG, JPEG)', 'error');
-                this.value = '';
-                selectedFileName.textContent = 'No file selected';
-                clearButton.classList.add('hidden');
-                return;
-            }
-            
-            // Show preview for images
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImage.src = e.target.result;
-                preview.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
+    if (submitButton && submitIcon && submitLabel) {
+        if (action === 'approve') {
+            submitButton.className = 'px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium';
+            submitIcon.className = 'fas fa-check mr-2';
+            submitLabel.textContent = 'Approve';
         } else {
-            selectedFileName.textContent = 'No file selected';
-            preview.classList.add('hidden');
-            clearButton.classList.add('hidden');
+            submitButton.className = 'px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium';
+            submitIcon.className = 'fas fa-times mr-2';
+            submitLabel.textContent = 'Reject';
         }
-    });
-});
-
-function clearSignatureFile() {
-    document.getElementById('signatureFile').value = '';
-    document.getElementById('selectedFileName').textContent = 'No file selected';
-    document.getElementById('signaturePreview').classList.add('hidden');
-    document.getElementById('clearSignatureFile').classList.add('hidden');
+    }
 }
 
 function submitReview() {
@@ -542,24 +461,29 @@ function submitReview() {
     
     // Show loading state
     const submitButton = document.querySelector('[onclick="submitReview()"]');
+    if (!submitButton) {
+        showAlert('Submit button not found', 'error');
+        return;
+    }
+    
     const originalText = submitButton.innerHTML;
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
     submitButton.disabled = true;
     
-    // Create FormData for the request (needed for file upload)
+    // Get CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (!csrfToken) {
+        showAlert('CSRF token not found', 'error');
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+        return;
+    }
+    
+    // Create FormData for the request
     const formData = new FormData();
     formData.append('action', currentReviewAction);
     formData.append('dean_remarks', remarks);
-    
-    // Add signature file if uploaded and approving
-    if (currentReviewAction === 'approve') {
-        const signatureFile = document.getElementById('signatureFile').files[0];
-        if (signatureFile) {
-            formData.append('dean_signature_file', signatureFile);
-        }
-    }
-    
-    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    formData.append('_token', csrfToken.getAttribute('content'));
     
     // Submit review
     fetch(`/dean/grade-completion-applications/${currentApplicationId}/review`, {
@@ -604,13 +528,6 @@ function closeApplicationModal() {
 function closeReviewModal() {
     document.getElementById('reviewModal').classList.add('hidden');
     
-    // Reset signature section
-    document.getElementById('signatureSection').classList.add('hidden');
-    document.getElementById('signatureFile').value = '';
-    document.getElementById('selectedFileName').textContent = 'No file selected';
-    document.getElementById('signaturePreview').classList.add('hidden');
-    document.getElementById('clearSignatureFile').classList.add('hidden');
-    
     currentApplicationId = null;
     currentReviewAction = null;
 }
@@ -633,5 +550,7 @@ function showAlert(message, type) {
         alert.remove();
     }, 5000);
 }
+
+}); // End DOMContentLoaded
 </script>
 @endsection

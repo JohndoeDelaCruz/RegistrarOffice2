@@ -160,4 +160,12 @@ class User extends Authenticatable
             'trimester' => 3
         ];
     }
+
+    /**
+     * Get the student's grades
+     */
+    public function grades()
+    {
+        return $this->hasMany(StudentGrade::class, 'user_id');
+    }
 }

@@ -122,6 +122,11 @@
                 <span class="font-medium">Students' Checklist</span>
             </a>
 
+            <a href="{{ route('faculty.grade-management') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('faculty.grade-management') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+                <i class="fas fa-chart-line w-5 text-center"></i>
+                <span class="font-medium">Grade Management</span>
+            </a>
+
             <a href="{{ route('faculty.grade-completion-applications') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('faculty.grade-completion-applications') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
                 <i class="fas fa-file-signature w-5 text-center"></i>
                 <span class="font-medium">Grade Completion</span>
@@ -178,6 +183,13 @@
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('faculty.students-checklist') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
                 <i class="fas fa-list-check w-5 text-center"></i>
                 <span class="font-medium">Students' Checklist</span>
+            </a>
+
+            <a href="{{ route('faculty.grade-management') }}" 
+               onclick="closeMobileMenu()"
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('faculty.grade-management') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+                <i class="fas fa-chart-line w-5 text-center"></i>
+                <span class="font-medium">Grade Management</span>
             </a>
 
             <a href="{{ route('faculty.grade-completion-applications') }}" 

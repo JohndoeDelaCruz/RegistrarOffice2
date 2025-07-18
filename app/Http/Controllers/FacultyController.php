@@ -569,4 +569,115 @@ class FacultyController extends Controller
         
         return redirect()->route('faculty.announcement')->with('success', 'Announcement deleted successfully!');
     }
+
+    public function gradeManagement()
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        if (!$faculty) {
+            return redirect('/')->with('error', 'Please log in as faculty to access this page.');
+        }
+        
+        // Get all students with INC, NFE, or NG grades
+        $studentsWithIncompleteGrades = User::where('role', 'student')
+            ->whereHas('grades', function ($query) {
+                $query->whereIn('grade', ['INC', 'NFE', 'NG']);
+            })
+            ->with(['grades' => function ($query) {
+                $query->whereIn('grade', ['INC', 'NFE', 'NG'])
+                      ->with('subject');
+            }])
+            ->get();
+        
+        return view('faculty.grade-management', compact('faculty', 'studentsWithIncompleteGrades'));
+    }
+
+    public function getStudentGrades($studentId)
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        if (!$faculty) {
+            return response()->json(['success' => false, 'message' => 'Please log in as faculty to access this page.']);
+        }
+        
+        // Get the student
+        $student = User::where('id', $studentId)
+            ->where('role', 'student')
+            ->first();
+        
+        if (!$student) {
+            return response()->json(['success' => false, 'message' => 'Student not found.']);
+        }
+        
+        // Get student's incomplete grades
+        $grades = \App\Models\StudentGrade::with('subject')
+            ->where('user_id', $studentId)
+            ->whereIn('grade', ['INC', 'NFE', 'NG'])
+            ->get();
+        
+        return response()->json([
+            'success' => true,
+            'student' => [
+                'id' => $student->id,
+                'name' => $student->name,
+                'student_id' => $student->student_id,
+                'course' => $student->course,
+                'track' => $student->track
+            ],
+            'grades' => $grades->map(function ($grade) {
+                return [
+                    'grade' => $grade->grade,
+                    'subject' => [
+                        'id' => $grade->subject->id,
+                        'code' => $grade->subject->code,
+                        'description' => $grade->subject->description,
+                        'units' => $grade->subject->units
+                    ]
+                ];
+            })
+        ]);
+    }
+
+    public function updateStudentGrade(Request $request)
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        if (!$faculty) {
+            return response()->json(['success' => false, 'message' => 'Please log in as faculty to perform this action.']);
+        }
+        
+        $request->validate([
+            'student_id' => 'required|exists:users,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'new_grade' => 'required|string'
+        ]);
+        
+        // Validate the grade value
+        $newGrade = $request->new_grade;
+        if (!in_array($newGrade, ['INC', 'NFE', 'NG'])) {
+            // Check if it's a numeric grade
+            if (!is_numeric($newGrade) || $newGrade < 1 || $newGrade > 100) {
+                return response()->json(['success' => false, 'message' => 'Grade must be a number between 1-100 or one of: INC, NFE, NG']);
+            }
+        }
+        
+        // Find the student grade record
+        $studentGrade = \App\Models\StudentGrade::where('user_id', $request->student_id)
+            ->where('subject_id', $request->subject_id)
+            ->first();
+        
+        if (!$studentGrade) {
+            return response()->json(['success' => false, 'message' => 'Grade record not found.']);
+        }
+        
+        // Update the grade
+        $isCompleted = !in_array($newGrade, ['INC', 'NFE', 'NG']);
+        $studentGrade->update([
+            'grade' => $newGrade,
+            'is_completed' => $isCompleted,
+            'completed_at' => $isCompleted ? Carbon::now() : null
+        ]);
+        
+        return response()->json(['success' => true, 'message' => 'Grade updated successfully!']);
+    }
 }

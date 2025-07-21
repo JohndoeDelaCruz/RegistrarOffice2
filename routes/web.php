@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\DeanController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PageController;
 use App\Models\User;
@@ -77,6 +78,22 @@ Route::prefix('dean')->name('dean.')->group(function () {
     Route::get('/grade-completion-applications/{application}/details', [DeanController::class, 'getApplicationDetails'])->name('grade-completion-applications.details');
     Route::get('/grade-completion-applications/{application}/document', [DeanController::class, 'viewDocument'])->name('grade-completion-applications.document');
     Route::get('/grade-completion-applications/{application}/signed-document', [DeanController::class, 'generateSignedDocument']);
+});
+
+// Admin Dashboard Routes
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/user-management', [AdminController::class, 'userManagement'])->name('user-management');
+    Route::get('/application-tracking', [AdminController::class, 'applicationTracking'])->name('application-tracking');
+    Route::get('/system-logs', [AdminController::class, 'systemLogs'])->name('system-logs');
+    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+    Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
+    Route::put('/profile', [AdminController::class, 'updateProfile'])->name('profile.update');
+});
+
+// Direct access to admin dashboard for testing
+Route::get('/admin', function () {
+    return redirect('/admin/dashboard');
 });
 
 // Routes to switch between students for testing

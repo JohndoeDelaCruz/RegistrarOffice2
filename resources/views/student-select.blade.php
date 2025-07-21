@@ -75,6 +75,7 @@
                         <button type="button" onclick="setLoginType('student')" id="btn-student" class="login-type-btn active bg-blue-500 text-white px-3 py-1 rounded text-sm">Student</button>
                         <button type="button" onclick="setLoginType('faculty')" id="btn-faculty" class="login-type-btn bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm">Faculty</button>
                         <button type="button" onclick="setLoginType('dean')" id="btn-dean" class="login-type-btn bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm">Dean</button>
+                        <button type="button" onclick="setLoginType('admin')" id="btn-admin" class="login-type-btn bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm">Admin</button>
                     </div>
                 </div>
 
@@ -165,6 +166,11 @@
                 case 'dean':
                     label.textContent = 'Email/ID';
                     input.placeholder = 'dean@uc.edu.ph or DEAN-2025-001';
+                    input.type = 'text';
+                    break;
+                case 'admin':
+                    label.textContent = 'Email/ID';
+                    input.placeholder = 'admin@uc.edu.ph or test@example.com';
                     input.type = 'text';
                     break;
             }

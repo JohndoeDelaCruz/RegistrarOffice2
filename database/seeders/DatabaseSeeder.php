@@ -30,6 +30,9 @@ class DatabaseSeeder extends Seeder
         // Seed dean user
         $this->call(DeanUserSeeder::class);
         
+        // Seed admin user
+        $this->call(AdminSeeder::class);
+        
         // Seed academic years
         $this->call(AcademicYearSeeder::class);
         

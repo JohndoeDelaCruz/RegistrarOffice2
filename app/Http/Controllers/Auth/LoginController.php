@@ -14,7 +14,7 @@ class LoginController extends Controller
         $request->validate([
             'login_id' => 'required|string',
             'password' => 'required|string',
-            'login_type' => 'required|in:student,faculty,dean',
+            'login_type' => 'required|in:student,faculty,dean,admin',
         ]);
 
         $user = null;

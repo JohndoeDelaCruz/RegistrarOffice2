@@ -49,9 +49,10 @@
             opacity: 1;
             visibility: visible;
         }
+        .bg-custom { background-color: #95bce2; }
     </style>
 </head>
-<body class="font-inter bg-uc-bg min-h-screen">
+<body class="font-inter bg-custom min-h-screen">
     <!-- Mobile Overlay -->
     <div id="mobile-overlay" class="mobile-overlay fixed inset-0 bg-black/50 z-40 lg:hidden" onclick="toggleMobileMenu()"></div>
 
@@ -97,7 +98,7 @@
     </div>
 
     <!-- Desktop Sidebar -->
-    <div class="bg-gradient-to-b from-uc-green to-uc-green-dark text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto hidden lg:block z-30 shadow-xl">
+    <div style="background: #6393c1;" class="text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto hidden lg:block z-30 shadow-xl">
         <!-- Header -->
         <div class="p-6 border-b border-green-600">
             <div class="flex items-center space-x-3">
@@ -117,45 +118,45 @@
                 <h2 class="text-xs uppercase tracking-wider text-green-300 font-semibold">Main Menu</h2>
             </div>
             
-            <a href="{{ route('dean.dashboard') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.dashboard') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+            <a href="{{ route('dean.dashboard') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.dashboard') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-tachometer-alt w-5 text-center"></i>
-                <span class="font-medium">Dashboard</span>
+                <span class="font-bold">Dashboard</span>
             </a>
 
-            <a href="{{ route('dean.grade-completion-applications') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.grade-completion-applications') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+            <a href="{{ route('dean.grade-completion-applications') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.grade-completion-applications') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-file-alt w-5 text-center"></i>
-                <span class="font-medium">Grade Completion Applications</span>
+                <span class="font-bold">Grade Completion Applications</span>
             </a>
 
-            <a href="{{ route('dean.approved-applications') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.approved-applications') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+            <a href="{{ route('dean.approved-applications') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.approved-applications') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-check-circle w-5 text-center"></i>
-                <span class="font-medium">Approved Applications</span>
+                <span class="font-bold">Approved Applications</span>
             </a>
 
-            <a href="{{ route('dean.announcement') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.announcement') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+            <a href="{{ route('dean.announcement') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.announcement') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-bullhorn w-5 text-center"></i>
-                <span class="font-medium">Announcements</span>
+                <span class="font-bold">Announcements</span>
             </a>
 
-            <a href="{{ route('rules-guidelines') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+            <a href="{{ route('rules-guidelines') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-book w-5 text-center"></i>
-                <span class="font-medium">Rules & Guidelines</span>
+                <span class="font-bold">Rules & Guidelines</span>
             </a>
 
-            <a href="{{ route('dean.profile') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.profile') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+            <a href="{{ route('dean.profile') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.profile') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-user w-5 text-center"></i>
-                <span class="font-medium">Profile</span>
+                <span class="font-bold">Profile</span>
             </a>
             
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10">
                 <i class="fas fa-sign-out-alt w-5 text-center"></i>
-                <span class="font-medium">Log Out</span>
+                <span class="font-bold">Log Out</span>
             </a>
         </nav>
     </div>
 
     <!-- Mobile Sidebar -->
-    <div id="mobile-sidebar" class="sidebar-mobile bg-gradient-to-b from-uc-green to-uc-green-dark text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto lg:hidden z-50 shadow-xl">
+    <div id="mobile-sidebar" style="background: #6393c1;" class="sidebar-mobile text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto lg:hidden z-50 shadow-xl">
         <!-- Header -->
         <div class="p-6 border-b border-green-600">
             <div class="flex items-center space-x-3">
@@ -177,56 +178,56 @@
             
             <a href="{{ route('dean.dashboard') }}" 
                onclick="closeMobileMenu()"
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.dashboard') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.dashboard') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-tachometer-alt w-5 text-center"></i>
-                <span class="font-medium">Dashboard</span>
+                <span class="font-bold">Dashboard</span>
             </a>
 
             <a href="{{ route('dean.grade-completion-applications') }}" 
                onclick="closeMobileMenu()"
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.grade-completion-applications') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.grade-completion-applications') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-file-alt w-5 text-center"></i>
-                <span class="font-medium">Grade Completion Applications</span>
+                <span class="font-bold">Grade Completion Applications</span>
             </a>
 
             <a href="{{ route('dean.approved-applications') }}" 
                onclick="closeMobileMenu()"
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.approved-applications') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.approved-applications') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-check-circle w-5 text-center"></i>
-                <span class="font-medium">Approved Applications</span>
+                <span class="font-bold">Approved Applications</span>
             </a>
 
             <a href="{{ route('dean.announcement') }}" 
                onclick="closeMobileMenu()"
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.announcement') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.announcement') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-bullhorn w-5 text-center"></i>
-                <span class="font-medium">Announcements</span>
+                <span class="font-bold">Announcements</span>
             </a>
 
             <a href="{{ route('rules-guidelines') }}" 
                onclick="closeMobileMenu()"
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-book w-5 text-center"></i>
-                <span class="font-medium">Rules & Guidelines</span>
+                <span class="font-bold">Rules & Guidelines</span>
             </a>
 
             <a href="{{ route('dean.profile') }}" 
                onclick="closeMobileMenu()"
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.profile') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.profile') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-user w-5 text-center"></i>
-                <span class="font-medium">Profile</span>
+                <span class="font-bold">Profile</span>
             </a>
             
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit(); closeMobileMenu();" 
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10">
                 <i class="fas fa-sign-out-alt w-5 text-center"></i>
-                <span class="font-medium">Log Out</span>
+                <span class="font-bold">Log Out</span>
             </a>
         </nav>
     </div>
 
     <!-- Main Content -->
-    <div class="lg:ml-64 mt-12 min-h-screen bg-uc-bg">
+    <div class="lg:ml-64 mt-12 min-h-screen bg-custom">
         <!-- Content Header -->
         <div class="bg-white px-4 sm:px-6 lg:px-8 py-4 lg:py-5 border-b border-gray-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">

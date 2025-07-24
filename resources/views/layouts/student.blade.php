@@ -46,14 +46,15 @@
             opacity: 1;
             visibility: visible;
         }
+        .bg-custom { background-color: #95bce2; }
     </style>
     
     <!-- Styles -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
-</head>
-<body class="font-inter bg-uc-bg min-h-screen">
+    </head>
+<body class="font-inter bg-custom min-h-screen">
     <!-- Mobile Overlay -->
     <div id="mobile-overlay" class="mobile-overlay fixed inset-0 bg-black/50 z-40 lg:hidden" onclick="toggleMobileMenu()"></div>
 
@@ -107,94 +108,94 @@
     </div>
 
     <!-- Desktop Sidebar -->
-    <div class="bg-uc-green text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto hidden lg:block z-30">
+    <div style="background: #6393c1;" class="text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto hidden lg:block z-30 shadow-xl">
         <nav class="mt-0">
             <a href="{{ route('student.dashboard') }}" 
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.dashboard') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.dashboard') ? 'bg-white/15 text-white border-l-4 border-l-orange-300' : '' }}">
                 <i class="fas fa-tachometer-alt w-5 text-center"></i>
-                <span class="font-medium">Dashboard</span>
+                <span class="font-bold">Dashboard</span>
             </a>
             
             <a href="{{ route('student.announcement') }}" 
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.announcement') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.announcement') ? 'bg-white/15 text-white border-l-4 border-l-orange-300' : '' }}">
                 <i class="fas fa-bullhorn w-5 text-center"></i>
-                <span class="font-medium">Announcements</span>
+                <span class="font-bold">Announcements</span>
             </a>
             
             <a href="{{ route('student.grade-completion') }}" 
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.grade-completion') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.grade-completion') ? 'bg-white/15 text-white border-l-4 border-l-orange-300' : '' }}">
                 <i class="fas fa-chart-line w-5 text-center"></i>
-                <span class="font-medium">Grade Completion</span>
+                <span class="font-bold">Grade Completion</span>
             </a>
             
             <a href="{{ route('rules-guidelines') }}" 
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-orange-300' : '' }}">
                 <i class="fas fa-book w-5 text-center"></i>
-                <span class="font-medium">Rules & Guidelines</span>
+                <span class="font-bold">Rules & Guidelines</span>
             </a>
             
             <a href="{{ route('student.profile') }}" 
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.profile') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.profile') ? 'bg-white/15 text-white border-l-4 border-l-orange-300' : '' }}">
                 <i class="fas fa-user w-5 text-center"></i>
-                <span class="font-medium">Profile</span>
+                <span class="font-bold">Profile</span>
             </a>
             
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10">
                 <i class="fas fa-sign-out-alt w-5 text-center"></i>
-                <span class="font-medium">Log Out</span>
+                <span class="font-bold">Log Out</span>
             </a>
         </nav>
     </div>
 
     <!-- Mobile Sidebar -->
-    <div id="mobile-sidebar" class="sidebar-mobile bg-uc-green text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto lg:hidden z-50">
+    <div id="mobile-sidebar" style="background: #6393c1;" class="sidebar-mobile text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto lg:hidden z-50 shadow-xl">
         <nav class="mt-0">
             <a href="{{ route('student.dashboard') }}" 
                onclick="closeMobileMenu()"
-               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.dashboard') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.dashboard') ? 'bg-white/15 text-white border-l-4 border-l-orange-300' : '' }}">
                 <i class="fas fa-tachometer-alt w-5 text-center"></i>
-                <span class="font-medium">Dashboard</span>
+                <span class="font-bold">Dashboard</span>
             </a>
             
             <a href="{{ route('student.announcement') }}" 
                onclick="closeMobileMenu()"
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.announcement') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
                 <i class="fas fa-bullhorn w-5 text-center"></i>
-                <span class="font-medium">Announcements</span>
+                <span class="font-bold">Announcements</span>
             </a>
             
             <a href="{{ route('student.grade-completion') }}" 
                onclick="closeMobileMenu()"
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.grade-completion') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
                 <i class="fas fa-chart-line w-5 text-center"></i>
-                <span class="font-medium">Grade Completion</span>
+                <span class="font-bold">Grade Completion</span>
             </a>
             
             <a href="{{ route('rules-guidelines') }}" 
                onclick="closeMobileMenu()"
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
                 <i class="fas fa-book w-5 text-center"></i>
-                <span class="font-medium">Rules & Guidelines</span>
+                <span class="font-bold">Rules & Guidelines</span>
             </a>
             
             <a href="{{ route('student.profile') }}" 
                onclick="closeMobileMenu()"
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.profile') ? 'bg-white/15 text-white border-l-4 border-l-green-300' : '' }}">
                 <i class="fas fa-user w-5 text-center"></i>
-                <span class="font-medium">Profile</span>
+                <span class="font-bold">Profile</span>
             </a>
             
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit(); closeMobileMenu();" 
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10">
                 <i class="fas fa-sign-out-alt w-5 text-center"></i>
-                <span class="font-medium">Log Out</span>
+                <span class="font-bold">Log Out</span>
             </a>
         </nav>
     </div>
 
     <!-- Main Content -->
-    <div class="lg:ml-64 mt-12 min-h-screen bg-uc-bg">
+    <div class="lg:ml-64 mt-12 min-h-screen bg-custom">
         <!-- Content Header -->
         <div class="bg-white px-4 sm:px-6 lg:px-8 py-4 lg:py-5 border-b border-gray-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">

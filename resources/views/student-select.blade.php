@@ -4,133 +4,250 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UC Registrar - Student Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'uc-green': '#2d7738',
-                        'uc-blue': '#1e40af',
-                        'uc-orange': '#ea580c',
-                    }
-                }
-            }
-        }
-    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            background: #B4CBF0;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            background: #0284c7;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            background: linear-gradient(45deg, #15803d 0%, #166534 100%);
+            color: white;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        .header-left, .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .header-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .header-center .logo {
+            font-weight: bold;
+            font-size: 14px;
+            color: #fbbf24;
+        }
+        .header-center .tagline {
+            font-size: 10px;
+            margin-top: 1px;
+            color: #e5e7eb;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 65px);
+            padding: 20px;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 650px;
+            overflow: hidden;
+        }
+        .login-header {
+            background: #f97316;
+            color: white;
+            padding: 16px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .login-form {
+            padding: 40px;
+            background: rgba(186, 230, 253, 0.4);
+            border-radius: 8px;
+        }
+        .login-types {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .login-type-btn {
+            background: #e5e7eb;
+            color: #374151;
+            border: none;
+            padding: 8px 15px;
+            margin: 0 2px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .login-type-btn.active {
+            background: #1d4ed8;
+            color: white;
+        }
+        .form-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .form-table td {
+            padding: 0;
+            margin: 0;
+        }
+        .form-row-table {
+            margin-bottom: 10px;
+        }
+        .form-label {
+            background: #0891b2;
+            color: white;
+            padding: 12px 18px;
+            font-weight: bold;
+            width: 45%;
+            text-align: right;
+            font-size: 16px;
+        }
+        .form-input {
+            width: 55%;
+            padding: 12px 18px;
+            border: none;
+            background: #f0f9ff;
+            font-size: 16px;
+            outline: none;
+            color: #475569;
+            box-sizing: border-box;
+        }
+        .form-input::placeholder {
+            color: #94a3b8;
+        }
+        .form-input:focus {
+            background: white;
+        }
+        .login-btn {
+            background: linear-gradient(180deg, #c7d2fe 0%, #818cf8 100%);
+            color: #1e293b;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 6px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 25px auto 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .login-btn:hover {
+            background: linear-gradient(180deg, #818cf8 0%, #c7d2fe 100%);
+        }
+        @media (max-width: 640px) {
+            .header-left, .header-right {
+                font-size: 14px;
+            }
+            .header-center .logo {
+                font-size: 12px;
+            }
+            .header-center .tagline {
+                font-size: 9px;
+            }
+            .form-label {
+                min-width: 120px;
+                font-size: 14px;
+            }
+            .login-card {
+                margin: 10px;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-    <!-- Header with UC Branding -->
-    <div class="absolute top-0 left-0 right-0 bg-uc-green text-white z-20">
-        <div class="flex justify-between items-center px-6 py-3">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-university text-xl"></i>
-                <span class="font-bold text-lg">UNIVERSITY OF THE CORDILLERAS</span>
-            </div>
-            <div class="flex items-center gap-4">
-                <span class="text-sm">SchoolAutomate®</span>
-                <span class="text-xs">Integrating technology to advance education</span>
-            </div>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <i class="fas fa-university"></i>
+            <span>UNIVERSITY OF THE CORDILLERAS</span>
+        </div>
+        <div class="header-center">
+            <div class="logo">SchoolAutomate®</div>
+            <div class="tagline">Integrating technology to advance education</div>
+        </div>
+        <div class="header-right">
+            <span>UNIVERSITY OF THE CORDILLERAS</span>
+            <i class="fas fa-university"></i>
         </div>
     </div>
 
-    <!-- Main Login Form -->
-    <div class="mt-16 flex-1 flex items-center justify-center">
-        <div class="bg-white bg-opacity-95 rounded-lg shadow-2xl p-8 w-full max-w-md">
-            <!-- Header -->
-            <div class="bg-uc-orange text-white text-center py-3 -mx-8 -mt-8 mb-6 rounded-t-lg">
-                <h1 class="text-lg font-bold">UC Portal Login</h1>
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                Student/Parent/New Student Login
             </div>
-
-            <!-- Login Form -->
-            <form action="/student-login" method="POST" class="space-y-6">
+            
+            <form action="/student-login" method="POST" class="login-form">
                 @csrf
-                
-                <!-- Error Messages -->
-                @if ($errors->any())
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        @foreach ($errors->all() as $error)
-                            <p class="text-sm">{{ $error }}</p>
-                        @endforeach
-                    </div>
-                @endif
 
-                <!-- Success Messages -->
-                @if (session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                        <p class="text-sm">{{ session('success') }}</p>
-                    </div>
-                @endif
-                
                 <!-- Login Type Selection -->
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Login As:</label>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="setLoginType('student')" id="btn-student" class="login-type-btn active bg-blue-500 text-white px-3 py-1 rounded text-sm">Student</button>
-                        <button type="button" onclick="setLoginType('faculty')" id="btn-faculty" class="login-type-btn bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm">Faculty</button>
-                        <button type="button" onclick="setLoginType('dean')" id="btn-dean" class="login-type-btn bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm">Dean</button>
-                        <button type="button" onclick="setLoginType('admin')" id="btn-admin" class="login-type-btn bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm">Admin</button>
-                    </div>
-                </div>
-
-                <!-- Login ID Field (changes based on type) -->
-                <div class="flex items-center">
-                    <label id="login-label" class="bg-teal-600 text-white py-2 px-4 rounded-l-lg text-sm font-medium w-32 text-center">
-                        Student ID
-                    </label>
-                    <input 
-                        type="text" 
-                        name="login_id" 
-                        id="login-input"
-                        value="{{ old('login_id') }}"
-                        placeholder="01-2345-678"
-                        class="flex-1 py-2 px-3 border border-l-0 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-uc-blue focus:border-transparent @error('login_id') border-red-500 @enderror"
-                        required
-                    >
+                <div class="login-types">
+                    <button type="button" onclick="setLoginType('student')" id="btn-student" class="login-type-btn active">Student</button>
+                    <button type="button" onclick="setLoginType('faculty')" id="btn-faculty" class="login-type-btn">Faculty</button>
+                    <button type="button" onclick="setLoginType('dean')" id="btn-dean" class="login-type-btn">Dean</button>
+                    <button type="button" onclick="setLoginType('admin')" id="btn-admin" class="login-type-btn">Admin</button>
                 </div>
 
                 <!-- Hidden field to track login type -->
                 <input type="hidden" name="login_type" id="login-type" value="student">
 
-                <!-- Password Field -->
-                <div class="flex items-center">
-                    <label class="bg-teal-600 text-white py-2 px-4 rounded-l-lg text-sm font-medium w-32 text-center">
-                        Password
-                    </label>
-                    <input 
-                        type="password" 
-                        name="password" 
-                        placeholder="••••••••"
-                        class="flex-1 py-2 px-3 border border-l-0 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-uc-blue focus:border-transparent @error('password') border-red-500 @enderror"
-                        required
-                    >
-                </div>
+                <!-- Login Form Table -->
+                <table class="form-table">
+                    <tr class="form-row-table">
+                        <td class="form-label" id="login-label">Student ID Number:</td>
+                        <td>
+                            <input 
+                                type="text" 
+                                name="login_id" 
+                                id="login-input"
+                                value="{{ old('login_id') }}"
+                                placeholder="00-0000-000"
+                                class="form-input"
+                                required
+                            >
+                        </td>
+                    </tr>
+                    <tr class="form-row-table">
+                        <td class="form-label">Password:</td>
+                        <td>
+                            <input 
+                                type="password" 
+                                name="password" 
+                                placeholder="******"
+                                class="form-input"
+                                required
+                            >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="text-align: center; padding-top: 15px;">
+                            <button type="submit" class="login-btn">Login Now</button>
+                        </td>
+                    </tr>
+                </table>
 
-                <!-- Login Button -->
-                <div class="text-center pt-4">
-                    <button 
-                        type="submit"
-                        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-lg font-medium transition-colors duration-200 shadow-lg"
-                    >
-                        Login Now
-                    </button>
-                </div>
+                <!-- Error Messages -->
+                @if ($errors->any())
+                    <div style="background: #fee2e2; border: none; color: #dc2626; padding: 8px; margin-top: 15px; font-size: 13px;">
+                        @foreach ($errors->all() as $error)
+                            <p style="margin: 0;">{{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
             </form>
-        </div>
-    </div>
-
-    <!-- Footer Branding -->
-    <div class="fixed bottom-0 left-0 right-0 bg-uc-green text-white text-center py-2 z-20">
-        <div class="flex justify-center items-center gap-4">
-            <i class="fas fa-university text-lg"></i>
-            <span class="font-semibold">UNIVERSITY OF THE CORDILLERAS</span>
-            <i class="fas fa-university text-lg"></i>
         </div>
     </div>
 
@@ -141,12 +258,10 @@
             
             // Update button styles
             document.querySelectorAll('.login-type-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white');
-                btn.classList.add('bg-gray-300', 'text-gray-700');
+                btn.classList.remove('active');
             });
             
-            document.getElementById('btn-' + type).classList.remove('bg-gray-300', 'text-gray-700');
-            document.getElementById('btn-' + type).classList.add('bg-blue-500', 'text-white');
+            document.getElementById('btn-' + type).classList.add('active');
             
             // Update label and placeholder
             const label = document.getElementById('login-label');
@@ -154,23 +269,23 @@
             
             switch(type) {
                 case 'student':
-                    label.textContent = 'Student ID';
-                    input.placeholder = '01-2345-678';
+                    label.textContent = 'Student ID Number:';
+                    input.placeholder = '00-0000-000';
                     input.type = 'text';
                     break;
                 case 'faculty':
-                    label.textContent = 'Email/ID';
+                    label.textContent = 'Email/ID:';
                     input.placeholder = 'faculty@uc.edu.ph or FAC-2020-001';
                     input.type = 'text';
                     break;
                 case 'dean':
-                    label.textContent = 'Email/ID';
+                    label.textContent = 'Email/ID:';
                     input.placeholder = 'dean@uc.edu.ph or DEAN-2025-001';
                     input.type = 'text';
                     break;
                 case 'admin':
-                    label.textContent = 'Email/ID';
-                    input.placeholder = 'admin@uc.edu.ph or test@example.com';
+                    label.textContent = 'Email/ID:';
+                    input.placeholder = 'admin@uc.edu.ph or ADM-2025-001';
                     input.type = 'text';
                     break;
             }

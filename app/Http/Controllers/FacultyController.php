@@ -182,9 +182,12 @@ class FacultyController extends Controller
         try {
             $faculty = $this->getLoggedInFaculty();
             
+            // Define allowed grade statuses
+            $allowedStatuses = ['NFE', 'INC', 'NG', 'Failed'];
+            
             // Validate the request
             $request->validate([
-                'grade' => 'required|string|max:10'
+                'grade' => 'required|string|in:' . implode(',', $allowedStatuses)
             ]);
             
             // Get the student and subject
@@ -204,8 +207,8 @@ class FacultyController extends Controller
                 // Update existing grade
                 $existingGrade->update([
                     'grade' => $request->grade,
-                    'is_completed' => true,
-                    'completed_at' => now()
+                    'is_completed' => false, // Status grades indicate incomplete work
+                    'completed_at' => null
                 ]);
             } else {
                 // Create new grade
@@ -214,20 +217,20 @@ class FacultyController extends Controller
                     'subject_id' => $subjectId,
                     'grade' => $request->grade,
                     'academic_year' => $academicYearString,
-                    'is_completed' => true,
-                    'completed_at' => now()
+                    'is_completed' => false, // Status grades indicate incomplete work
+                    'completed_at' => null
                 ]);
             }
             
             return response()->json([
                 'success' => true,
-                'message' => 'Grade updated successfully'
+                'message' => 'Grade status updated successfully'
             ]);
             
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating grade: ' . $e->getMessage()
+                'message' => 'Error updating grade status: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -237,28 +240,28 @@ class FacultyController extends Controller
         try {
             $faculty = $this->getLoggedInFaculty();
             
-            // Find and delete the grade
+            // Find and delete the grade status
             $grade = \App\Models\StudentGrade::where('user_id', $studentId)
-                                            ->where('subject_id', $subjectId)
-                                            ->first();
+                                           ->where('subject_id', $subjectId)
+                                           ->first();
             
             if ($grade) {
                 $grade->delete();
                 return response()->json([
                     'success' => true,
-                    'message' => 'Grade removed successfully'
+                    'message' => 'Grade status cleared successfully'
                 ]);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Grade not found'
-                ], 404);
+                    'message' => 'No grade status found to clear'
+                ]);
             }
             
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error removing grade: ' . $e->getMessage()
+                'message' => 'Error clearing grade status: ' . $e->getMessage()
             ], 500);
         }
     }

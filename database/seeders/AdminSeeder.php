@@ -32,7 +32,7 @@ class AdminSeeder extends Seeder
             'phone' => '+63 917 555 0000',
             'date_of_birth' => '1980-01-01',
             'gender' => 'Other',
-            'address' => '123 University Campus, Cebu City, Philippines',
+            'address' => '123 University Campus, Baguio City, Philippines',
             'emergency_contact_name' => 'IT Support Team',
             'emergency_contact_phone' => '+63 917 555 0001',
             'emergency_contact_relationship' => 'Colleague',

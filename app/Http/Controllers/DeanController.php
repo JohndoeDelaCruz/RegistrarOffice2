@@ -16,6 +16,11 @@ class DeanController extends Controller
         // Get the logged-in dean user
         $dean = $this->getLoggedInDean();
         
+        // If no dean found, redirect to login
+        if (!$dean) {
+            return redirect('/')->with('error', 'Please log in as dean to access this page.');
+        }
+        
         // Get pending applications count
         $pendingApplicationsCount = GradeCompletionApplication::deanPending()->count();
         
@@ -152,14 +157,20 @@ class DeanController extends Controller
 
             if ($request->action === 'approve') {
                 $message = 'Application approved successfully and forwarded to faculty.';
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'redirect' => route('dean.application-approved', $application->id)
+                ]);
             } else {
                 $message = 'Application rejected. Student will be notified.';
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => $message
+                ]);
             }
-
-            return response()->json([
-                'success' => true,
-                'message' => $message
-            ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -183,7 +194,7 @@ class DeanController extends Controller
             'success' => true,
             'application' => [
                 'id' => $application->id,
-                'student_name' => $application->student->first_name . ' ' . $application->student->last_name,
+                'student_name' => $application->student->name,
                 'student_id' => $application->student->student_id,
                 'subject_code' => $application->subject->code,
                 'subject_name' => $application->subject->description,
@@ -196,6 +207,21 @@ class DeanController extends Controller
                 'dean_reviewed_at' => $application->dean_reviewed_at ? $application->dean_reviewed_at->format('F j, Y g:i A') : null
             ]
         ]);
+    }
+
+    public function showApprovedApplication($application)
+    {
+        $application = GradeCompletionApplication::with(['student', 'subject'])
+            ->findOrFail($application);
+        
+        $dean = $this->getLoggedInDean();
+        
+        // Check if this application was approved by the current dean
+        if ($application->dean_status !== 'approved' || $application->dean_reviewed_by !== $dean->id) {
+            abort(403, 'Unauthorized access to this approval record.');
+        }
+        
+        return view('dean.application-approved', compact('application', 'dean'));
     }
 
     public function viewDocument(Request $request, $application)
@@ -258,8 +284,8 @@ class DeanController extends Controller
             }
         }
         
-        // Fallback for demo purposes - this should ideally redirect to login
-        return User::where('role', 'dean')->first();
+        // Return null if no authenticated dean found
+        return null;
     }
 
     /**

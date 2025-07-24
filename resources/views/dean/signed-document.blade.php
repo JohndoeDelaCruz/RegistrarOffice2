@@ -162,26 +162,13 @@
         <!-- Dean's Digital Signature -->
         <div class="bg-gray-50 border-2 border-gray-300 rounded-lg p-6 mb-8">
             <div class="text-center mb-4">
-                <h2 class="text-xl font-semibold text-gray-800">DEAN'S DIGITAL SIGNATURE</h2>
-                <p class="text-sm text-gray-600">This signature authenticates the approval of this grade completion application</p>
+                <h2 class="text-xl font-semibold text-gray-800">DEAN'S APPROVAL</h2>
+                <p class="text-sm text-gray-600">This authenticates the approval of this grade completion application</p>
             </div>
             
             <div class="signature-area">
                 <div class="signature-text text-left whitespace-pre-line">
                     {{ $application->dean_signature ?: 'Digital signature not available' }}
-                </div>
-            </div>
-            
-            <div class="mt-4 text-center text-sm text-gray-600">
-                <div class="flex justify-center space-x-8">
-                    <div>
-                        <strong>Signature Type:</strong> 
-                        Digital Approval
-                    </div>
-                    <div>
-                        <strong>Date Signed:</strong> 
-                        {{ $application->dean_signature_date ? \Carbon\Carbon::parse($application->dean_signature_date)->format('F j, Y') . ' at ' . \Carbon\Carbon::parse($application->dean_signature_date)->format('g:i A') : 'N/A' }}
-                    </div>
                 </div>
             </div>
         </div>

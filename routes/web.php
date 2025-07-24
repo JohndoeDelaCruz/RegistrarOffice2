@@ -78,6 +78,7 @@ Route::prefix('dean')->name('dean.')->group(function () {
     Route::get('/grade-completion-applications/{application}/details', [DeanController::class, 'getApplicationDetails'])->name('grade-completion-applications.details');
     Route::get('/grade-completion-applications/{application}/document', [DeanController::class, 'viewDocument'])->name('grade-completion-applications.document');
     Route::get('/grade-completion-applications/{application}/signed-document', [DeanController::class, 'generateSignedDocument']);
+    Route::get('/application-approved/{application}', [DeanController::class, 'showApprovedApplication'])->name('application-approved');
 });
 
 // Admin Dashboard Routes

@@ -55,11 +55,11 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="bg-gradient-to-r from-green-400 to-emerald-500 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold">
-                                            {{ strtoupper(substr($application->student->first_name, 0, 1)) }}{{ strtoupper(substr($application->student->last_name, 0, 1)) }}
+                                            {{ strtoupper(substr($application->student->name, 0, 1)) }}
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">
-                                                {{ $application->student->first_name }} {{ $application->student->last_name }}
+                                                {{ $application->student->name }}
                                             </div>
                                             <div class="text-sm text-gray-500">
                                                 ID: {{ $application->student->student_id }}

@@ -55,7 +55,7 @@
                                             <i class="fas fa-user text-blue-600"></i>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-bold text-gray-900">{{ $application->student->first_name }} {{ $application->student->last_name }}</div>
+                                            <div class="text-sm font-bold text-gray-900">{{ $application->student->name }}</div>
                                             <div class="text-sm text-gray-500">{{ $application->student->student_id }}</div>
                                         </div>
                                     </div>
@@ -249,7 +249,6 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
 let currentApplicationId = null;
 let currentReviewAction = null;
 
@@ -503,8 +502,16 @@ function submitReview() {
         if (data.success) {
             showAlert(data.message, 'success');
             closeReviewModal();
-            // Reload page to update the list
-            setTimeout(() => location.reload(), 1500);
+            
+            // If there's a redirect URL (for approvals), redirect after a short delay
+            if (data.redirect) {
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1500);
+            } else {
+                // Otherwise just reload the page
+                setTimeout(() => location.reload(), 1500);
+            }
         } else {
             showAlert('Error: ' + (data.message || 'Failed to submit review'), 'error');
         }
@@ -551,6 +558,8 @@ function showAlert(message, type) {
     }, 5000);
 }
 
-}); // End DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Any initialization code that needs to run after DOM is loaded
+});
 </script>
 @endsection

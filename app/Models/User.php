@@ -25,6 +25,7 @@ class User extends Authenticatable
         'track',
         'student_id',
         'course',
+        'college',
         'phone',
         'date_of_birth',
         'gender',

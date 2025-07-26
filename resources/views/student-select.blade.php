@@ -52,47 +52,58 @@
         .login-container {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: calc(100vh - 65px);
-            padding: 20px;
+            padding: 40px 20px 20px 20px;
         }
         .login-card {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
             width: 100%;
             max-width: 650px;
             overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .login-header {
             background: #f97316;
             color: white;
-            padding: 16px;
+            padding: 20px;
             text-align: center;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
+            border-radius: 20px 20px 0 0;
         }
         .login-form {
-            padding: 40px;
+            padding: 50px;
             background: rgba(186, 230, 253, 0.4);
-            border-radius: 8px;
+            border-radius: 0 0 20px 20px;
         }
         .login-types {
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             text-align: center;
         }
         .login-type-btn {
             background: #e5e7eb;
             color: #374151;
             border: none;
-            padding: 8px 15px;
-            margin: 0 2px;
+            padding: 10px 18px;
+            margin: 0 3px;
             font-weight: bold;
             cursor: pointer;
             font-size: 14px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
         }
         .login-type-btn.active {
             background: #1d4ed8;
             color: white;
+            transform: scale(1.05);
+        }
+        .login-type-btn:hover:not(.active) {
+            background: #d1d5db;
+            transform: scale(1.02);
         }
         .form-table {
             width: 100%;
@@ -103,7 +114,10 @@
             margin: 0;
         }
         .form-row-table {
-            margin-bottom: 10px;
+            margin-bottom: 35px;
+        }
+        .form-row-table td {
+            vertical-align: middle;
         }
         .form-label {
             background: #0891b2;
@@ -113,6 +127,7 @@
             width: 45%;
             text-align: right;
             font-size: 16px;
+            border-radius: 25px 0 0 25px;
         }
         .form-input {
             width: 55%;
@@ -123,6 +138,7 @@
             outline: none;
             color: #475569;
             box-sizing: border-box;
+            border-radius: 0 25px 25px 0;
         }
         .form-input::placeholder {
             color: #94a3b8;
@@ -134,17 +150,25 @@
             background: linear-gradient(180deg, #c7d2fe 0%, #818cf8 100%);
             color: #1e293b;
             border: none;
-            padding: 12px 40px;
-            border-radius: 6px;
-            font-size: 17px;
+            padding: 14px 50px;
+            border-radius: 25px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             display: block;
-            margin: 25px auto 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 35px auto 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            transform: translateY(0px);
         }
         .login-btn:hover {
-            background: linear-gradient(180deg, #818cf8 0%, #c7d2fe 100%);
+            background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .login-btn:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
         @media (max-width: 640px) {
             .header-left, .header-right {

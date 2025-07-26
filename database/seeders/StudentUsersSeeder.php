@@ -172,6 +172,7 @@ class StudentUsersSeeder extends Seeder
                 'role' => 'student',
                 'course' => $student['course'],
                 'track' => $student['track'],
+                'college' => $student['college'],
                 'student_id' => $studentId,
                 'phone' => '+63 917 ' . str_pad(3000 + $index, 3, '0', STR_PAD_LEFT) . ' ' . str_pad($index + 2000, 4, '0', STR_PAD_LEFT),
                 'date_of_birth' => '2000-01-01', // Default birth date for students

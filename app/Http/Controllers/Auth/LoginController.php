@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -22,8 +23,12 @@ class LoginController extends Controller
 
         // Find user based on login type
         if ($loginType === 'student') {
-            $user = User::where('student_id', $request->login_id)
-                       ->where('role', 'student')
+            // For students, allow login with either student_id OR email
+            $user = User::where('role', 'student')
+                       ->where(function($query) use ($request) {
+                           $query->where('student_id', $request->login_id)
+                                 ->orWhere('email', $request->login_id);
+                       })
                        ->first();
         } else {
             // For faculty and dean, check both email and student_id (which contains their ID number)
@@ -37,7 +42,7 @@ class LoginController extends Controller
 
         if ($user && Hash::check($request->password, $user->password)) {
             // Use Laravel's built-in authentication
-            auth()->login($user);
+            Auth::login($user);
             
             // Also store in session for backward compatibility
             session([
@@ -69,7 +74,7 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         // Logout from Laravel's built-in auth
-        auth()->logout();
+        Auth::logout();
         
         // Clear all user session data
         session()->forget(['user_id', 'user_role', 'student_id']);

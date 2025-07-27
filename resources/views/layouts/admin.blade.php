@@ -29,21 +29,21 @@
 </head>
 <body class="font-inter bg-custom min-h-screen">
     <!-- Top Navigation Bar -->
-    <div class="bg-uc-green text-white p-3 flex justify-between items-center fixed top-0 left-0 right-0 z-50 h-12 shadow-lg">
-        <div class="flex items-center gap-2">
+    <div class="bg-uc-green text-white px-8 py-5 flex justify-between items-center fixed top-0 left-0 right-0 z-50 min-h-16 shadow-lg">
+        <div class="flex items-center gap-3">
             <!-- Mobile Menu Toggle -->
             <button id="mobileMenuToggle" class="lg:hidden text-white hover:text-red-200 transition-colors duration-200">
-                <i class="fas fa-bars text-lg"></i>
+                <i class="fas fa-bars text-xl"></i>
             </button>
             
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3">
                 <i class="fas fa-shield-alt text-xl"></i>
-                <span class="font-bold text-lg hidden sm:block">Admin Panel</span>
+                <span class="font-bold text-xl hidden sm:block">Admin Panel</span>
                 <span class="text-sm text-red-200 hidden md:block">| University of Cordilleras</span>
             </div>
         </div>
         
-        <div class="flex items-center gap-2 relative">
+        <div class="flex items-center gap-3 relative">
             <span class="text-sm hidden sm:block">{{ $admin->name ?? 'Administrator' }}</span>
             <button id="userMenuToggle" class="bg-green-600 hover:bg-green-700 rounded-full p-2 transition-colors duration-200">
                 <i class="fas fa-user text-sm"></i>
@@ -65,22 +65,9 @@
     </div>
 
     <!-- Desktop Sidebar -->
-    <div style="background: #6393c1;" class="text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto hidden lg:block z-30 shadow-xl">
-        <!-- Header -->
-        <div class="p-6 border-b border-red-500">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white p-2 rounded-lg">
-                    <i class="fas fa-shield-alt text-red-600 text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold">UC Admin</h1>
-                    <p class="text-red-200 text-sm">Control Panel</p>
-                </div>
-            </div>
-        </div>
-
+    <div style="background: #6393c1;" class="text-white w-64 h-screen fixed left-0 top-16 overflow-y-auto hidden lg:block z-30 shadow-xl">
         <!-- Navigation -->
-        <nav class="mt-0">
+        <nav class="mt-4">
             <div class="px-6 py-4">
                 <h2 class="text-xs uppercase tracking-wider text-red-300 font-semibold">Administration</h2>
             </div>
@@ -130,9 +117,9 @@
     <!-- Mobile Sidebar -->
     <div id="mobileSidebar" class="fixed inset-0 z-40 lg:hidden hidden">
         <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeMobileMenu()"></div>
-        <div style="background: #6393c1;" class="fixed top-12 left-0 bottom-0 w-64 text-white overflow-y-auto">
+        <div style="background: #6393c1;" class="fixed top-16 left-0 bottom-0 w-64 text-white overflow-y-auto">
             <!-- Mobile Navigation - Same as desktop but with onclick handlers -->
-            <nav class="mt-0">
+            <nav class="mt-4">
                 <div class="px-6 py-4">
                     <h2 class="text-xs uppercase tracking-wider text-red-300 font-semibold">Administration</h2>
                 </div>
@@ -193,8 +180,19 @@
     </div>
 
     <!-- Main Content -->
-    <div class="lg:ml-64 pt-12 min-h-screen bg-custom">
-        <div class="p-4 sm:p-6">
+    <div class="lg:ml-64 pt-20 min-h-screen bg-custom">
+        <!-- Content Header -->
+        <div class="bg-white px-4 sm:px-6 lg:px-8 py-4 lg:py-5 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-semibold text-uc-green">@yield('page-title', 'Admin Dashboard')</h1>
+                    <p class="text-sm text-gray-600 mt-1">Administrative Control Panel</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Body -->
+        <div class="p-4 sm:p-6 lg:p-8">
             @yield('content')
         </div>
     </div>

@@ -57,14 +57,14 @@
     <div id="mobile-overlay" class="mobile-overlay fixed inset-0 bg-black/50 z-40 lg:hidden" onclick="toggleMobileMenu()"></div>
 
     <!-- Top Header -->
-    <div class="bg-uc-green text-white p-3 flex justify-between items-center fixed top-0 left-0 right-0 z-50 h-12">
+    <div class="bg-uc-green text-white px-8 py-5 flex justify-between items-center fixed top-0 left-0 right-0 z-50 min-h-16">
         <div class="flex items-center gap-3">
             <!-- Mobile Menu Button -->
             <button onclick="toggleMobileMenu()" class="lg:hidden p-1 rounded hover:bg-white/10 transition-colors">
-                <i class="fas fa-bars text-lg"></i>
+                <i class="fas fa-bars text-xl"></i>
             </button>
-            <i class="fas fa-university text-lg"></i>
-            <span class="font-semibold text-lg">UC Registrar</span>
+            <i class="fas fa-university text-xl"></i>
+            <span class="font-semibold text-xl">UC Registrar</span>
         </div>
         <div class="flex items-center gap-2 relative">
             <span class="text-sm font-medium hidden sm:block">
@@ -98,7 +98,7 @@
     </div>
 
     <!-- Desktop Sidebar -->
-    <div style="background: #6393c1;" class="text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto hidden lg:block z-30 shadow-xl">
+    <div style="background: #6393c1;" class="text-white w-64 h-screen fixed left-0 top-16 overflow-y-auto hidden lg:block z-30 shadow-xl">
         <!-- Header -->
         <div class="p-6 border-b border-green-600">
             <div class="flex items-center space-x-3">
@@ -156,7 +156,7 @@
     </div>
 
     <!-- Mobile Sidebar -->
-    <div id="mobile-sidebar" style="background: #6393c1;" class="sidebar-mobile text-white w-64 h-screen fixed left-0 top-12 overflow-y-auto lg:hidden z-50 shadow-xl">
+    <div id="mobile-sidebar" style="background: #6393c1;" class="sidebar-mobile text-white w-64 h-screen fixed left-0 top-16 overflow-y-auto lg:hidden z-50 shadow-xl">
         <!-- Header -->
         <div class="p-6 border-b border-green-600">
             <div class="flex items-center space-x-3">
@@ -227,7 +227,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="lg:ml-64 mt-12 min-h-screen bg-custom">
+    <div class="lg:ml-64 pt-20 min-h-screen bg-custom">
         <!-- Content Header -->
         <div class="bg-white px-4 sm:px-6 lg:px-8 py-4 lg:py-5 border-b border-gray-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">

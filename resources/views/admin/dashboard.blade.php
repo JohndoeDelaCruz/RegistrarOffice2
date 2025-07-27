@@ -188,7 +188,7 @@
                     </div>
                     <div>
                         <p class="font-medium text-gray-800">{{ $user->name }}</p>
-                        <p class="text-sm text-gray-500">{{ ucfirst($user->role) }} • Last active: {{ $user->updated_at->diffForHumans() }}</p>
+                        <p class="text-sm text-gray-500">{{ ucfirst($user->role) }} • Last active: {{ $user->updated_at ? $user->updated_at->diffForHumans() : 'Never' }}</p>
                     </div>
                 </div>
                 <span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
@@ -215,7 +215,7 @@
                     </div>
                     <div>
                         <p class="font-medium text-gray-800">{{ $approval->student->name }}</p>
-                        <p class="text-sm text-gray-500">{{ $approval->subject->code }} • {{ $approval->dean_reviewed_at->format('M j, Y') }}</p>
+                        <p class="text-sm text-gray-500">{{ $approval->subject->code }} • {{ $approval->dean_reviewed_at ? $approval->dean_reviewed_at->format('M j, Y') : 'Pending' }}</p>
                     </div>
                 </div>
                 <span class="text-xs px-2 py-1 bg-{{ $approval->dean_status === 'approved' ? 'green' : 'red' }}-100 text-{{ $approval->dean_status === 'approved' ? 'green' : 'red' }}-600 rounded-full">

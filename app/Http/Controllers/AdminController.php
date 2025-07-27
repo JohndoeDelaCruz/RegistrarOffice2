@@ -71,6 +71,7 @@ class AdminController extends Controller
         // Get recent approvals/rejections by dean
         $recentApprovals = GradeCompletionApplication::with(['student', 'subject'])
             ->whereNotNull('dean_status')
+            ->whereNotNull('dean_reviewed_at')
             ->orderBy('dean_reviewed_at', 'desc')
             ->take(10)
             ->get();

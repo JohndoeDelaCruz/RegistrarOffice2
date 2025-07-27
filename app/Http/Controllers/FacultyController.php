@@ -26,7 +26,8 @@ class FacultyController extends Controller
             }
         }
         
-        // Fallback for demo purposes - this should ideally redirect to login
+        // Fallback for demo purposes - but log this for debugging
+        \Log::warning('FacultyController: Using fallback faculty selection. This might indicate a login issue.');
         return User::where('role', 'faculty')->first();
     }
 
@@ -34,17 +35,25 @@ class FacultyController extends Controller
     {
         $faculty = $this->getLoggedInFaculty();
         
-        // Get pending grade completion applications count
+        // Get pending grade completion applications count for faculty's college students only
         $pendingGradeApplications = GradeCompletionApplication::where('dean_status', 'approved')
             ->whereNull('faculty_status')
+            ->whereHas('student', function($query) use ($faculty) {
+                $query->where('college', $faculty->college);
+            })
             ->count();
         
-        // Get total students count
-        $studentsCount = User::where('role', 'student')->count();
+        // Get total students count for faculty's college only
+        $studentsCount = User::where('role', 'student')
+            ->where('college', $faculty->college)
+            ->count();
         
-        // Get deadline statistics for approved applications
+        // Get deadline statistics for approved applications from faculty's college students
         $approvedApplications = GradeCompletionApplication::where('dean_status', 'approved')
             ->whereNotNull('completion_deadline')
+            ->whereHas('student', function($query) use ($faculty) {
+                $query->where('college', $faculty->college);
+            })
             ->get();
             
         $overdueCount = $approvedApplications->filter(function($app) {
@@ -73,8 +82,9 @@ class FacultyController extends Controller
     {
         $faculty = $this->getLoggedInFaculty();
         
-        // Get all students with their basic information
+        // Get students from faculty's college only
         $students = User::where('role', 'student')
+                       ->where('college', $faculty->college)
                        ->orderBy('name')
                        ->get(['id', 'name', 'student_id', 'course', 'track', 'email']);
         
@@ -85,8 +95,10 @@ class FacultyController extends Controller
     {
         $faculty = $this->getLoggedInFaculty();
         
-        // Get the specific student
-        $student = User::where('role', 'student')->findOrFail($studentId);
+        // Get the specific student from faculty's college only
+        $student = User::where('role', 'student')
+                      ->where('college', $faculty->college)
+                      ->findOrFail($studentId);
         
         // Get subjects grouped by year and trimester for the student's course and track
         $subjectsByYear = $student->getSubjectsByYearAndTrimester();
@@ -190,8 +202,10 @@ class FacultyController extends Controller
                 'grade' => 'required|string|in:' . implode(',', $allowedStatuses)
             ]);
             
-            // Get the student and subject
-            $student = User::where('role', 'student')->findOrFail($studentId);
+            // Get the student and subject (ensure student is from faculty's college)
+            $student = User::where('role', 'student')
+                          ->where('college', $faculty->college)
+                          ->findOrFail($studentId);
             $subject = \App\Models\Subject::findOrFail($subjectId);
             
             // Get current academic year
@@ -270,10 +284,13 @@ class FacultyController extends Controller
     {
         $faculty = $this->getLoggedInFaculty();
         
-        // Get applications that are approved by dean and sent to faculty
+        // Get applications from faculty's college that are approved by dean and sent to faculty
         $applications = GradeCompletionApplication::with(['student', 'subject'])
             ->where('dean_status', 'approved')
             ->whereNull('faculty_status') // Only show applications not yet processed by faculty
+            ->whereHas('student', function($query) use ($faculty) {
+                $query->where('college', $faculty->college);
+            })
             ->orderBy('dean_reviewed_at', 'desc')
             ->get();
         
@@ -284,8 +301,12 @@ class FacultyController extends Controller
     {
         $faculty = $this->getLoggedInFaculty();
         
-        // Get the application details
-        $application = GradeCompletionApplication::with('student')->findOrFail($id);
+        // Get the application details with college filtering
+        $application = GradeCompletionApplication::with('student')
+            ->whereHas('student', function($query) use ($faculty) {
+                $query->where('college', $faculty->college);
+            })
+            ->findOrFail($id);
         
         return view('faculty.view-grade-completion-application', compact('faculty', 'application'));
     }
@@ -295,8 +316,11 @@ class FacultyController extends Controller
         try {
             $faculty = $this->getLoggedInFaculty();
             
-            // Get the application
-            $application = GradeCompletionApplication::findOrFail($id);
+            // Get the application with college filtering
+            $application = GradeCompletionApplication::whereHas('student', function($query) use ($faculty) {
+                    $query->where('college', $faculty->college);
+                })
+                ->findOrFail($id);
             
             // Approve the application
             $application->update([
@@ -323,8 +347,11 @@ class FacultyController extends Controller
         try {
             $faculty = $this->getLoggedInFaculty();
             
-            // Get the application
-            $application = GradeCompletionApplication::findOrFail($id);
+            // Get the application with college filtering
+            $application = GradeCompletionApplication::whereHas('student', function($query) use ($faculty) {
+                    $query->where('college', $faculty->college);
+                })
+                ->findOrFail($id);
             
             // Disapprove the application
             $application->update([
@@ -355,8 +382,12 @@ class FacultyController extends Controller
                 'new_grade' => 'required_if:action,complete|string|max:10'
             ]);
 
-            $application = GradeCompletionApplication::findOrFail($application);
             $faculty = $this->getLoggedInFaculty();
+            
+            $application = GradeCompletionApplication::whereHas('student', function($query) use ($faculty) {
+                    $query->where('college', $faculty->college);
+                })
+                ->findOrFail($application);
 
             if (!$faculty) {
                 return response()->json([
@@ -417,7 +448,12 @@ class FacultyController extends Controller
 
     public function getGradeApplicationDetails($application)
     {
+        $faculty = $this->getLoggedInFaculty();
+        
         $application = GradeCompletionApplication::with(['student', 'subject'])
+            ->whereHas('student', function($query) use ($faculty) {
+                $query->where('college', $faculty->college);
+            })
             ->findOrFail($application);
 
         return response()->json([
@@ -445,7 +481,12 @@ class FacultyController extends Controller
 
     public function viewApplicationDocument(Request $request, $application)
     {
-        $application = GradeCompletionApplication::findOrFail($application);
+        $faculty = $this->getLoggedInFaculty();
+        
+        $application = GradeCompletionApplication::whereHas('student', function($query) use ($faculty) {
+                $query->where('college', $faculty->college);
+            })
+            ->findOrFail($application);
         
         if (!$application->supporting_document) {
             abort(404, 'Document not found');
@@ -475,7 +516,13 @@ class FacultyController extends Controller
 
     public function generateSignedDocument($application)
     {
-        $application = GradeCompletionApplication::with(['student', 'subject'])->findOrFail($application);
+        $faculty = $this->getLoggedInFaculty();
+        
+        $application = GradeCompletionApplication::with(['student', 'subject'])
+            ->whereHas('student', function($query) use ($faculty) {
+                $query->where('college', $faculty->college);
+            })
+            ->findOrFail($application);
         
         if ($application->dean_status !== 'approved') {
             abort(403, 'Application not approved by Dean');
@@ -581,8 +628,9 @@ class FacultyController extends Controller
             return redirect('/')->with('error', 'Please log in as faculty to access this page.');
         }
         
-        // Get all students with INC, NFE, or NG grades
+        // Get students from faculty's college with INC, NFE, or NG grades
         $studentsWithIncompleteGrades = User::where('role', 'student')
+            ->where('college', $faculty->college)
             ->whereHas('grades', function ($query) {
                 $query->whereIn('grade', ['INC', 'NFE', 'NG']);
             })

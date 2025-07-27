@@ -4,7 +4,10 @@
 
 @section('content')
 <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Students Checklist</h1>
+    <div class="mb-4 sm:mb-6">
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Students Checklist</h1>
+        <p class="text-gray-600 mb-4">{{ $faculty->college ?? 'Faculty Management' }} - {{ count($students) }} students</p>
+    </div>
     
     <!-- Search Section -->
     <div class="mb-4 sm:mb-6">

@@ -15,6 +15,10 @@ class FacultySeeder extends Seeder
      */
     public function run(): void
     {
+        // Clear existing faculty data
+        User::where('role', 'faculty')->delete();
+        Faculty::truncate();
+        
         $faculties = [
             // College of Engineering and Architecture (5 faculty)
             ['name' => 'Dr. Maria Santos', 'email' => 'maria.santos@uc.edu.ph', 'department' => 'College of Engineering and Architecture', 'specialization' => 'Software Engineering & Web Development', 'position' => 'Professor'],
@@ -106,7 +110,8 @@ class FacultySeeder extends Seeder
                 'email' => $faculty['email'],
                 'password' => Hash::make('faculty123'),
                 'role' => 'faculty',
-                'course' => $faculty['department'],
+                'college' => $faculty['department'], // Fix: Use college instead of course
+                'course' => 'Faculty', // Faculty course field
                 'track' => null,
                 'student_id' => $facultyId,
                 'phone' => $phone,

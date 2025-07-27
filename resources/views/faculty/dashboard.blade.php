@@ -7,8 +7,8 @@
 <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start">
         <div class="mb-4 sm:mb-0">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Welcome back, {{ $faculty->first_name ?? 'Faculty' }}!</h1>
-            <p class="text-gray-600">Faculty Management System</p>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Welcome back, {{ $faculty->name ?? 'Faculty' }}!</h1>
+            <p class="text-gray-600">{{ $faculty->college ?? 'Faculty Management System' }}</p>
         </div>
         <div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2">
             <span class="text-sm font-medium text-green-800">{{ now()->format('F j, Y') }}</span>
@@ -24,8 +24,9 @@
                 <i class="fas fa-users text-blue-600 text-xl"></i>
             </div>
             <div class="ml-4 min-w-0">
-                <h3 class="text-lg font-semibold text-gray-800 truncate">Students</h3>
+                <h3 class="text-lg font-semibold text-gray-800 truncate">My Students</h3>
                 <p class="text-2xl font-bold text-blue-600">{{ $studentsCount ?? 0 }}</p>
+                <p class="text-xs text-gray-500">From your college</p>
             </div>
         </div>
     </div>

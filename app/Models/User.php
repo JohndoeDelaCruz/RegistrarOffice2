@@ -169,4 +169,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(StudentGrade::class, 'user_id');
     }
+
+    /**
+     * Get the student's grade completion applications
+     */
+    public function gradeCompletionApplications()
+    {
+        return $this->hasMany(GradeCompletionApplication::class, 'student_id');
+    }
 }

@@ -6,8 +6,8 @@
 @isset($faculty)
     <!-- Page Header -->
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h2 class="text-xl font-semibold text-uc-green mb-2">Students with Incomplete Grades</h2>
-        <p class="text-gray-600">Manage student grades for INC, NFE, and NG subjects</p>
+        <h2 class="text-xl font-semibold text-uc-green mb-2">Grade Management - Dean Approved Applications</h2>
+        <p class="text-gray-600">Edit grades for subjects approved by the dean for grade completion</p>
     </div>
 
     <!-- Search Bar -->
@@ -35,6 +35,7 @@
                         <th class="text-left py-3 px-4 font-medium text-gray-700">NAME</th>
                         <th class="text-left py-3 px-4 font-medium text-gray-700">ID NUMBER</th>
                         <th class="text-left py-3 px-4 font-medium text-gray-700">MAJOR</th>
+                        <th class="text-center py-3 px-4 font-medium text-gray-700">APPROVED SUBJECTS</th>
                         <th class="text-center py-3 px-4 font-medium text-gray-700">ACTIONS</th>
                     </tr>
                 </thead>
@@ -58,10 +59,15 @@
                             </div>
                         </td>
                         <td class="py-4 px-4 text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                {{ $student->gradeCompletionApplications->where('dean_status', 'approved')->count() }} subjects
+                            </span>
+                        </td>
+                        <td class="py-4 px-4 text-center">
                             <button type="button" 
-                                    class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition-colors duration-200 view-grades-btn"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors duration-200 edit-grades-btn"
                                     data-student-id="{{ $student->id }}">
-                                <i class="fas fa-eye mr-1"></i> View
+                                <i class="fas fa-edit mr-1"></i> Edit
                             </button>
                         </td>
                     </tr>
@@ -78,9 +84,9 @@
     <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="text-center py-8">
             <i class="fas fa-chart-line text-4xl text-gray-400 mb-4"></i>
-            <h3 class="text-lg font-medium text-gray-800 mb-2">No Incomplete Grades Found</h3>
+            <h3 class="text-lg font-medium text-gray-800 mb-2">No Dean-Approved Applications Found</h3>
             <p class="text-gray-600">
-                There are currently no students with INC, NFE, or NG grades that require attention.
+                There are currently no students with dean-approved grade completion applications that require grade editing.
             </p>
         </div>
     </div>
@@ -94,7 +100,7 @@
                     <!-- Modal Header -->
                     <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-800" id="modalStudentName">Student Grades</h3>
+                            <h3 class="text-lg font-semibold text-gray-800" id="modalStudentName">Edit Student Grades</h3>
                             <p class="text-sm text-gray-600" id="modalStudentInfo">Student Information</p>
                         </div>
                         <button type="button" 
@@ -104,9 +110,9 @@
                         </button>
                     </div>
 
-                    <!-- Grades List -->
+                    <!-- Applications List -->
                     <div id="gradesList" class="space-y-4">
-                        <!-- Grades will be loaded here via JavaScript -->
+                        <!-- Grade completion applications will be loaded here via JavaScript -->
                     </div>
                 </div>
             </div>
@@ -161,77 +167,110 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // View grades functionality
-    document.querySelectorAll('.view-grades-btn').forEach(button => {
+    // Edit grades functionality
+    document.querySelectorAll('.edit-grades-btn').forEach(button => {
         button.addEventListener('click', function() {
             const studentId = this.dataset.studentId;
-            loadStudentGrades(studentId);
+            loadStudentApplications(studentId);
         });
     });
 });
 
-function loadStudentGrades(studentId) {
+function loadStudentApplications(studentId) {
     fetch(`/faculty/grade-management/${studentId}/grades`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                displayGradeModal(data.student, data.grades);
+                displayGradeModal(data.student, data.applications);
             } else {
-                showAlert('error', 'Failed to load student grades.');
+                showAlert('error', 'Failed to load student applications.');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showAlert('error', 'An error occurred while loading grades.');
+            showAlert('error', 'An error occurred while loading applications.');
         });
 }
 
-function displayGradeModal(student, grades) {
-    document.getElementById('modalStudentName').textContent = student.name;
+function displayGradeModal(student, applications) {
+    document.getElementById('modalStudentName').textContent = `${student.name} - Grade Editing`;
     document.getElementById('modalStudentInfo').textContent = `ID: ${student.student_id} | Course: ${student.course}${student.track ? ' / ' + student.track : ''}`;
     
     const gradesList = document.getElementById('gradesList');
     gradesList.innerHTML = '';
     
-    grades.forEach(grade => {
-        const gradeItem = document.createElement('div');
-        gradeItem.className = 'bg-gray-50 rounded-lg p-4 flex items-center justify-between';
-        gradeItem.innerHTML = `
-            <div class="flex items-center gap-4">
-                <div>
-                    <h5 class="font-medium text-gray-800">${grade.subject.code}</h5>
-                    <p class="text-sm text-gray-600">${grade.subject.description}</p>
-                </div>
-                <div class="text-center">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                        ${grade.grade === 'INC' ? 'bg-yellow-100 text-yellow-800' : 
-                          grade.grade === 'NFE' ? 'bg-red-100 text-red-800' : 
-                          'bg-purple-100 text-purple-800'}">
-                        ${grade.grade}
-                    </span>
-                </div>
-                <div class="text-sm text-gray-500">
-                    Units: ${grade.subject.units}
-                </div>
+    if (applications.length === 0) {
+        gradesList.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-info-circle text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-800 mb-2">No Approved Applications</h3>
+                <p class="text-gray-600">This student has no dean-approved grade completion applications.</p>
             </div>
-            
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2">
-                    <label class="text-sm font-medium text-gray-700">New Grade:</label>
-                    <input type="number" 
-                           class="numeric-grade-input border border-gray-300 rounded-md px-3 py-1 text-sm w-20 focus:outline-none focus:ring-2 focus:ring-uc-green focus:border-transparent"
-                           data-student-id="${student.id}" 
-                           data-subject-id="${grade.subject.id}"
-                           placeholder="1-100"
-                           min="1" 
-                           max="100">
+        `;
+        document.getElementById('gradeModal').classList.remove('hidden');
+        return;
+    }
+    
+    applications.forEach(application => {
+        const gradeItem = document.createElement('div');
+        gradeItem.className = 'bg-gray-50 rounded-lg p-4 border border-gray-200';
+        
+        const isCompleted = application.faculty_status === 'completed';
+        const deadlineStatus = application.completion_deadline ? getDeadlineStatus(application.completion_deadline) : null;
+        
+        gradeItem.innerHTML = `
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-4">
+                    <div>
+                        <h5 class="font-medium text-gray-800">${application.subject.code}</h5>
+                        <p class="text-sm text-gray-600">${application.subject.description}</p>
+                        <p class="text-xs text-gray-500">Units: ${application.subject.units}</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-gray-600 mb-1">Current Grade</div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            ${application.current_grade === 'INC' ? 'bg-yellow-100 text-yellow-800' : 
+                              application.current_grade === 'NFE' ? 'bg-red-100 text-red-800' : 
+                              'bg-purple-100 text-purple-800'}">
+                            ${application.current_grade}
+                        </span>
+                    </div>
+                    ${application.completion_deadline ? `
+                        <div class="text-center">
+                            <div class="text-sm text-gray-600 mb-1">Deadline</div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${deadlineStatus.class}">
+                                ${application.completion_deadline}
+                            </span>
+                        </div>
+                    ` : ''}
                 </div>
-                <button type="button" 
-                        class="update-grade-btn bg-uc-green text-white px-4 py-1 rounded-md text-sm hover:bg-green-700 transition-colors duration-200"
-                        data-student-id="${student.id}" 
-                        data-subject-id="${grade.subject.id}">
-                    Update
-                </button>
+                
+                ${isCompleted ? `
+                    <div class="text-center">
+                        <div class="text-sm text-gray-600 mb-1">Final Grade</div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            ${application.final_grade}
+                        </span>
+                        <div class="text-xs text-gray-500 mt-1">Completed</div>
+                    </div>
+                ` : `
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm font-medium text-gray-700">Final Grade:</label>
+                            <input type="number" 
+                                   class="final-grade-input border border-gray-300 rounded-md px-3 py-2 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   data-application-id="${application.id}"
+                                   placeholder="1-100"
+                                   min="1" 
+                                   max="100">
+                        </div>
+                        <button type="button" 
+                                class="update-grade-btn bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors duration-200"
+                                data-application-id="${application.id}">
+                            <i class="fas fa-save mr-1"></i> Save Grade
+                        </button>
+                    </div>
+                `}
             </div>
         `;
         gradesList.appendChild(gradeItem);
@@ -245,19 +284,32 @@ function displayGradeModal(student, grades) {
     document.getElementById('gradeModal').classList.remove('hidden');
 }
 
+function getDeadlineStatus(deadlineString) {
+    const deadline = new Date(deadlineString);
+    const now = new Date();
+    const diffDays = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+        return { class: 'bg-red-100 text-red-800' };
+    } else if (diffDays <= 7) {
+        return { class: 'bg-orange-100 text-orange-800' };
+    } else {
+        return { class: 'bg-green-100 text-green-800' };
+    }
+}
+
 function closeGradeModal() {
     document.getElementById('gradeModal').classList.add('hidden');
 }
 
 function handleGradeUpdate() {
-    const studentId = this.dataset.studentId;
-    const subjectId = this.dataset.subjectId;
-    const numericInput = document.querySelector(`input[data-student-id="${studentId}"][data-subject-id="${subjectId}"]`);
+    const applicationId = this.dataset.applicationId;
+    const gradeInput = document.querySelector(`input[data-application-id="${applicationId}"]`);
     
-    const gradeValue = numericInput.value.trim();
+    const gradeValue = gradeInput.value.trim();
     
     if (!gradeValue) {
-        alert('Please enter a grade (1-100).');
+        alert('Please enter a final grade (1-100).');
         return;
     }
     
@@ -269,7 +321,7 @@ function handleGradeUpdate() {
     
     // Disable button while processing
     this.disabled = true;
-    this.textContent = 'Updating...';
+    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
     
     // Prepare CSRF token
     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -281,9 +333,8 @@ function handleGradeUpdate() {
             'X-CSRF-TOKEN': token
         },
         body: JSON.stringify({
-            student_id: studentId,
-            subject_id: subjectId,
-            new_grade: gradeValue
+            application_id: applicationId,
+            final_grade: gradeValue
         })
     })
     .then(response => response.json())
@@ -298,14 +349,14 @@ function handleGradeUpdate() {
         } else {
             showAlert('error', data.message);
             this.disabled = false;
-            this.textContent = 'Update';
+            this.innerHTML = '<i class="fas fa-save mr-1"></i> Save Grade';
         }
     })
     .catch(error => {
         console.error('Error:', error);
         showAlert('error', 'An error occurred while updating the grade.');
         this.disabled = false;
-        this.textContent = 'Update';
+        this.innerHTML = '<i class="fas fa-save mr-1"></i> Save Grade';
     });
 }
 

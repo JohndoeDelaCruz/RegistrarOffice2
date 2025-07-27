@@ -628,14 +628,14 @@ class FacultyController extends Controller
             return redirect('/')->with('error', 'Please log in as faculty to access this page.');
         }
         
-        // Get students from faculty's college with INC, NFE, or NG grades
+        // Get students from faculty's college who have dean-approved grade completion applications
         $studentsWithIncompleteGrades = User::where('role', 'student')
             ->where('college', $faculty->college)
-            ->whereHas('grades', function ($query) {
-                $query->whereIn('grade', ['INC', 'NFE', 'NG']);
+            ->whereHas('gradeCompletionApplications', function ($query) {
+                $query->where('dean_status', 'approved');
             })
-            ->with(['grades' => function ($query) {
-                $query->whereIn('grade', ['INC', 'NFE', 'NG'])
+            ->with(['gradeCompletionApplications' => function ($query) {
+                $query->where('dean_status', 'approved')
                       ->with('subject');
             }])
             ->get();
@@ -660,10 +660,10 @@ class FacultyController extends Controller
             return response()->json(['success' => false, 'message' => 'Student not found.']);
         }
         
-        // Get student's incomplete grades
-        $grades = \App\Models\StudentGrade::with('subject')
-            ->where('user_id', $studentId)
-            ->whereIn('grade', ['INC', 'NFE', 'NG'])
+        // Get student's dean-approved grade completion applications
+        $applications = GradeCompletionApplication::with('subject')
+            ->where('student_id', $studentId)
+            ->where('dean_status', 'approved')
             ->get();
         
         return response()->json([
@@ -675,14 +675,18 @@ class FacultyController extends Controller
                 'course' => $student->course,
                 'track' => $student->track
             ],
-            'grades' => $grades->map(function ($grade) {
+            'applications' => $applications->map(function ($application) {
                 return [
-                    'grade' => $grade->grade,
+                    'id' => $application->id,
+                    'current_grade' => $application->current_grade,
+                    'final_grade' => $application->final_grade,
+                    'completion_deadline' => $application->completion_deadline ? $application->completion_deadline->format('M j, Y') : null,
+                    'faculty_status' => $application->faculty_status,
                     'subject' => [
-                        'id' => $grade->subject->id,
-                        'code' => $grade->subject->code,
-                        'description' => $grade->subject->description,
-                        'units' => $grade->subject->units
+                        'id' => $application->subject->id,
+                        'code' => $application->subject->code,
+                        'description' => $application->subject->description,
+                        'units' => $application->subject->units
                     ]
                 ];
             })
@@ -698,36 +702,40 @@ class FacultyController extends Controller
         }
         
         $request->validate([
-            'student_id' => 'required|exists:users,id',
-            'subject_id' => 'required|exists:subjects,id',
-            'new_grade' => 'required|string'
+            'application_id' => 'required|exists:grade_completion_applications,id',
+            'final_grade' => 'required|numeric|min:1|max:100'
         ]);
         
-        // Validate the grade value
-        $newGrade = $request->new_grade;
-        if (!in_array($newGrade, ['INC', 'NFE', 'NG'])) {
-            // Check if it's a numeric grade
-            if (!is_numeric($newGrade) || $newGrade < 1 || $newGrade > 100) {
-                return response()->json(['success' => false, 'message' => 'Grade must be a number between 1-100 or one of: INC, NFE, NG']);
-            }
-        }
-        
-        // Find the student grade record
-        $studentGrade = \App\Models\StudentGrade::where('user_id', $request->student_id)
-            ->where('subject_id', $request->subject_id)
+        // Find the grade completion application
+        $application = GradeCompletionApplication::where('id', $request->application_id)
+            ->where('dean_status', 'approved')
             ->first();
         
-        if (!$studentGrade) {
-            return response()->json(['success' => false, 'message' => 'Grade record not found.']);
+        if (!$application) {
+            return response()->json(['success' => false, 'message' => 'Grade completion application not found or not approved by dean.']);
         }
         
-        // Update the grade
-        $isCompleted = !in_array($newGrade, ['INC', 'NFE', 'NG']);
-        $studentGrade->update([
-            'grade' => $newGrade,
-            'is_completed' => $isCompleted,
-            'completed_at' => $isCompleted ? Carbon::now() : null
+        // Update the application with final grade
+        $application->update([
+            'final_grade' => $request->final_grade,
+            'faculty_status' => 'completed',
+            'faculty_processed_at' => now(),
+            'faculty_processed_by' => $faculty->id,
+            'faculty_remarks' => 'Grade completion processed'
         ]);
+        
+        // Also update the actual student grade record
+        $studentGrade = \App\Models\StudentGrade::where('user_id', $application->student_id)
+            ->where('subject_id', $application->subject_id)
+            ->first();
+        
+        if ($studentGrade) {
+            $studentGrade->update([
+                'grade' => $request->final_grade,
+                'is_completed' => true,
+                'completed_at' => now()
+            ]);
+        }
         
         return response()->json(['success' => true, 'message' => 'Grade updated successfully!']);
     }

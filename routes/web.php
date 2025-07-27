@@ -88,6 +88,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/application-tracking', [AdminController::class, 'applicationTracking'])->name('application-tracking');
     Route::get('/system-logs', [AdminController::class, 'systemLogs'])->name('system-logs');
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+    Route::post('/reports/generate', [AdminController::class, 'generateReport'])->name('reports.generate');
+    Route::post('/reports/quick-generate', [AdminController::class, 'quickGenerateReport'])->name('reports.quick-generate');
+    Route::get('/reports/{id}/download', [AdminController::class, 'downloadReport'])->name('reports.download');
+    Route::get('/reports/{id}/view', [AdminController::class, 'viewReport'])->name('reports.view');
+    Route::delete('/reports/{id}', [AdminController::class, 'deleteReport'])->name('reports.delete');
+    Route::get('/reports/export-all', [AdminController::class, 'exportAllReports'])->name('reports.export-all');
+    Route::get('/reports/custom-report', [AdminController::class, 'customReport'])->name('reports.custom-report');
     Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
     Route::put('/profile', [AdminController::class, 'updateProfile'])->name('profile.update');
 });

@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\GradeCompletionApplication;
 use App\Models\Announcement;
+use App\Models\Report;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -265,36 +267,11 @@ class AdminController extends Controller
             ->take(10)
             ->get();
 
-        // Create mock recent reports data
-        $recentReports = collect([
-            [
-                'name' => 'Monthly Grade Analysis',
-                'description' => 'Comprehensive grade completion report for the current month',
-                'type' => 'Analytics',
-                'type_color' => 'blue',
-                'created_at' => Carbon::now()->subDays(1),
-                'file_size' => '2.4 MB',
-                'status' => 'completed'
-            ],
-            [
-                'name' => 'Student Performance Summary',
-                'description' => 'Overall student performance metrics and trends',
-                'type' => 'Performance',
-                'type_color' => 'green',
-                'created_at' => Carbon::now()->subDays(3),
-                'file_size' => '1.8 MB',
-                'status' => 'completed'
-            ],
-            [
-                'name' => 'Faculty Activity Report',
-                'description' => 'Faculty engagement and grading patterns',
-                'type' => 'Activity',
-                'type_color' => 'purple',
-                'created_at' => Carbon::now()->subDays(5),
-                'file_size' => '3.1 MB',
-                'status' => 'processing'
-            ]
-        ]);
+        // Get actual reports from database
+        $recentReports = Report::where('created_by', $admin->id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
 
         // Create report statistics
         $reportStats = [
@@ -349,5 +326,438 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('admin.profile')->with('success', 'Profile updated successfully!');
+    }
+
+    public function generateReport(Request $request)
+    {
+        try {
+            $admin = $this->getLoggedInAdmin();
+            
+            if (!$admin) {
+                return response()->json(['error' => 'Unauthorized - Admin not found'], 401);
+            }
+
+            $request->validate([
+                'report_type' => 'required|string',
+                'date_range' => 'required|string',
+                'format' => 'required|string|in:html,pdf,excel,csv,json'
+            ]);
+
+            // Generate report data
+            $reportData = $this->generateReportData($request->report_type, $request->date_range);
+            
+            // Create report record
+            $report = Report::create([
+                'name' => $this->getReportDisplayName($request->report_type),
+                'description' => $this->getReportDescription($request->report_type),
+                'type' => ucfirst(str_replace('_', ' ', $request->report_type)),
+                'type_color' => $this->getReportTypeColor($request->report_type),
+                'format' => $request->format,
+                'status' => 'processing',
+                'parameters' => [
+                    'report_type' => $request->report_type,
+                    'date_range' => $request->date_range,
+                    'format' => $request->format
+                ],
+                'data' => $reportData,
+                'created_by' => $admin->id
+            ]);
+
+            // Generate the actual report content
+            $this->createReportFile($report);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Report generated successfully!',
+                'report_name' => $report->name,
+                'report_id' => $report->id
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error generating report: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function quickGenerateReport(Request $request)
+    {
+        try {
+            $admin = $this->getLoggedInAdmin();
+            
+            if (!$admin) {
+                return response()->json(['error' => 'Unauthorized - Admin not found'], 401);
+            }
+
+            $request->validate([
+                'report_type' => 'required|string'
+            ]);
+
+            // Generate report with default settings
+            $reportData = $this->generateReportData($request->report_type, 'month');
+            
+            // Create report record
+            $report = Report::create([
+                'name' => $this->getReportDisplayName($request->report_type),
+                'description' => $this->getReportDescription($request->report_type),
+                'type' => ucfirst(str_replace('_', ' ', $request->report_type)),
+                'type_color' => $this->getReportTypeColor($request->report_type),
+                'format' => 'html',
+                'status' => 'processing',
+                'parameters' => [
+                    'report_type' => $request->report_type,
+                    'date_range' => 'month',
+                    'format' => 'html'
+                ],
+                'data' => $reportData,
+                'created_by' => $admin->id
+            ]);
+
+            // Generate the actual report content
+            $this->createReportFile($report);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Report generated successfully!',
+                'report_name' => $report->name,
+                'report_id' => $report->id
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error generating report: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function downloadReport($id)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Unauthorized');
+        }
+
+        $report = Report::where('id', $id)
+            ->where('created_by', $admin->id)
+            ->firstOrFail();
+
+        if (!$report->file_path || !Storage::exists($report->file_path)) {
+            return redirect()->back()->with('error', 'Report file not found.');
+        }
+
+        return Storage::download($report->file_path, $report->file_name);
+    }
+
+    public function viewReport($id)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Unauthorized');
+        }
+
+        $report = Report::where('id', $id)
+            ->where('created_by', $admin->id)
+            ->firstOrFail();
+
+        // Return the report view
+        return view('admin.reports.view', compact('report', 'admin'));
+    }
+
+    public function deleteReport($id)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $report = Report::where('id', $id)
+            ->where('created_by', $admin->id)
+            ->first();
+
+        if (!$report) {
+            return response()->json(['error' => 'Report not found'], 404);
+        }
+
+        // Delete the file if it exists
+        if ($report->file_path && Storage::exists($report->file_path)) {
+            Storage::delete($report->file_path);
+        }
+
+        // Delete the report record
+        $report->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Report deleted successfully!'
+        ]);
+    }
+
+    public function exportAllReports()
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Unauthorized');
+        }
+
+        // In a real application, you would create a zip file with all reports
+        return response()->json([
+            'success' => true,
+            'message' => 'Exporting all reports...',
+            'info' => 'In a production environment, this would create and download a zip file with all reports.'
+        ]);
+    }
+
+    public function customReport()
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Unauthorized');
+        }
+
+        // In a real application, you would show a custom report builder interface
+        return response()->json([
+            'success' => true,
+            'message' => 'Opening custom report builder...',
+            'info' => 'In a production environment, this would open a custom report configuration interface.'
+        ]);
+    }
+
+    private function generateReportData($reportType, $dateRange)
+    {
+        // Generate mock data based on report type
+        switch ($reportType) {
+            case 'user_activity':
+                return $this->generateUserActivityData($dateRange);
+            case 'grade_completion':
+                return $this->generateGradeCompletionData($dateRange);
+            case 'approval_tracking':
+                return $this->generateApprovalTrackingData($dateRange);
+            case 'system_usage':
+                return $this->generateSystemUsageData($dateRange);
+            case 'security_audit':
+                return $this->generateSecurityAuditData($dateRange);
+            default:
+                return [];
+        }
+    }
+
+    private function generateUserActivityData($dateRange)
+    {
+        // Mock user activity data
+        return [
+            'total_logins' => User::count() * rand(5, 15),
+            'unique_users' => User::count(),
+            'avg_session_duration' => rand(15, 45) . ' minutes',
+            'peak_hours' => '9:00 AM - 11:00 AM'
+        ];
+    }
+
+    private function generateGradeCompletionData($dateRange)
+    {
+        return [
+            'total_applications' => GradeCompletionApplication::count(),
+            'approved' => GradeCompletionApplication::where('dean_status', 'approved')->count(),
+            'rejected' => GradeCompletionApplication::where('dean_status', 'rejected')->count(),
+            'pending' => GradeCompletionApplication::whereNull('dean_status')->count()
+        ];
+    }
+
+    private function generateApprovalTrackingData($dateRange)
+    {
+        return [
+            'avg_processing_time' => rand(2, 7) . ' days',
+            'fastest_approval' => rand(1, 3) . ' hours',
+            'slowest_approval' => rand(10, 14) . ' days'
+        ];
+    }
+
+    private function generateSystemUsageData($dateRange)
+    {
+        return [
+            'server_uptime' => '99.8%',
+            'avg_response_time' => rand(200, 800) . 'ms',
+            'total_requests' => rand(10000, 50000)
+        ];
+    }
+
+    private function generateSecurityAuditData($dateRange)
+    {
+        return [
+            'failed_login_attempts' => rand(5, 25),
+            'successful_logins' => User::count() * rand(5, 15),
+            'security_alerts' => rand(0, 3)
+        ];
+    }
+
+    private function generateReportFileName($reportType, $format)
+    {
+        $timestamp = now()->format('Y-m-d_H-i-s');
+        $name = str_replace('_', '-', $reportType);
+        return "{$name}-report-{$timestamp}.{$format}";
+    }
+
+    private function getReportDisplayName($reportType)
+    {
+        $names = [
+            'user_activity' => 'User Activity Report',
+            'grade_completion' => 'Grade Completion Report',
+            'approval_tracking' => 'Approval Tracking Report',
+            'system_usage' => 'System Usage Report',
+            'security_audit' => 'Security Audit Report'
+        ];
+        
+        return $names[$reportType] ?? 'Unknown Report';
+    }
+
+    private function getReportDescription($reportType)
+    {
+        $descriptions = [
+            'user_activity' => 'Detailed analysis of user login patterns and system usage',
+            'grade_completion' => 'Comprehensive overview of grade completion applications and trends',
+            'approval_tracking' => 'Timeline and efficiency metrics for dean approval processes',
+            'system_usage' => 'Server performance, response times, and system health metrics',
+            'security_audit' => 'Security events, failed login attempts, and access patterns'
+        ];
+        
+        return $descriptions[$reportType] ?? 'Generated report';
+    }
+
+    private function getReportTypeColor($reportType)
+    {
+        $colors = [
+            'user_activity' => 'blue',
+            'grade_completion' => 'green',
+            'approval_tracking' => 'purple',
+            'system_usage' => 'yellow',
+            'security_audit' => 'red'
+        ];
+        
+        return $colors[$reportType] ?? 'gray';
+    }
+
+    private function createReportFile(Report $report)
+    {
+        $fileName = $this->generateReportFileName($report->parameters['report_type'], $report->format);
+        $filePath = "reports/{$fileName}";
+        
+        // Generate report content based on format
+        $content = $this->generateReportContent($report);
+        
+        // Store the file
+        Storage::put($filePath, $content);
+        
+        // Update report with file information
+        $report->update([
+            'file_name' => $fileName,
+            'file_path' => $filePath,
+            'file_size' => $this->formatFileSize(Storage::size($filePath)),
+            'status' => 'completed'
+        ]);
+    }
+
+    private function generateReportContent(Report $report)
+    {
+        $data = $report->data;
+        $parameters = $report->parameters;
+        
+        switch ($report->format) {
+            case 'json':
+                return json_encode([
+                    'report_name' => $report->name,
+                    'description' => $report->description,
+                    'generated_at' => $report->created_at->toISOString(),
+                    'parameters' => $parameters,
+                    'data' => $data
+                ], JSON_PRETTY_PRINT);
+                
+            case 'csv':
+                return $this->generateCSVContent($report, $data);
+                
+            case 'html':
+            case 'pdf':
+            default:
+                return $this->generateHTMLContent($report, $data);
+        }
+    }
+
+    private function generateHTMLContent(Report $report, $data)
+    {
+        $html = "<!DOCTYPE html>
+<html>
+<head>
+    <title>{$report->name}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .info-table th, .info-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .info-table th { background-color: #f2f2f2; }
+        .data-section { margin-top: 20px; }
+        .data-item { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class='header'>
+        <h1>{$report->name}</h1>
+        <p>{$report->description}</p>
+        <p>Generated on: {$report->created_at->format('F j, Y g:i A')}</p>
+    </div>
+    
+    <h2>Report Parameters</h2>
+    <table class='info-table'>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Report Type</td><td>{$report->parameters['report_type']}</td></tr>
+        <tr><td>Date Range</td><td>{$report->parameters['date_range']}</td></tr>
+        <tr><td>Format</td><td>{$report->parameters['format']}</td></tr>
+    </table>
+    
+    <h2>Report Data</h2>
+    <div class='data-section'>";
+        
+        foreach ($data as $key => $value) {
+            $html .= "<div class='data-item'><strong>" . ucfirst(str_replace('_', ' ', $key)) . ":</strong> {$value}</div>";
+        }
+        
+        $html .= "
+    </div>
+</body>
+</html>";
+        
+        return $html;
+    }
+
+    private function generateCSVContent(Report $report, $data)
+    {
+        $csv = "Report Name,{$report->name}\n";
+        $csv .= "Description,{$report->description}\n";
+        $csv .= "Generated At,{$report->created_at->format('Y-m-d H:i:s')}\n\n";
+        $csv .= "Parameter,Value\n";
+        
+        foreach ($report->parameters as $key => $value) {
+            $csv .= ucfirst(str_replace('_', ' ', $key)) . ",{$value}\n";
+        }
+        
+        $csv .= "\nData Item,Value\n";
+        foreach ($data as $key => $value) {
+            $csv .= ucfirst(str_replace('_', ' ', $key)) . ",{$value}\n";
+        }
+        
+        return $csv;
+    }
+
+    private function formatFileSize($bytes)
+    {
+        if ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            return number_format($bytes / 1024, 2) . ' KB';
+        } else {
+            return $bytes . ' bytes';
+        }
     }
 }

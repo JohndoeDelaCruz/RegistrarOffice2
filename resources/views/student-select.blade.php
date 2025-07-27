@@ -107,30 +107,36 @@
         }
         .form-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0 auto;
         }
         .form-table td {
             padding: 0;
             margin: 0;
         }
         .form-row-table {
-            margin-bottom: 35px;
+            margin-bottom: 25px;
         }
         .form-row-table td {
             vertical-align: middle;
+        }
+        .form-row-table:first-child {
+            margin-bottom: 25px;
         }
         .form-label {
             background: #0891b2;
             color: white;
             padding: 12px 18px;
             font-weight: bold;
-            width: 45%;
-            text-align: right;
+            width: 200px;
+            text-align: center;
             font-size: 16px;
             border-radius: 25px 0 0 25px;
+            white-space: nowrap;
         }
         .form-input {
-            width: 55%;
+            width: 300px;
             padding: 12px 18px;
             border: none;
             background: #f0f9ff;
@@ -229,10 +235,11 @@
                 <input type="hidden" name="login_type" id="login-type" value="student">
 
                 <!-- Login Form Table -->
-                <table class="form-table">
-                    <tr class="form-row-table">
-                        <td class="form-label" id="login-label">Student ID Number:</td>
-                        <td>
+                <div style="display: flex; justify-content: center; width: 100%; margin-top: 20px;">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                        <!-- Student ID Number Row -->
+                        <div style="display: flex; align-items: center;">
+                            <div class="form-label" id="login-label">Student ID Number</div>
                             <input 
                                 type="text" 
                                 name="login_id" 
@@ -242,11 +249,11 @@
                                 class="form-input"
                                 required
                             >
-                        </td>
-                    </tr>
-                    <tr class="form-row-table">
-                        <td class="form-label">Password:</td>
-                        <td>
+                        </div>
+                        
+                        <!-- Password Row -->
+                        <div style="display: flex; align-items: center;">
+                            <div class="form-label">Password</div>
                             <input 
                                 type="password" 
                                 name="password" 
@@ -254,14 +261,14 @@
                                 class="form-input"
                                 required
                             >
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: center; padding-top: 15px;">
+                        </div>
+                        
+                        <!-- Login Button -->
+                        <div style="margin-top: 15px;">
                             <button type="submit" class="login-btn">Login Now</button>
-                        </td>
-                    </tr>
-                </table>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Error Messages -->
                 @if ($errors->any())

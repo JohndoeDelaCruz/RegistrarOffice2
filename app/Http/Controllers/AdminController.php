@@ -128,6 +128,102 @@ class AdminController extends Controller
         return view('admin.application-tracking', compact('admin', 'applications'));
     }
 
+    public function viewApplication($id)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Please log in as administrator to access this page.');
+        }
+
+        $application = GradeCompletionApplication::with(['student', 'subject', 'deanReviewedBy'])
+            ->findOrFail($id);
+
+        return view('admin.applications.view', compact('admin', 'application'));
+    }
+
+    public function editApplication($id)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Please log in as administrator to access this page.');
+        }
+
+        $application = GradeCompletionApplication::with(['student', 'subject'])
+            ->findOrFail($id);
+
+        return view('admin.applications.edit', compact('admin', 'application'));
+    }
+
+    public function updateApplication(Request $request, $id)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Please log in as administrator to access this page.');
+        }
+
+        $application = GradeCompletionApplication::findOrFail($id);
+
+        $request->validate([
+            'dean_status' => 'required|in:approved,rejected',
+            'dean_remarks' => 'nullable|string|max:1000',
+        ]);
+
+        $application->update([
+            'dean_status' => $request->dean_status,
+            'dean_remarks' => $request->dean_remarks,
+            'dean_reviewed_at' => now(),
+            'dean_reviewed_by' => $admin->id,
+        ]);
+
+        return redirect()->route('admin.application-tracking')
+            ->with('success', 'Application updated successfully!');
+    }
+
+    public function viewDocument($id)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Please log in as administrator to access this page.');
+        }
+
+        $application = GradeCompletionApplication::findOrFail($id);
+
+        if (!$application->supporting_document) {
+            return redirect()->back()->with('error', 'No supporting document found for this application.');
+        }
+
+        // In a real application, you would handle file viewing/download here
+        // For now, return a simple view showing document information
+        return view('admin.applications.document', compact('admin', 'application'));
+    }
+
+    public function viewSignedDocument($id)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Please log in as administrator to access this page.');
+        }
+
+        $application = GradeCompletionApplication::findOrFail($id);
+
+        if ($application->dean_status !== 'approved') {
+            return redirect()->back()->with('error', 'This application has not been approved yet.');
+        }
+
+        if (!$application->dean_signature) {
+            return redirect()->back()->with('error', 'No signed document found for this application.');
+        }
+
+        // In a real application, you would handle signed document viewing/download here
+        // For now, return a simple view showing signed document information
+        return view('admin.applications.signed-document', compact('admin', 'application'));
+    }
+
     public function systemLogs()
     {
         $admin = $this->getLoggedInAdmin();

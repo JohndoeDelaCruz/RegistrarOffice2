@@ -86,6 +86,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/user-management', [AdminController::class, 'userManagement'])->name('user-management');
     Route::get('/application-tracking', [AdminController::class, 'applicationTracking'])->name('application-tracking');
+    Route::get('/applications/{id}/view', [AdminController::class, 'viewApplication'])->name('applications.view');
+    Route::get('/applications/{id}/edit', [AdminController::class, 'editApplication'])->name('applications.edit');
+    Route::put('/applications/{id}', [AdminController::class, 'updateApplication'])->name('applications.update');
+    Route::get('/applications/{id}/document', [AdminController::class, 'viewDocument'])->name('applications.document');
+    Route::get('/applications/{id}/signed-document', [AdminController::class, 'viewSignedDocument'])->name('applications.signed-document');
     Route::get('/system-logs', [AdminController::class, 'systemLogs'])->name('system-logs');
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
     Route::post('/reports/generate', [AdminController::class, 'generateReport'])->name('reports.generate');

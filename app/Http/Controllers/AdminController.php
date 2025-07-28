@@ -122,11 +122,65 @@ class AdminController extends Controller
             return redirect('/')->with('error', 'Please log in as administrator to access this page.');
         }
 
-        $applications = GradeCompletionApplication::with(['student', 'subject'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        // Get application statistics
+        $pendingApplications = GradeCompletionApplication::where('dean_status', 'pending')->count();
+        $approvedApplications = GradeCompletionApplication::where('dean_status', 'approved')->count();
+        $rejectedApplications = GradeCompletionApplication::where('dean_status', 'rejected')->count();
 
-        return view('admin.application-tracking', compact('admin', 'applications'));
+        // Get applications with filtering
+        $query = GradeCompletionApplication::with(['student', 'subject', 'deanReviewedBy']);
+        
+        // Apply status filter if provided
+        $statusFilter = request('status');
+        if ($statusFilter === 'pending') {
+            $query->where('dean_status', 'pending');
+        } elseif ($statusFilter === 'approved') {
+            $query->where('dean_status', 'approved');
+        } elseif ($statusFilter === 'rejected') {
+            $query->where('dean_status', 'rejected');
+        }
+
+        // Apply search filter if provided
+        $search = request('search');
+        if ($search) {
+            $query->whereHas('student', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('student_id', 'like', "%{$search}%");
+            })->orWhereHas('subject', function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply date range filter if provided
+        $dateRange = request('date_range');
+        if ($dateRange) {
+            switch ($dateRange) {
+                case 'today':
+                    $query->whereDate('created_at', now()->toDateString());
+                    break;
+                case 'week':
+                    $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                    break;
+                case 'month':
+                    $query->whereMonth('created_at', now()->month)
+                          ->whereYear('created_at', now()->year);
+                    break;
+                case 'year':
+                    $query->whereYear('created_at', now()->year);
+                    break;
+            }
+        }
+
+        $applications = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        return view('admin.application-tracking', compact(
+            'admin', 
+            'applications',
+            'pendingApplications',
+            'approvedApplications',
+            'rejectedApplications'
+        ));
     }
 
     public function viewApplication($id)

@@ -29,7 +29,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-lg font-semibold text-gray-800">Pending Review</h3>
-                <p class="text-3xl font-bold text-yellow-600">{{ $applications->where('dean_status', null)->count() }}</p>
+                <p class="text-3xl font-bold text-yellow-600">{{ $pendingApplications }}</p>
             </div>
             <div class="bg-yellow-100 p-3 rounded-full">
                 <i class="fas fa-hourglass-half text-yellow-600 text-xl"></i>
@@ -44,7 +44,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-lg font-semibold text-gray-800">Approved</h3>
-                <p class="text-3xl font-bold text-green-600">{{ $applications->where('dean_status', 'approved')->count() }}</p>
+                <p class="text-3xl font-bold text-green-600">{{ $approvedApplications }}</p>
             </div>
             <div class="bg-green-100 p-3 rounded-full">
                 <i class="fas fa-check-circle text-green-600 text-xl"></i>
@@ -59,7 +59,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-lg font-semibold text-gray-800">Rejected</h3>
-                <p class="text-3xl font-bold text-red-600">{{ $applications->where('dean_status', 'rejected')->count() }}</p>
+                <p class="text-3xl font-bold text-red-600">{{ $rejectedApplications }}</p>
             </div>
             <div class="bg-red-100 p-3 rounded-full">
                 <i class="fas fa-times-circle text-red-600 text-xl"></i>
@@ -73,46 +73,46 @@
 
 <!-- Filters -->
 <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <form method="GET" action="{{ route('admin.application-tracking') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Search Applications</label>
             <div class="relative">
-                <input type="text" placeholder="Search by student name or ID..." 
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by student name or ID..." 
                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
             </div>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Status Filter</label>
+            <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
+                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved</option>
+                <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
             </select>
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select name="date_range" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">All Time</option>
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-                <option value="year">This Year</option>
+                <option value="today" {{ request('date_range') === 'today' ? 'selected' : '' }}>Today</option>
+                <option value="week" {{ request('date_range') === 'week' ? 'selected' : '' }}>This Week</option>
+                <option value="month" {{ request('date_range') === 'month' ? 'selected' : '' }}>This Month</option>
+                <option value="year" {{ request('date_range') === 'year' ? 'selected' : '' }}>This Year</option>
             </select>
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Actions</label>
             <div class="flex gap-2">
-                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
                     <i class="fas fa-filter mr-2"></i>Filter
                 </button>
-                <button class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200">
+                <a href="{{ route('admin.application-tracking') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 inline-flex items-center">
                     <i class="fas fa-undo mr-2"></i>Reset
-                </button>
+                </a>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
 <!-- Applications Table -->

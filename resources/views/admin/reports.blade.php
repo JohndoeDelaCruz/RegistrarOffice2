@@ -142,24 +142,20 @@
 <!-- Analytics Dashboard -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     <!-- User Activity Chart -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="bg-white rounded-lg shadow-sm p-6" id="user-activity-card">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-800">User Activity Trends</h3>
             <div class="flex gap-2">
-                <button class="text-gray-500 hover:text-gray-700">
+                <button onclick="maximizeChart('user-activity')" class="text-gray-500 hover:text-gray-700 transition-colors duration-200" title="Maximize">
                     <i class="fas fa-expand-alt"></i>
                 </button>
-                <button class="text-gray-500 hover:text-gray-700">
+                <button onclick="downloadChart('user-activity')" class="text-gray-500 hover:text-gray-700 transition-colors duration-200" title="Download">
                     <i class="fas fa-download"></i>
                 </button>
             </div>
         </div>
-        <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-            <div class="text-center">
-                <i class="fas fa-chart-line text-4xl text-gray-400 mb-4"></i>
-                <p class="text-gray-500">Interactive chart would be displayed here</p>
-                <p class="text-sm text-gray-400">Showing login patterns over the last 30 days</p>
-            </div>
+        <div class="h-64 bg-gray-50 rounded-lg p-4 flex items-center justify-center">
+            <canvas id="userActivityChart" width="800" height="400"></canvas>
         </div>
         <div class="mt-4 grid grid-cols-3 gap-4 text-center">
             <div>
@@ -178,24 +174,20 @@
     </div>
     
     <!-- Grade Distribution Chart -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="bg-white rounded-lg shadow-sm p-6" id="grade-distribution-card">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-800">Grade Distribution</h3>
             <div class="flex gap-2">
-                <button class="text-gray-500 hover:text-gray-700">
+                <button onclick="maximizeChart('grade-distribution')" class="text-gray-500 hover:text-gray-700 transition-colors duration-200" title="Maximize">
                     <i class="fas fa-expand-alt"></i>
                 </button>
-                <button class="text-gray-500 hover:text-gray-700">
+                <button onclick="downloadChart('grade-distribution')" class="text-gray-500 hover:text-gray-700 transition-colors duration-200" title="Download">
                     <i class="fas fa-download"></i>
                 </button>
             </div>
         </div>
-        <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-            <div class="text-center">
-                <i class="fas fa-chart-pie text-4xl text-gray-400 mb-4"></i>
-                <p class="text-gray-500">Pie chart would be displayed here</p>
-                <p class="text-sm text-gray-400">Grade completion application breakdown</p>
-            </div>
+        <div class="h-64 bg-gray-50 rounded-lg p-4 flex items-center justify-center">
+            <canvas id="gradeDistributionChart" width="400" height="400"></canvas>
         </div>
         <div class="mt-4 space-y-2">
             <div class="flex justify-between items-center">
@@ -203,23 +195,44 @@
                     <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
                     <span class="text-sm text-gray-600">INC (Incomplete)</span>
                 </div>
-                <span class="text-sm font-medium text-gray-800">45%</span>
+                <span class="text-sm font-medium text-gray-800" id="inc-percentage">45%</span>
             </div>
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
                     <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
                     <span class="text-sm text-gray-600">NFE (No Final Exam)</span>
                 </div>
-                <span class="text-sm font-medium text-gray-800">30%</span>
+                <span class="text-sm font-medium text-gray-800" id="nfe-percentage">30%</span>
             </div>
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
                     <div class="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
                     <span class="text-sm text-gray-600">NG (No Grade)</span>
                 </div>
-                <span class="text-sm font-medium text-gray-800">25%</span>
+                <span class="text-sm font-medium text-gray-800" id="ng-percentage">25%</span>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Chart Maximize Modal -->
+<div id="chartModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl p-6 m-4 w-full max-w-6xl max-h-screen overflow-auto">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modalTitle" class="text-xl font-semibold text-gray-800"></h3>
+            <div class="flex gap-2">
+                <button onclick="downloadModalChart()" class="text-gray-500 hover:text-gray-700 transition-colors duration-200" title="Download">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 transition-colors duration-200" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="h-96 bg-gray-50 rounded-lg p-4">
+            <canvas id="modalChart" class="w-full h-full"></canvas>
+        </div>
+        <div id="modalStats" class="mt-4"></div>
     </div>
 </div>
 
@@ -385,10 +398,552 @@
 @endsection
 
 @push('scripts')
+<!-- Chart.js CDN - using a more stable version -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // CSRF token for AJAX requests
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    // Chart instances for downloading and maximizing
+    let userActivityChart;
+    let gradeDistributionChart;
+    let modalChart;
+    let currentModalChartType = null;
+
+    // Initialize charts with a delay to ensure DOM and Chart.js are ready
+    setTimeout(function() {
+        initializeCharts();
+    }, 500);
+
+    function initializeCharts() {
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js not loaded, retrying...');
+            setTimeout(initializeCharts, 1000); // Retry after 1 second
+            return;
+        }
+
+        console.log('Chart.js loaded, initializing charts...');
+
+        // Check if canvas elements exist
+        const userActivityCtx = document.getElementById('userActivityChart');
+        const gradeCtx = document.getElementById('gradeDistributionChart');
+        
+        console.log('User Activity Canvas:', userActivityCtx);
+        console.log('Grade Distribution Canvas:', gradeCtx);
+
+        // User Activity Chart Data (Last 30 days)
+        const userActivityData = generateUserActivityData();
+
+        // Initialize User Activity Line Chart
+        if (userActivityCtx) {
+            console.log('Creating user activity chart...');
+            try {
+                userActivityChart = new Chart(userActivityCtx.getContext('2d'), {
+                    type: 'line',
+                    data: userActivityData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: false
+                            },
+                            legend: {
+                                display: true,
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: 'white',
+                                bodyColor: 'white',
+                                borderColor: '#3B82F6',
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Date'
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Logins'
+                                },
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            }
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                        },
+                        elements: {
+                            point: {
+                                radius: 4,
+                                hoverRadius: 6
+                            },
+                            line: {
+                                tension: 0.2
+                            }
+                        }
+                    }
+                });
+                console.log('User activity chart created successfully!');
+            } catch (error) {
+                console.error('Error creating user activity chart:', error);
+            }
+        } else {
+            console.error('User activity canvas not found');
+        }        // Simple grade distribution data for testing
+        const simpleGradeData = {
+            labels: ['INC (Incomplete)', 'NFE (No Final Exam)', 'NG (No Grade)'],
+            datasets: [{
+                data: [45, 30, 25],
+                backgroundColor: ['#EF4444', '#F59E0B', '#F97316'],
+                borderColor: ['#DC2626', '#D97706', '#EA580C'],
+                borderWidth: 2,
+                hoverOffset: 4
+            }]
+        };
+
+        // Initialize Grade Distribution Pie Chart
+        if (gradeCtx) {
+            console.log('Creating pie chart...');
+            try {
+                gradeDistributionChart = new Chart(gradeCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: simpleGradeData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: 'white',
+                                bodyColor: 'white',
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log('Pie chart created successfully!');
+                
+                // Update the percentage displays
+                document.getElementById('inc-percentage').textContent = '45%';
+                document.getElementById('nfe-percentage').textContent = '30%';
+                document.getElementById('ng-percentage').textContent = '25%';
+                
+            } catch (error) {
+                console.error('Error creating pie chart:', error);
+            }
+        } else {
+            console.error('Grade distribution canvas not found');
+        }
+    }
+
+    function generateUserActivityData() {
+        const labels = [];
+        const loginData = [];
+        const registrationData = [];
+        
+        // Generate last 30 days
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            
+            // Simulate login data with some variation
+            const baseLogins = 15 + Math.sin(i * 0.2) * 5;
+            const weekendFactor = date.getDay() === 0 || date.getDay() === 6 ? 0.6 : 1;
+            loginData.push(Math.max(0, Math.round(baseLogins * weekendFactor + Math.random() * 10)));
+            
+            // Simulate new registrations
+            registrationData.push(Math.max(0, Math.round(Math.random() * 5)));
+        }
+
+        return {
+            labels: labels,
+            datasets: [{
+                label: 'Daily Logins',
+                data: loginData,
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4
+            }, {
+                label: 'New Registrations',
+                data: registrationData,
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: false,
+                tension: 0.4
+            }]
+        };
+    }
+
+    function generateGradeDistributionData(gradeData) {
+        // Default data if no grade data is provided
+        let incCount = 45;
+        let nfeCount = 30;
+        let ngCount = 25;
+
+        // Use actual data if available
+        if (gradeData && gradeData.length > 0) {
+            incCount = gradeData.find(g => g.current_grade === 'INC')?.count || 0;
+            nfeCount = gradeData.find(g => g.current_grade === 'NFE')?.count || 0;
+            ngCount = gradeData.find(g => g.current_grade === 'NG')?.count || 0;
+        }
+
+        console.log('Grade counts:', { incCount, nfeCount, ngCount }); // Debug log
+
+        const data = {
+            labels: ['INC (Incomplete)', 'NFE (No Final Exam)', 'NG (No Grade)'],
+            datasets: [{
+                data: [incCount, nfeCount, ngCount],
+                backgroundColor: [
+                    '#EF4444', // Red for INC
+                    '#F59E0B', // Yellow for NFE
+                    '#F97316'  // Orange for NG
+                ],
+                borderColor: [
+                    '#DC2626',
+                    '#D97706',
+                    '#EA580C'
+                ],
+                borderWidth: 2,
+                hoverOffset: 4
+            }]
+        };
+
+        console.log('Generated pie chart data:', data); // Debug log
+        return data;
+    }
+
+    function updateGradePercentages(gradeData) {
+        const total = gradeData.datasets[0].data.reduce((a, b) => a + b, 0);
+        if (total > 0) {
+            const incPercentage = Math.round((gradeData.datasets[0].data[0] / total) * 100);
+            const nfePercentage = Math.round((gradeData.datasets[0].data[1] / total) * 100);
+            const ngPercentage = Math.round((gradeData.datasets[0].data[2] / total) * 100);
+
+            document.getElementById('inc-percentage').textContent = `${incPercentage}%`;
+            document.getElementById('nfe-percentage').textContent = `${nfePercentage}%`;
+            document.getElementById('ng-percentage').textContent = `${ngPercentage}%`;
+        }
+    }
+
+    // Maximize chart functionality
+    window.maximizeChart = function(chartType) {
+        console.log('Maximizing chart:', chartType);
+        const modal = document.getElementById('chartModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalCanvas = document.getElementById('modalChart');
+        const modalStats = document.getElementById('modalStats');
+        
+        if (!modal || !modalTitle || !modalCanvas || !modalStats) {
+            console.error('Modal elements not found');
+            return;
+        }
+        
+        currentModalChartType = chartType;
+        
+        if (chartType === 'user-activity') {
+            modalTitle.textContent = 'User Activity Trends - Last 30 Days';
+            
+            // Destroy existing modal chart if any
+            if (modalChart) {
+                modalChart.destroy();
+                modalChart = null;
+            }
+            
+            // Check if userActivityChart exists
+            if (!userActivityChart) {
+                console.error('User activity chart not found');
+                return;
+            }
+            
+            // Create maximized user activity chart
+            const ctx = modalCanvas.getContext('2d');
+            modalChart = new Chart(ctx, {
+                type: 'line',
+                data: userActivityChart.data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Daily Login Activity Over Last 30 Days',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'white',
+                            bodyColor: 'white'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Logins'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Add stats
+            modalStats.innerHTML = `
+                <div class="grid grid-cols-3 gap-6 text-center">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <p class="text-2xl font-bold text-blue-600">150</p>
+                        <p class="text-sm text-gray-600">Total Users</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <p class="text-2xl font-bold text-green-600">45</p>
+                        <p class="text-sm text-gray-600">Active Today</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <p class="text-2xl font-bold text-purple-600">85%</p>
+                        <p class="text-sm text-gray-600">Engagement Rate</p>
+                    </div>
+                </div>
+            `;
+            
+        } else if (chartType === 'grade-distribution') {
+            modalTitle.textContent = 'Grade Distribution Analysis';
+            
+            // Destroy existing modal chart if any
+            if (modalChart) {
+                modalChart.destroy();
+                modalChart = null;
+            }
+            
+            // Simple data for modal chart
+            const modalGradeData = {
+                labels: ['INC (Incomplete)', 'NFE (No Final Exam)', 'NG (No Grade)'],
+                datasets: [{
+                    data: [45, 30, 25],
+                    backgroundColor: ['#EF4444', '#F59E0B', '#F97316'],
+                    borderColor: ['#DC2626', '#D97706', '#EA580C'],
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            };
+            
+            // Create maximized grade distribution chart
+            const ctx = modalCanvas.getContext('2d');
+            modalChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: modalGradeData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Grade Completion Application Breakdown',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add detailed stats using simple data
+            const data = [45, 30, 25]; // INC, NFE, NG
+            const total = data.reduce((a, b) => a + b, 0);
+            modalStats.innerHTML = `
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="bg-red-50 p-4 rounded-lg text-center">
+                        <div class="flex items-center justify-center mb-2">
+                            <div class="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
+                            <span class="font-medium">INC (Incomplete)</span>
+                        </div>
+                        <p class="text-2xl font-bold text-red-600">${data[0]}</p>
+                        <p class="text-sm text-gray-600">${Math.round((data[0] / total) * 100)}% of total</p>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                        <div class="flex items-center justify-center mb-2">
+                            <div class="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
+                            <span class="font-medium">NFE (No Final Exam)</span>
+                        </div>
+                        <p class="text-2xl font-bold text-yellow-600">${data[1]}</p>
+                        <p class="text-sm text-gray-600">${Math.round((data[1] / total) * 100)}% of total</p>
+                    </div>
+                    <div class="bg-orange-50 p-4 rounded-lg text-center">
+                        <div class="flex items-center justify-center mb-2">
+                            <div class="w-4 h-4 bg-orange-500 rounded-full mr-2"></div>
+                            <span class="font-medium">NG (No Grade)</span>
+                        </div>
+                        <p class="text-2xl font-bold text-orange-600">${data[2]}</p>
+                        <p class="text-sm text-gray-600">${Math.round((data[2] / total) * 100)}% of total</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+        
+        console.log('Chart maximized successfully');
+    };
+
+    // Download chart functionality
+    window.downloadChart = function(chartType) {
+        console.log('Downloading chart:', chartType);
+        let chart;
+        let filename;
+        
+        if (chartType === 'user-activity') {
+            chart = userActivityChart;
+            filename = 'user-activity-trends.png';
+        } else if (chartType === 'grade-distribution') {
+            chart = gradeDistributionChart;
+            filename = 'grade-distribution.png';
+        }
+        
+        if (chart) {
+            try {
+                const url = chart.toBase64Image('image/png', 1.0);
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = url;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showAlert('success', `Chart downloaded as ${filename}`);
+                console.log('Chart downloaded successfully');
+            } catch (error) {
+                console.error('Error downloading chart:', error);
+                showAlert('error', 'Error downloading chart');
+            }
+        } else {
+            console.error('Chart not found for download');
+            showAlert('error', 'Chart not available for download');
+        }
+    };
+
+    // Download modal chart
+    window.downloadModalChart = function() {
+        console.log('Downloading modal chart');
+        if (modalChart && currentModalChartType) {
+            const filename = currentModalChartType === 'user-activity' ? 
+                'user-activity-trends-full.png' : 'grade-distribution-full.png';
+            
+            try {
+                const url = modalChart.toBase64Image('image/png', 1.0);
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = url;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showAlert('success', `Full chart downloaded as ${filename}`);
+                console.log('Modal chart downloaded successfully');
+            } catch (error) {
+                console.error('Error downloading modal chart:', error);
+                showAlert('error', 'Error downloading chart');
+            }
+        } else {
+            console.error('Modal chart not available');
+            showAlert('error', 'Chart not available for download');
+        }
+    };
+
+    // Close modal
+    window.closeModal = function() {
+        console.log('Closing modal');
+        const modal = document.getElementById('chartModal');
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        
+        if (modalChart) {
+            modalChart.destroy();
+            modalChart = null;
+        }
+        currentModalChartType = null;
+        console.log('Modal closed successfully');
+    };
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+
+    // Close modal on backdrop click
+    document.getElementById('chartModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
     
     // Quick generate report buttons
     document.querySelectorAll('.generate-quick-report-btn').forEach(button => {

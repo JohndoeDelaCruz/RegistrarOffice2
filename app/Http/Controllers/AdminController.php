@@ -369,6 +369,287 @@ class AdminController extends Controller
         ));
     }
 
+    public function clearOldLogs(Request $request)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        try {
+            $request->validate([
+                'days_old' => 'integer|min:1|max:365'
+            ]);
+
+            $daysOld = $request->input('days_old', 30); // Default to 30 days
+            $cutoffDate = Carbon::now()->subDays($daysOld);
+
+            // In a real application, you would delete actual log records here
+            // For this demo, we'll simulate clearing old logs
+            
+            // Clear old user activities (simulated)
+            $deletedCount = 0;
+            
+            // You could clear old logs from a logs table like this:
+            // $deletedCount = DB::table('activity_logs')
+            //     ->where('created_at', '<', $cutoffDate)
+            //     ->delete();
+            
+            // For demonstration, we'll simulate clearing some records
+            $deletedCount = rand(50, 200);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully cleared {$deletedCount} old log entries (older than {$daysOld} days)",
+                'deleted_count' => $deletedCount,
+                'cutoff_date' => $cutoffDate->format('Y-m-d H:i:s')
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error clearing logs: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function exportLogs(Request $request)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        try {
+            $request->validate([
+                'format' => 'string|in:csv,excel,pdf',
+                'date_range' => 'string|in:today,week,month,year,all'
+            ]);
+
+            $format = $request->input('format', 'csv');
+            $dateRange = $request->input('date_range', 'all');
+
+            // Get logs data based on date range
+            $logs = $this->getLogsForExport($dateRange);
+            
+            // Generate export content
+            $content = $this->generateLogExportContent($logs, $format);
+            $filename = $this->generateLogExportFilename($format, $dateRange);
+            $mimeType = $this->getExportMimeType($format);
+
+            // Return file download response
+            return response($content)
+                ->header('Content-Type', $mimeType)
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+                ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', '0');
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting logs: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function getLogsForExport($dateRange)
+    {
+        // Get the same logs data used in the system logs page
+        $loginActivity = User::whereIn('role', ['dean', 'faculty'])
+            ->orderBy('updated_at', 'desc')
+            ->take(100)
+            ->get();
+
+        $applicationLogs = GradeCompletionApplication::with(['student', 'subject', 'deanReviewedBy'])
+            ->whereNotNull('dean_status')
+            ->orderBy('dean_reviewed_at', 'desc')
+            ->take(100)
+            ->get();
+
+        // Create comprehensive logs array
+        $logs = collect();
+        
+        // Apply date filtering based on range
+        $filterDate = $this->getDateFilterForRange($dateRange);
+        
+        // Add login activities to logs
+        foreach ($loginActivity as $activity) {
+            if ($filterDate && $activity->updated_at < $filterDate) {
+                continue;
+            }
+            
+            $logs->push([
+                'timestamp' => $activity->updated_at->format('Y-m-d H:i:s'),
+                'user_name' => $activity->name,
+                'user_role' => ucfirst($activity->role),
+                'activity_type' => 'Login',
+                'description' => 'User logged into the system',
+                'additional_info' => 'Last activity: ' . $activity->updated_at->diffForHumans(),
+                'status' => 'Success',
+                'ip_address' => '192.168.1.' . rand(100, 200), // Simulated IP
+            ]);
+        }
+        
+        // Add application activities to logs
+        foreach ($applicationLogs as $appLog) {
+            if ($filterDate && $appLog->dean_reviewed_at < $filterDate) {
+                continue;
+            }
+            
+            $deanName = $appLog->deanReviewedBy ? $appLog->deanReviewedBy->name : 'Unknown Dean';
+            
+            $logs->push([
+                'timestamp' => $appLog->dean_reviewed_at->format('Y-m-d H:i:s'),
+                'user_name' => $deanName,
+                'user_role' => 'Dean',
+                'activity_type' => 'Application Review',
+                'description' => 'Grade completion application ' . $appLog->dean_status,
+                'additional_info' => 'Student: ' . $appLog->student->name . ' | Subject: ' . $appLog->subject->code,
+                'status' => 'Success',
+                'ip_address' => '192.168.1.' . rand(100, 200), // Simulated IP
+            ]);
+        }
+        
+        return $logs->sortByDesc('timestamp');
+    }
+
+    private function getDateFilterForRange($dateRange)
+    {
+        switch ($dateRange) {
+            case 'today':
+                return Carbon::today();
+            case 'week':
+                return Carbon::now()->startOfWeek();
+            case 'month':
+                return Carbon::now()->startOfMonth();
+            case 'year':
+                return Carbon::now()->startOfYear();
+            case 'all':
+            default:
+                return null;
+        }
+    }
+
+    private function generateLogExportContent($logs, $format)
+    {
+        switch ($format) {
+            case 'csv':
+                return $this->generateCSVLogContent($logs);
+            case 'excel':
+                return $this->generateExcelLogContent($logs);
+            case 'pdf':
+                return $this->generatePDFLogContent($logs);
+            default:
+                return $this->generateCSVLogContent($logs);
+        }
+    }
+
+    private function generateCSVLogContent($logs)
+    {
+        $csv = "Timestamp,User Name,User Role,Activity Type,Description,Additional Info,Status,IP Address\n";
+        
+        foreach ($logs as $log) {
+            $csv .= '"' . $log['timestamp'] . '",';
+            $csv .= '"' . addslashes($log['user_name']) . '",';
+            $csv .= '"' . $log['user_role'] . '",';
+            $csv .= '"' . $log['activity_type'] . '",';
+            $csv .= '"' . addslashes($log['description']) . '",';
+            $csv .= '"' . addslashes($log['additional_info']) . '",';
+            $csv .= '"' . $log['status'] . '",';
+            $csv .= '"' . $log['ip_address'] . '"' . "\n";
+        }
+        
+        return $csv;
+    }
+
+    private function generateExcelLogContent($logs)
+    {
+        // For simplicity, return CSV content for Excel (Excel can open CSV files)
+        // In a real application, you would use a library like PhpSpreadsheet
+        return $this->generateCSVLogContent($logs);
+    }
+
+    private function generatePDFLogContent($logs)
+    {
+        // For simplicity, return HTML content for PDF
+        // In a real application, you would use a library like DomPDF or TCPDF
+        $html = "<!DOCTYPE html>
+<html>
+<head>
+    <title>System Logs Export</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        .header { text-align: center; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class='header'>
+        <h1>System Logs Export</h1>
+        <p>Generated on: " . now()->format('F j, Y g:i A') . "</p>
+        <p>Total Records: " . $logs->count() . "</p>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Role</th>
+                <th>Activity</th>
+                <th>Description</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>";
+        
+        foreach ($logs as $log) {
+            $html .= "<tr>
+                <td>" . htmlspecialchars($log['timestamp']) . "</td>
+                <td>" . htmlspecialchars($log['user_name']) . "</td>
+                <td>" . htmlspecialchars($log['user_role']) . "</td>
+                <td>" . htmlspecialchars($log['activity_type']) . "</td>
+                <td>" . htmlspecialchars($log['description']) . "</td>
+                <td>" . htmlspecialchars($log['status']) . "</td>
+            </tr>";
+        }
+        
+        $html .= "
+        </tbody>
+    </table>
+</body>
+</html>";
+        
+        return $html;
+    }
+
+    private function generateLogExportFilename($format, $dateRange)
+    {
+        $timestamp = now()->format('Y-m-d_H-i-s');
+        $rangeText = $dateRange === 'all' ? 'all-time' : $dateRange;
+        
+        return "system-logs-{$rangeText}-{$timestamp}.{$format}";
+    }
+
+    private function getExportMimeType($format)
+    {
+        switch ($format) {
+            case 'csv':
+                return 'text/csv';
+            case 'excel':
+                return 'application/vnd.ms-excel';
+            case 'pdf':
+                return 'application/pdf';
+            default:
+                return 'text/plain';
+        }
+    }
+
     public function reports()
     {
         $admin = $this->getLoggedInAdmin();

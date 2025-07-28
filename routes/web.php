@@ -92,6 +92,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/applications/{id}/document', [AdminController::class, 'viewDocument'])->name('applications.document');
     Route::get('/applications/{id}/signed-document', [AdminController::class, 'viewSignedDocument'])->name('applications.signed-document');
     Route::get('/system-logs', [AdminController::class, 'systemLogs'])->name('system-logs');
+    Route::post('/system-logs/clear', [AdminController::class, 'clearOldLogs'])->name('system-logs.clear');
+    Route::post('/system-logs/export', [AdminController::class, 'exportLogs'])->name('system-logs.export');
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
     Route::post('/reports/generate', [AdminController::class, 'generateReport'])->name('reports.generate');
     Route::post('/reports/quick-generate', [AdminController::class, 'quickGenerateReport'])->name('reports.quick-generate');

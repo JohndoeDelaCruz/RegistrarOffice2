@@ -273,7 +273,6 @@ class AdminController extends Controller
                 'activity_icon' => 'sign-in-alt',
                 'description' => 'User logged into the system',
                 'additional_info' => 'Last activity: ' . $activity->updated_at->diffForHumans(),
-                'ip_address' => '192.168.1.' . rand(100, 200),
                 'status' => 'success'
             ]);
         }
@@ -293,8 +292,7 @@ class AdminController extends Controller
                 'activity_color' => $appLog->dean_status === 'approved' ? 'green' : 'red',
                 'activity_icon' => $appLog->dean_status === 'approved' ? 'check' : 'times',
                 'description' => 'Grade completion application ' . $appLog->dean_status,
-                'additional_info' => 'Student: ' . $appLog->student->name . ' | Subject: ' . $appLog->subject->subject_name,
-                'ip_address' => '192.168.1.' . rand(100, 200),
+                'additional_info' => 'Student: ' . $appLog->student->name . ' | Subject: ' . $appLog->subject->code . ' - ' . $appLog->subject->description,
                 'status' => 'success'
             ]);
         }

@@ -168,9 +168,6 @@
                         Details
                     </th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        IP Address
-                    </th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                     </th>
                 </tr>
@@ -205,9 +202,6 @@
                         <div class="text-sm text-gray-500">{{ $log['additional_info'] }}</div>
                         @endif
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                        {{ $log['ip_address'] }}
-                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
                         @if($log['status'] === 'success')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -226,7 +220,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
                         <i class="fas fa-list-alt text-4xl mb-4"></i>
                         <p class="text-lg font-medium">No logs found</p>
                         <p>System activities will appear here as they occur</p>

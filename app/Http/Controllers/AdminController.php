@@ -284,39 +284,30 @@ class AdminController extends Controller
         $admin = $this->getLoggedInAdmin();
         
         if (!$admin) {
-            return redirect('/')->with('error', 'Please log in as administrator to access this page.');
+            return redirect()->route('login')->with('error', 'Please log in to access the admin panel.');
         }
 
-        // Calculate login statistics
-        $totalLogins = User::whereIn('role', ['student', 'faculty', 'dean', 'admin'])->count();
-        $totalUsers = User::count();
-        $activeUsers = User::whereIn('role', ['student', 'faculty', 'dean'])->count();
-        $totalApplications = GradeCompletionApplication::count();
+        // Get page parameter from request
+        $page = request('page', 1);
+        $perPage = 20;
         
-        // Additional statistics for system logs
-        $activeSessions = User::whereIn('role', ['student', 'faculty', 'dean', 'admin'])->count(); // Mock active sessions
-        $systemErrors = 2; // Mock system errors count
-        $fileOperations = GradeCompletionApplication::whereNotNull('dean_signature')->count(); // Documents with signatures
-
-        // Get recent login activity
+        // Get all available logs from database without limiting
         $loginActivity = User::whereIn('role', ['dean', 'faculty'])
             ->orderBy('updated_at', 'desc')
-            ->take(50)
             ->get();
 
-        // Get application activity logs
         $applicationLogs = GradeCompletionApplication::with(['student', 'subject', 'deanReviewedBy'])
             ->whereNotNull('dean_status')
+            ->whereNotNull('dean_reviewed_at')
             ->orderBy('dean_reviewed_at', 'desc')
-            ->take(50)
             ->get();
 
-        // Create system logs array with proper structure
-        $logs = collect();
+        // Create all logs array
+        $allLogs = collect();
         
         // Add login activities to logs
         foreach ($loginActivity as $activity) {
-            $logs->push([
+            $allLogs->push([
                 'timestamp' => $activity->updated_at,
                 'user_name' => $activity->name,
                 'user_role' => $activity->role,
@@ -333,10 +324,9 @@ class AdminController extends Controller
         
         // Add application activities to logs
         foreach ($applicationLogs as $appLog) {
-            // Get the dean who reviewed the application
             $deanName = $appLog->deanReviewedBy ? $appLog->deanReviewedBy->name : 'Unknown Dean';
             
-            $logs->push([
+            $allLogs->push([
                 'timestamp' => $appLog->dean_reviewed_at,
                 'user_name' => $deanName,
                 'user_role' => 'dean',
@@ -350,9 +340,41 @@ class AdminController extends Controller
                 'status' => 'success'
             ]);
         }
+
+        // Sort all logs by timestamp descending
+        $sortedLogs = $allLogs->sortByDesc('timestamp');
         
-        // Sort logs by timestamp descending
-        $logs = $logs->sortByDesc('timestamp')->take(50);
+        // Apply pagination manually
+        $totalLogs = $sortedLogs->count();
+        $offset = ($page - 1) * $perPage;
+        $paginatedLogs = $sortedLogs->slice($offset, $perPage)->values();
+        
+        // Calculate pagination info
+        $lastPage = max(1, ceil($totalLogs / $perPage));
+        
+        // If requesting a page beyond available data, redirect to last page
+        if ($page > $lastPage && $totalLogs > 0) {
+            return redirect()->route('admin.system-logs', ['page' => $lastPage]);
+        }
+        
+        $pagination = [
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $totalLogs,
+            'last_page' => $lastPage,
+            'from' => $totalLogs > 0 ? $offset + 1 : 0,
+            'to' => min($offset + $perPage, $totalLogs),
+            'has_pages' => $totalLogs > $perPage
+        ];
+
+        // Statistics calculations
+        $totalLogins = $loginActivity->count();
+        $totalUsers = User::count();
+        $activeUsers = User::where('updated_at', '>=', now()->subHours(24))->count();
+        $totalApplications = GradeCompletionApplication::count();
+        $activeSessions = User::where('updated_at', '>=', now()->subMinutes(30))->count();
+        $systemErrors = 0; // Placeholder
+        $fileOperations = $totalApplications; // Use applications as file operations proxy
 
         return view('admin.system-logs', compact(
             'admin', 
@@ -365,8 +387,14 @@ class AdminController extends Controller
             'activeSessions',
             'systemErrors',
             'fileOperations',
-            'logs'
-        ));
+            'pagination'
+        ) + ['logs' => $paginatedLogs]);
+    }
+
+    private function getPaginatedLogs()
+    {
+        // This method can be used for AJAX pagination later if needed
+        return $this->systemLogs();
     }
 
     public function clearOldLogs(Request $request)

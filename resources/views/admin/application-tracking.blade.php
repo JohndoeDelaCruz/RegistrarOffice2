@@ -172,7 +172,7 @@
                         <div class="text-xs">{{ $application->created_at->format('g:i A') }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                        @if($application->dean_status === null)
+                        @if($application->dean_status === null || $application->dean_status === 'pending')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                 <i class="fas fa-clock mr-1"></i>Pending
                             </span>
@@ -180,7 +180,7 @@
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 <i class="fas fa-check mr-1"></i>Approved
                             </span>
-                        @else
+                        @elseif($application->dean_status === 'rejected')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                 <i class="fas fa-times mr-1"></i>Rejected
                             </span>

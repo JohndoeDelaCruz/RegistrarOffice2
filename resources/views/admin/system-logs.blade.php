@@ -173,11 +173,19 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @forelse($logs as $log)
+                @forelse($logs as $index => $log)
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div>{{ $log['timestamp']->format('M j, Y') }}</div>
-                        <div class="text-xs text-gray-400">{{ $log['timestamp']->format('g:i:s A') }}</div>
+                        @if($log['timestamp'])
+                            <div>{{ $log['timestamp']->format('M j, Y') }}</div>
+                            <div class="text-xs text-gray-400">{{ $log['timestamp']->format('g:i:s A') }}</div>
+                        @else
+                            <div>N/A</div>
+                            <div class="text-xs text-gray-400">No timestamp</div>
+                        @endif
+                        <div class="text-xs text-blue-500 mt-1">
+                            Page {{ $pagination['current_page'] }} - Item {{ $pagination['from'] + $index }}
+                        </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
@@ -232,32 +240,82 @@
     </div>
     
     <!-- Pagination -->
+    @if(isset($pagination['has_pages']) && $pagination['has_pages'])
     <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
         <div class="flex items-center justify-between">
             <div class="flex items-center">
                 <span class="text-sm text-gray-700">
-                    Showing 1 to 50 of 500 logs
+                    @if($pagination['total'] > 0)
+                        Showing {{ $pagination['from'] }} to {{ $pagination['to'] }} of {{ $pagination['total'] }} logs
+                    @else
+                        No logs found
+                    @endif
                 </span>
             </div>
             <div class="flex items-center space-x-2">
-                <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                    Previous
-                </button>
-                <button class="px-3 py-1 text-sm text-white bg-blue-600 border border-blue-600 rounded-md hover:bg-blue-700">
-                    1
-                </button>
-                <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                    2
-                </button>
-                <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                    3
-                </button>
-                <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                    Next
-                </button>
+                @if($pagination['current_page'] > 1)
+                    <a href="{{ request()->url() }}?page={{ $pagination['current_page'] - 1 }}" 
+                       class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        Previous
+                    </a>
+                @else
+                    <span class="px-3 py-1 text-sm text-gray-400 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed">
+                        Previous
+                    </span>
+                @endif
+                
+                @php
+                    $start = max(1, $pagination['current_page'] - 2);
+                    $end = min($pagination['last_page'], $pagination['current_page'] + 2);
+                @endphp
+                
+                @if($start > 1)
+                    <a href="{{ request()->url() }}?page=1" 
+                       class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        1
+                    </a>
+                    @if($start > 2)
+                        <span class="px-3 py-1 text-sm text-gray-500">...</span>
+                    @endif
+                @endif
+                
+                @for($i = $start; $i <= $end; $i++)
+                    @if($i == $pagination['current_page'])
+                        <span class="px-3 py-1 text-sm text-white bg-blue-600 border border-blue-600 rounded-md">
+                            {{ $i }}
+                        </span>
+                    @else
+                        <a href="{{ request()->url() }}?page={{ $i }}" 
+                           class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            {{ $i }}
+                        </a>
+                    @endif
+                @endfor
+                
+                @if($end < $pagination['last_page'])
+                    @if($end < $pagination['last_page'] - 1)
+                        <span class="px-3 py-1 text-sm text-gray-500">...</span>
+                    @endif
+                    <a href="{{ request()->url() }}?page={{ $pagination['last_page'] }}" 
+                       class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        {{ $pagination['last_page'] }}
+                    </a>
+                @endif
+                
+                @if($pagination['current_page'] < $pagination['last_page'])
+                    <a href="{{ request()->url() }}?page={{ $pagination['current_page'] + 1 }}" 
+                       class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        Next
+                    </a>
+                @else
+                    <span class="px-3 py-1 text-sm text-gray-400 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed">
+                        Next
+                    </span>
+                @endif
             </div>
         </div>
     </div>
+    @endif
 </div>
 
 <!-- Log Statistics -->

@@ -64,11 +64,7 @@
                         </td>
                         <td class="py-3 px-2 sm:px-4 hidden md:table-cell">
                             <div class="text-gray-700 text-sm sm:text-base">
-                                @if($student->course === 'BSIT')
-                                    BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY
-                                @else
-                                    {{ $student->course ?? 'BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY' }}
-                                @endif
+                                {{ $student->course ?? 'BSIT' }}
                                 @if($student->track)
                                     <span class="text-blue-600">/{{ str_replace('Track', 'Track', $student->track) }}</span>
                                 @endif

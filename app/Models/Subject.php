@@ -69,6 +69,15 @@ class Subject extends Model
      */
     public function scopeByCourse($query, $course)
     {
-        return $query->where('course', $course);
+        return $query->where(function($q) use ($course) {
+            $q->where('course', $course);
+            
+            // Include common subjects based on course type
+            if (in_array($course, ['BSIT', 'BS Data Analytics'])) {
+                $q->orWhere('course', 'All IT Programs');
+            } elseif (in_array($course, ['BS Architecture', 'BS Civil Engineering', 'BS Computer Engineering', 'BS Electronics Engineering', 'BS Environmental Engineering'])) {
+                $q->orWhere('course', 'All Engineering Programs');
+            }
+        });
     }
 }

@@ -17,7 +17,7 @@
 </div>
 
 <!-- System Overview Stats -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-6">
     <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
         <div class="flex items-center">
             <div class="bg-blue-100 p-3 rounded-full flex-shrink-0">
@@ -66,6 +66,19 @@
                 <h3 class="text-lg font-semibold text-gray-800 truncate">Announcements</h3>
                 <p class="text-2xl font-bold text-purple-600">{{ $publishedAnnouncements }}</p>
                 <p class="text-sm text-gray-500">Published</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <div class="flex items-center">
+            <div class="bg-green-100 p-3 rounded-full flex-shrink-0">
+                <i class="fas fa-circle text-green-600 text-xl"></i>
+            </div>
+            <div class="ml-4 min-w-0">
+                <h3 class="text-lg font-semibold text-gray-800 truncate">Active Users</h3>
+                <p class="text-2xl font-bold text-green-600" id="active-users-count">{{ $activeUsers }}</p>
+                <p class="text-sm text-gray-500" id="last-updated">Live tracking</p>
             </div>
         </div>
     </div>
@@ -232,6 +245,58 @@
     </div>
 </div>
 
+<!-- Live Activity Monitoring -->
+<div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold text-gray-800">Live Activity Monitoring</h2>
+        <div class="flex items-center text-sm text-gray-500">
+            <i class="fas fa-circle text-green-500 mr-2 animate-pulse"></i>
+            <span id="activity-status">Live</span>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-green-800">Active Now</h3>
+                    <p class="text-2xl font-bold text-green-600" id="live-active-users">{{ $activeUsers }}</p>
+                    <p class="text-xs text-green-600">Last 5 minutes</p>
+                </div>
+                <div class="bg-green-100 p-2 rounded-full">
+                    <i class="fas fa-users text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-blue-800">Sessions Today</h3>
+                    <p class="text-2xl font-bold text-blue-600" id="live-sessions-today">{{ $totalLoginsToday }}</p>
+                    <p class="text-xs text-blue-600">Total logins</p>
+                </div>
+                <div class="bg-blue-100 p-2 rounded-full">
+                    <i class="fas fa-sign-in-alt text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-orange-800">Active Sessions</h3>
+                    <p class="text-2xl font-bold text-orange-600" id="live-active-sessions">{{ $activeSessions }}</p>
+                    <p class="text-xs text-orange-600">Last 30 minutes</p>
+                </div>
+                <div class="bg-orange-100 p-2 rounded-full">
+                    <i class="fas fa-clock text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Quick Actions -->
 <div class="bg-white rounded-lg shadow-sm p-6">
     <h2 class="text-lg font-bold text-gray-800 mb-4">Quick Actions</h2>
@@ -269,4 +334,74 @@
         </a>
     </div>
 </div>
+
+@push('scripts')
+<script>
+// Function to update active users count
+function updateActiveUsersCount() {
+    fetch('{{ route("admin.active-users-count") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.active_users !== undefined) {
+                // Update main active users card
+                document.getElementById('active-users-count').textContent = data.active_users;
+                
+                // Update live activity monitoring section
+                document.getElementById('live-active-users').textContent = data.active_users;
+                document.getElementById('live-sessions-today').textContent = data.total_logins_today;
+                document.getElementById('live-active-sessions').textContent = data.active_sessions;
+                
+                // Update the last updated timestamp
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', { 
+                    hour12: true, 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('last-updated').textContent = `Updated: ${timeString}`;
+                
+                // Add a subtle animation to show update
+                const countElement = document.getElementById('active-users-count');
+                countElement.style.transform = 'scale(1.1)';
+                countElement.style.transition = 'transform 0.2s ease';
+                setTimeout(() => {
+                    countElement.style.transform = 'scale(1)';
+                }, 200);
+
+                // Animate the live monitoring cards
+                ['live-active-users', 'live-sessions-today', 'live-active-sessions'].forEach(id => {
+                    const element = document.getElementById(id);
+                    element.style.transform = 'scale(1.05)';
+                    element.style.transition = 'transform 0.15s ease';
+                    setTimeout(() => {
+                        element.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error updating active users count:', error);
+            document.getElementById('activity-status').textContent = 'Connection lost';
+            document.getElementById('activity-status').className = 'text-red-500';
+        });
+}
+
+// Update immediately on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateActiveUsersCount();
+    
+    // Set up periodic updates every 30 seconds
+    setInterval(updateActiveUsersCount, 30000);
+});
+
+// Also update when the page becomes visible again (tab focus)
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        updateActiveUsersCount();
+    }
+});
+</script>
+@endpush
+
 @endsection

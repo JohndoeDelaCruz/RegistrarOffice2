@@ -104,11 +104,30 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/reports/custom-report', [AdminController::class, 'customReport'])->name('reports.custom-report');
     Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
     Route::put('/profile', [AdminController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/active-users-count', [AdminController::class, 'getActiveUsersCount'])->name('active-users-count');
 });
 
 // Direct access to admin dashboard for testing
 Route::get('/admin', function () {
     return redirect('/admin/dashboard');
+});
+
+// Test route to simulate user activity
+Route::get('/simulate-activity', function () {
+    // Update some users to simulate recent activity
+    $users = App\Models\User::whereIn('role', ['student', 'faculty', 'dean'])
+        ->inRandomOrder()
+        ->take(rand(3, 8))
+        ->get();
+    
+    foreach ($users as $user) {
+        $user->update(['last_activity' => now()->subMinutes(rand(0, 4))]);
+    }
+    
+    return response()->json([
+        'message' => 'Simulated activity for ' . $users->count() . ' users',
+        'active_users' => App\Models\User::where('last_activity', '>=', now()->subMinutes(5))->count()
+    ]);
 });
 
 // Routes to switch between students for testing

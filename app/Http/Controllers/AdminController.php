@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\GradeCompletionApplication;
+use App\Models\ApplicationReminder;
+use App\Models\DeanNotification;
 use App\Models\Announcement;
 use App\Models\Report;
 use Carbon\Carbon;
@@ -291,6 +293,123 @@ class AdminController extends Controller
         ];
         
         return $mimeTypes[$extension] ?? 'application/octet-stream';
+    }
+
+    public function sendReminder(Request $request, $id)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Please log in as administrator to access this page.');
+        }
+
+        $application = GradeCompletionApplication::with(['student', 'subject'])->findOrFail($id);
+
+        // Only allow reminders for pending applications
+        if ($application->dean_status !== null && $application->dean_status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Reminders can only be sent for pending applications.'
+            ], 400);
+        }
+
+        // Find the appropriate dean for the student's college
+        $studentCollege = $application->student->college;
+        $dean = User::where('role', 'dean')
+                   ->where('course', $studentCollege)
+                   ->first();
+
+        // If no specific dean found for the college, fallback to any dean
+        if (!$dean) {
+            $dean = User::where('role', 'dean')->first();
+        }
+
+        if (!$dean) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No dean found to send reminder to.'
+            ], 400);
+        }
+
+        $message = $request->input('message', 'Please review the pending grade completion application.');
+        $type = $request->input('type', 'pending_review');
+
+        // Check if a reminder was already sent in the last 24 hours
+        $recentReminder = \App\Models\ApplicationReminder::where('application_id', $application->id)
+            ->where('sent_by', $admin->id)
+            ->where('sent_to', $dean->id)
+            ->where('created_at', '>=', now()->subDay())
+            ->first();
+
+        if ($recentReminder) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A reminder was already sent within the last 24 hours.'
+            ], 400);
+        }
+
+        // Create the reminder
+        $reminder = \App\Models\ApplicationReminder::create([
+            'application_id' => $application->id,
+            'sent_by' => $admin->id,
+            'sent_to' => $dean->id,
+            'message' => $message,
+            'type' => $type
+        ]);
+
+        // Create corresponding dean notification
+        DeanNotification::create([
+            'dean_id' => $dean->id,
+            'application_id' => $application->id,
+            'sent_by' => $admin->id,
+            'admin_reminder_id' => $reminder->id,
+            'type' => 'admin_reminder',
+            'message' => "Admin Reminder: {$message}",
+            'metadata' => [
+                'urgency' => $this->determineUrgencyFromType($type),
+                'student_name' => $application->student->name ?? 'Unknown',
+                'subject_name' => $application->subject->name ?? 'Unknown',
+                'application_created' => $application->created_at->format('Y-m-d H:i:s'),
+                'reminder_type' => $type
+            ]
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Reminder sent successfully to ' . $dean->name . '.'
+        ]);
+    }
+
+    public function getReminderHistory($id)
+    {
+        $admin = $this->getLoggedInAdmin();
+        
+        if (!$admin) {
+            return redirect('/')->with('error', 'Please log in as administrator to access this page.');
+        }
+
+        $application = GradeCompletionApplication::findOrFail($id);
+        
+        $reminders = \App\Models\ApplicationReminder::with(['sentBy', 'sentTo'])
+            ->where('application_id', $application->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'reminders' => $reminders->map(function ($reminder) {
+                return [
+                    'id' => $reminder->id,
+                    'message' => $reminder->message,
+                    'type' => $reminder->type,
+                    'sent_by' => $reminder->sentBy->name,
+                    'sent_to' => $reminder->sentTo->name,
+                    'is_read' => $reminder->is_read,
+                    'created_at' => $reminder->created_at->format('M j, Y g:i A'),
+                    'read_at' => $reminder->read_at ? $reminder->read_at->format('M j, Y g:i A') : null
+                ];
+            })
+        ]);
     }
 
     public function viewSignedDocument($id)
@@ -1263,5 +1382,18 @@ class AdminController extends Controller
         } else {
             return $bytes . ' bytes';
         }
+    }
+
+    /**
+     * Determine urgency level based on reminder type
+     */
+    private function determineUrgencyFromType($type)
+    {
+        return match($type) {
+            'urgent', 'overdue', 'final_warning' => 'high',
+            'follow_up', 'second_reminder' => 'medium',
+            'pending_review', 'initial_reminder' => 'low',
+            default => 'medium'
+        };
     }
 }

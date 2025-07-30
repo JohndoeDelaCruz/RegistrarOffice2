@@ -138,6 +138,16 @@
                 <span class="font-bold">Announcements</span>
             </a>
 
+            <a href="{{ route('dean.notifications') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.notifications') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
+                <i class="fas fa-bell w-5 text-center"></i>
+                <span class="font-bold">Notifications</span>
+                @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                    <span class="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ml-auto">
+                        {{ $unreadNotificationsCount > 9 ? '9+' : $unreadNotificationsCount }}
+                    </span>
+                @endif
+            </a>
+
             <a href="{{ route('rules-guidelines') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-book w-5 text-center"></i>
                 <span class="font-bold">Rules & Guidelines</span>
@@ -202,6 +212,18 @@
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.announcement') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-bullhorn w-5 text-center"></i>
                 <span class="font-bold">Announcements</span>
+            </a>
+
+            <a href="{{ route('dean.notifications') }}" 
+               onclick="closeMobileMenu()"
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.notifications') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
+                <i class="fas fa-bell w-5 text-center"></i>
+                <span class="font-bold">Notifications</span>
+                @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                    <span class="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ml-auto">
+                        {{ $unreadNotificationsCount > 9 ? '9+' : $unreadNotificationsCount }}
+                    </span>
+                @endif
             </a>
 
             <a href="{{ route('rules-guidelines') }}" 

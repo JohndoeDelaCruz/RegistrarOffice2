@@ -94,6 +94,63 @@
     </div>
 </div>
 
+<!-- Deadline Notifications -->
+@if(isset($notifications) && $notifications->count() > 0)
+<div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-bell text-orange-500 mr-2"></i>
+            Deadline Notifications
+            @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                <span class="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    {{ $unreadNotificationsCount }} new
+                </span>
+            @endif
+        </h2>
+        <a href="{{ route('faculty.notifications') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+            View All <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+    </div>
+    
+    <div class="space-y-3">
+        @foreach($notifications as $notification)
+        <div class="flex items-start p-3 {{ !$notification->is_read ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50' }} rounded-lg">
+            <div class="flex-shrink-0 mr-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center {{ $notification->getBadgeClass() }}">
+                    <i class="{{ $notification->getIconClass() }} text-sm"></i>
+                </div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-2 mb-1">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $notification->getBadgeClass() }}">
+                        {{ $notification->days_until_deadline }} day{{ $notification->days_until_deadline > 1 ? 's' : '' }} left
+                    </span>
+                    @if(!$notification->is_read)
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <i class="fas fa-circle mr-1" style="font-size: 6px;"></i>New
+                        </span>
+                    @endif
+                </div>
+                <p class="text-sm text-gray-800 leading-relaxed">
+                    <strong>{{ $notification->application->student->name }}</strong> - {{ $notification->application->subject->code }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                    Due {{ $notification->deadline_date->format('M j, Y') }} • {{ $notification->created_at->diffForHumans() }}
+                </p>
+            </div>
+            <div class="ml-2">
+                <a href="{{ route('faculty.notifications') }}" 
+                   class="text-blue-600 hover:text-blue-800 transition-colors duration-200" 
+                   title="View details">
+                    <i class="fas fa-external-link-alt text-sm"></i>
+                </a>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 <!-- Recent Activity -->
 <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
     <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>

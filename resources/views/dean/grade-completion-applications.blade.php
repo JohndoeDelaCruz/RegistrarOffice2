@@ -8,7 +8,7 @@
     <div class="bg-white rounded-lg shadow-lg p-6">
         <div class="flex justify-between items-start">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">Grade Completion Applications</h1>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">Grade Completion Hub</h1>
                 <p class="text-gray-600">Review and approve or reject student applications for grade completion</p>
             </div>
             <div class="bg-green-50 border border-green-200 rounded-lg px-4 py-2">

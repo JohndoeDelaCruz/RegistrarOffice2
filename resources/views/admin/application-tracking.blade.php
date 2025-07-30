@@ -195,12 +195,24 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <div class="flex justify-center">
+                        <div class="flex justify-center space-x-2">
                             <a href="{{ route('admin.applications.view', $application->id) }}" 
                                class="text-blue-600 hover:text-blue-900 transition-colors duration-200" 
                                title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            @if($application->dean_status === null || $application->dean_status === 'pending')
+                                <button onclick="openReminderModal({{ $application->id }}, '{{ $application->student->name }}', '{{ $application->subject->code }}')" 
+                                        class="text-orange-600 hover:text-orange-900 transition-colors duration-200" 
+                                        title="Send Reminder">
+                                    <i class="fas fa-bell"></i>
+                                </button>
+                                <button onclick="openReminderHistoryModal({{ $application->id }})" 
+                                        class="text-gray-600 hover:text-gray-900 transition-colors duration-200" 
+                                        title="View Reminder History">
+                                    <i class="fas fa-history"></i>
+                                </button>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -281,4 +293,268 @@
         </div>
     </div>
 </div>
+
+<!-- Send Reminder Modal -->
+<div id="reminderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full">
+            <!-- Modal Header -->
+            <div class="bg-orange-600 text-white px-6 py-4 rounded-t-lg flex items-center justify-between">
+                <h2 class="text-xl font-semibold flex items-center">
+                    <i class="fas fa-bell mr-2"></i>
+                    Send Reminder
+                </h2>
+                <button onclick="closeReminderModal()" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <div class="mb-4">
+                    <p class="text-gray-700 mb-2">Send a reminder about this application:</p>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-graduate text-blue-600 mr-2"></i>
+                            <span class="font-medium" id="reminderStudentName"></span>
+                        </div>
+                        <div class="flex items-center mt-1">
+                            <i class="fas fa-book text-purple-600 mr-2"></i>
+                            <span id="reminderSubjectCode"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Reminder Type</label>
+                    <select id="reminderType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                        <option value="pending_review">Pending Review</option>
+                        <option value="overdue">Overdue</option>
+                        <option value="follow_up">Follow Up</option>
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Message (Optional)</label>
+                    <textarea id="reminderMessage" rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              placeholder="Please review the pending grade completion application..."></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeReminderModal()" 
+                            class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200">
+                        Cancel
+                    </button>
+                    <button onclick="sendReminder()" 
+                            class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors duration-200">
+                        <i class="fas fa-paper-plane mr-2"></i>Send Reminder
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reminder History Modal -->
+<div id="reminderHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="bg-gray-600 text-white px-6 py-4 rounded-t-lg flex items-center justify-between">
+                <h2 class="text-xl font-semibold flex items-center">
+                    <i class="fas fa-history mr-2"></i>
+                    Reminder History
+                </h2>
+                <button onclick="closeReminderHistoryModal()" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <div id="reminderHistoryContent">
+                    <div class="flex items-center justify-center py-8">
+                        <i class="fas fa-spinner fa-spin text-2xl text-gray-500 mr-3"></i>
+                        <span class="text-gray-600">Loading reminder history...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentApplicationId = null;
+
+function openReminderModal(applicationId, studentName, subjectCode) {
+    currentApplicationId = applicationId;
+    document.getElementById('reminderStudentName').textContent = studentName;
+    document.getElementById('reminderSubjectCode').textContent = subjectCode;
+    document.getElementById('reminderType').value = 'pending_review';
+    document.getElementById('reminderMessage').value = '';
+    document.getElementById('reminderModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeReminderModal() {
+    document.getElementById('reminderModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    currentApplicationId = null;
+}
+
+function sendReminder() {
+    if (!currentApplicationId) return;
+
+    const type = document.getElementById('reminderType').value;
+    const message = document.getElementById('reminderMessage').value || 'Please review the pending grade completion application.';
+
+    // Show loading state
+    const sendButton = event.target;
+    const originalText = sendButton.innerHTML;
+    sendButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+    sendButton.disabled = true;
+
+    fetch(`/admin/applications/${currentApplicationId}/send-reminder`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            type: type,
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        sendButton.innerHTML = originalText;
+        sendButton.disabled = false;
+
+        if (data.success) {
+            alert('✅ ' + data.message);
+            closeReminderModal();
+        } else {
+            alert('❌ ' + data.message);
+        }
+    })
+    .catch(error => {
+        sendButton.innerHTML = originalText;
+        sendButton.disabled = false;
+        console.error('Error:', error);
+        alert('❌ Failed to send reminder. Please try again.');
+    });
+}
+
+function openReminderHistoryModal(applicationId) {
+    document.getElementById('reminderHistoryModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Load reminder history
+    loadReminderHistory(applicationId);
+}
+
+function closeReminderHistoryModal() {
+    document.getElementById('reminderHistoryModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function loadReminderHistory(applicationId) {
+    const content = document.getElementById('reminderHistoryContent');
+    content.innerHTML = `
+        <div class="flex items-center justify-center py-8">
+            <i class="fas fa-spinner fa-spin text-2xl text-gray-500 mr-3"></i>
+            <span class="text-gray-600">Loading reminder history...</span>
+        </div>
+    `;
+
+    fetch(`/admin/applications/${applicationId}/reminder-history`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayReminderHistory(data.reminders);
+        } else {
+            content.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 text-3xl mb-4"></i>
+                    <p class="text-gray-600">Failed to load reminder history.</p>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        content.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-4"></i>
+                <p class="text-gray-600">Error loading reminder history.</p>
+            </div>
+        `;
+    });
+}
+
+function displayReminderHistory(reminders) {
+    const content = document.getElementById('reminderHistoryContent');
+    
+    if (reminders.length === 0) {
+        content.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-bell-slash text-gray-400 text-3xl mb-4"></i>
+                <p class="text-gray-600">No reminders sent for this application yet.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const historyHtml = reminders.map(reminder => `
+        <div class="border border-gray-200 rounded-lg p-4 mb-4">
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                        ${reminder.type === 'pending_review' ? 'bg-yellow-100 text-yellow-800' : 
+                          reminder.type === 'overdue' ? 'bg-red-100 text-red-800' : 
+                          'bg-blue-100 text-blue-800'}">
+                        ${reminder.type.replace('_', ' ').toUpperCase()}
+                    </span>
+                    ${reminder.is_read ? '<i class="fas fa-eye text-green-500 ml-2" title="Read"></i>' : '<i class="fas fa-eye-slash text-gray-400 ml-2" title="Unread"></i>'}
+                </div>
+                <span class="text-sm text-gray-500">${reminder.created_at}</span>
+            </div>
+            <p class="text-gray-700 mb-2">${reminder.message}</p>
+            <div class="text-sm text-gray-500">
+                <span>From: <strong>${reminder.sent_by}</strong> → To: <strong>${reminder.sent_to}</strong></span>
+                ${reminder.read_at ? `<br>Read: ${reminder.read_at}` : ''}
+            </div>
+        </div>
+    `).join('');
+
+    content.innerHTML = historyHtml;
+}
+
+// Close modals when clicking outside
+document.getElementById('reminderModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeReminderModal();
+    }
+});
+
+document.getElementById('reminderHistoryModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeReminderHistoryModal();
+    }
+});
+
+// Close modals with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        if (!document.getElementById('reminderModal').classList.contains('hidden')) {
+            closeReminderModal();
+        }
+        if (!document.getElementById('reminderHistoryModal').classList.contains('hidden')) {
+            closeReminderHistoryModal();
+        }
+    }
+});
+</script>
+
 @endsection

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\GradeCompletionApplication;
+use App\Models\FacultyNotification;
 use App\Models\Announcement;
 use Carbon\Carbon;
 
@@ -68,13 +69,27 @@ class FacultyController extends Controller
             return $app->deadline_status === 'active';
         })->count();
         
+        // Get deadline notifications for this faculty
+        $notifications = FacultyNotification::with(['application.student', 'application.subject'])
+            ->where('faculty_id', $faculty->id)
+            ->unread()
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+        
+        $unreadNotificationsCount = FacultyNotification::where('faculty_id', $faculty->id)
+            ->unread()
+            ->count();
+        
         return view('faculty.dashboard', compact(
             'faculty', 
             'pendingGradeApplications', 
             'studentsCount',
             'overdueCount',
             'approachingDeadlineCount',
-            'activeCount'
+            'activeCount',
+            'notifications',
+            'unreadNotificationsCount'
         ));
     }
 
@@ -738,5 +753,92 @@ class FacultyController extends Controller
         }
         
         return response()->json(['success' => true, 'message' => 'Grade updated successfully!']);
+    }
+
+    /**
+     * Display all notifications for the faculty
+     */
+    public function notifications()
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        if (!$faculty) {
+            return redirect('/')->with('error', 'Please log in as faculty to access this page.');
+        }
+        
+        $notifications = FacultyNotification::with(['application.student', 'application.subject'])
+            ->where('faculty_id', $faculty->id)
+            ->orderBy('is_read', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+        
+        $unreadCount = FacultyNotification::where('faculty_id', $faculty->id)
+            ->where('is_read', false)
+            ->count();
+        
+        return view('faculty.notifications', compact('faculty', 'notifications', 'unreadCount'));
+    }
+
+    /**
+     * Mark notification as read
+     */
+    public function markNotificationAsRead($id)
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        if (!$faculty) {
+            return response()->json(['success' => false, 'message' => 'Authentication required'], 401);
+        }
+        
+        $notification = FacultyNotification::where('id', $id)
+            ->where('faculty_id', $faculty->id)
+            ->first();
+        
+        if (!$notification) {
+            return response()->json(['success' => false, 'message' => 'Notification not found'], 404);
+        }
+        
+        $notification->markAsRead();
+        
+        return response()->json(['success' => true, 'message' => 'Notification marked as read']);
+    }
+
+    /**
+     * Mark all notifications as read
+     */
+    public function markAllNotificationsAsRead()
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        if (!$faculty) {
+            return response()->json(['success' => false, 'message' => 'Authentication required'], 401);
+        }
+        
+        FacultyNotification::where('faculty_id', $faculty->id)
+            ->where('is_read', false)
+            ->update([
+                'is_read' => true,
+                'read_at' => now()
+            ]);
+        
+        return response()->json(['success' => true, 'message' => 'All notifications marked as read']);
+    }
+
+    /**
+     * Get unread notifications count
+     */
+    public function getUnreadNotificationsCount()
+    {
+        $faculty = $this->getLoggedInFaculty();
+        
+        if (!$faculty) {
+            return response()->json(['success' => false, 'message' => 'Authentication required'], 401);
+        }
+        
+        $count = FacultyNotification::where('faculty_id', $faculty->id)
+            ->unread()
+            ->count();
+        
+        return response()->json(['success' => true, 'count' => $count]);
     }
 }

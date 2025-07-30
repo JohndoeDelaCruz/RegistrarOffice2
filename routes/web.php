@@ -62,6 +62,10 @@ Route::prefix('faculty')->name('faculty.')->group(function () {
     Route::get('/grade-completion-applications/{application}/details', [FacultyController::class, 'getGradeApplicationDetails'])->name('grade-completion-applications.details');
     Route::get('/grade-completion-applications/{application}/document', [FacultyController::class, 'viewApplicationDocument'])->name('grade-completion-applications.document');
     Route::get('/grade-completion-applications/{application}/signed-document', [FacultyController::class, 'generateSignedDocument'])->name('grade-completion-applications.signed-document');
+    Route::get('/notifications', [FacultyController::class, 'notifications'])->name('notifications');
+    Route::post('/notifications/{id}/read', [FacultyController::class, 'markNotificationAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [FacultyController::class, 'markAllNotificationsAsRead'])->name('notifications.read-all');
+    Route::get('/notifications/count', [FacultyController::class, 'getUnreadNotificationsCount'])->name('notifications.count');
 });
 
 // Dean Dashboard Routes
@@ -79,6 +83,12 @@ Route::prefix('dean')->name('dean.')->group(function () {
     Route::get('/grade-completion-applications/{application}/document', [DeanController::class, 'viewDocument'])->name('grade-completion-applications.document');
     Route::get('/grade-completion-applications/{application}/signed-document', [DeanController::class, 'generateSignedDocument']);
     Route::get('/application-approved/{application}', [DeanController::class, 'showApprovedApplication'])->name('application-approved');
+    
+    // Dean Notification Routes
+    Route::get('/notifications', [DeanController::class, 'notifications'])->name('notifications');
+    Route::post('/notifications/{id}/mark-read', [DeanController::class, 'markNotificationAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-read', [DeanController::class, 'markAllNotificationsAsRead'])->name('notifications.mark-all-read');
+    Route::get('/notifications/count', [DeanController::class, 'getUnreadNotificationsCount'])->name('notifications.count');
 });
 
 // Admin Dashboard Routes
@@ -91,6 +101,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('/applications/{id}', [AdminController::class, 'updateApplication'])->name('applications.update');
     Route::get('/applications/{id}/document', [AdminController::class, 'viewDocument'])->name('applications.document');
     Route::get('/applications/{id}/signed-document', [AdminController::class, 'viewSignedDocument'])->name('applications.signed-document');
+    Route::post('/applications/{id}/send-reminder', [AdminController::class, 'sendReminder'])->name('applications.send-reminder');
+    Route::get('/applications/{id}/reminder-history', [AdminController::class, 'getReminderHistory'])->name('applications.reminder-history');
     Route::get('/system-logs', [AdminController::class, 'systemLogs'])->name('system-logs');
     Route::post('/system-logs/clear', [AdminController::class, 'clearOldLogs'])->name('system-logs.clear');
     Route::post('/system-logs/export', [AdminController::class, 'exportLogs'])->name('system-logs.export');
@@ -121,3 +133,4 @@ Route::get('/student-netsec', function () {
     $student = User::where('track', 'Network Security Track')->first();
     return view('student.dashboard', compact('student'))->with('page-title', 'Network Security Student Dashboard');
 });
+

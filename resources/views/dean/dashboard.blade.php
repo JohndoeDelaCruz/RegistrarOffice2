@@ -115,6 +115,59 @@
     </div>
 </div>
 
+<!-- Recent Notifications -->
+<div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-800">Recent Notifications</h2>
+        <div class="flex items-center space-x-2">
+            @if($unreadNotificationsCount > 0)
+                <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ $unreadNotificationsCount }} unread
+                </span>
+            @endif
+            <a href="{{ route('dean.notifications') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                View All <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    
+    @if($recentNotifications->count() > 0)
+        <div class="space-y-3">
+            @foreach($recentNotifications as $notification)
+                <div class="flex items-start p-3 rounded-lg {{ $notification->is_read ? 'bg-gray-50' : 'bg-blue-50 border-l-4 border-blue-400' }}">
+                    <div class="flex-shrink-0 mt-1">
+                        <i class="{{ $notification->getIconClass() }}"></i>
+                    </div>
+                    <div class="ml-3 flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-gray-900 truncate">
+                                {{ $notification->getTypeLabel() }}
+                                @if(!$notification->is_read)
+                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                        New
+                                    </span>
+                                @endif
+                            </p>
+                            <span class="ml-2 text-xs text-gray-500 flex-shrink-0">{{ $notification->created_at->diffForHumans() }}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 truncate">{{ $notification->message }}</p>
+                        @if($notification->application)
+                            <p class="text-xs text-gray-500 mt-1">
+                                Student: {{ $notification->application->student->name ?? 'Unknown' }}
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @else
+        <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-bell-slash text-4xl mb-2"></i>
+            <p class="text-sm">No notifications yet</p>
+        </div>
+    @endif
+</div>
+
 <!-- Quick Actions -->
 <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
     <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>

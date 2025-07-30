@@ -138,6 +138,12 @@
                 <span class="font-bold">Announcements</span>
             </a>
 
+            <a href="{{ route('faculty.notifications') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('faculty.notifications') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
+                <i class="fas fa-bell w-5 text-center"></i>
+                <span class="font-bold">Notifications</span>
+                <span id="notification-badge" class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full hidden"></span>
+            </a>
+
             <a href="{{ route('rules-guidelines') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('rules-guidelines') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-book w-5 text-center"></i>
                 <span class="font-bold">Rules & Guidelines</span>
@@ -205,6 +211,14 @@
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('faculty.announcement') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-bullhorn w-5 text-center"></i>
                 <span class="font-bold">Announcements</span>
+            </a>
+
+            <a href="{{ route('faculty.notifications') }}" 
+               onclick="closeMobileMenu()"
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('faculty.notifications') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
+                <i class="fas fa-bell w-5 text-center"></i>
+                <span class="font-bold">Notifications</span>
+                <span id="mobile-notification-badge" class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full hidden"></span>
             </a>
 
             <a href="{{ route('rules-guidelines') }}" 

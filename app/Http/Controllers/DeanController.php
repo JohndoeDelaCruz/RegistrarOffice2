@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\GradeCompletionApplication;
 use App\Models\Subject;
 use App\Models\Announcement;
+use App\Models\DeanNotification;
 use Carbon\Carbon;
 
 class DeanController extends Controller
@@ -59,6 +60,17 @@ class DeanController extends Controller
         $activeCount = $approvedApplications->filter(function($app) {
             return $app->deadline_status === 'active';
         })->count();
+
+        // Get recent notifications
+        $recentNotifications = DeanNotification::with(['application.student', 'sentBy'])
+            ->where('dean_id', $dean->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        $unreadNotificationsCount = DeanNotification::where('dean_id', $dean->id)
+            ->where('is_read', false)
+            ->count();
         
         return view('dean.dashboard', compact(
             'dean', 
@@ -67,7 +79,9 @@ class DeanController extends Controller
             'facultyCount',
             'overdueCount',
             'approachingDeadlineCount',
-            'activeCount'
+            'activeCount',
+            'recentNotifications',
+            'unreadNotificationsCount'
         ));
     }
 
@@ -392,5 +406,84 @@ class DeanController extends Controller
         $announcement->delete();
         
         return redirect()->route('dean.announcement')->with('success', 'Announcement deleted successfully!');
+    }
+
+    /**
+     * Show all notifications for the dean
+     */
+    public function notifications()
+    {
+        $dean = $this->getLoggedInDean();
+        
+        if (!$dean) {
+            return redirect('/')->with('error', 'Please log in as dean to access this page.');
+        }
+
+        $notifications = DeanNotification::with(['application.student', 'application.subject', 'sentBy'])
+            ->where('dean_id', $dean->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        $unreadCount = DeanNotification::where('dean_id', $dean->id)
+            ->where('is_read', false)
+            ->count();
+
+        return view('dean.notifications', compact('notifications', 'unreadCount'));
+    }
+
+    /**
+     * Mark a notification as read
+     */
+    public function markNotificationAsRead($id)
+    {
+        $dean = $this->getLoggedInDean();
+        
+        if (!$dean) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $notification = DeanNotification::where('dean_id', $dean->id)->findOrFail($id);
+        $notification->markAsRead();
+
+        return response()->json(['success' => true, 'message' => 'Notification marked as read']);
+    }
+
+    /**
+     * Mark all notifications as read
+     */
+    public function markAllNotificationsAsRead()
+    {
+        $dean = $this->getLoggedInDean();
+        
+        if (!$dean) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        DeanNotification::where('dean_id', $dean->id)
+            ->where('is_read', false)
+            ->update([
+                'is_read' => true,
+                'read_at' => now()
+            ]);
+
+        return response()->json(['success' => true, 'message' => 'All notifications marked as read']);
+    }
+
+    /**
+     * Get unread notifications count
+     */
+    public function getUnreadNotificationsCount()
+    {
+        $dean = $this->getLoggedInDean();
+        
+        if (!$dean) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $count = DeanNotification::where('dean_id', $dean->id)
+            ->where('is_read', false)
+            ->count();
+
+        return response()->json(['success' => true, 'count' => $count]);
     }
 }

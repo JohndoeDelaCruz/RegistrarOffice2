@@ -43,25 +43,11 @@ class AdminController extends Controller
             return redirect('/')->with('error', 'Please log in as administrator to access this page.');
         }
 
-        // Get user statistics
-        $totalUsers = User::count();
-        $studentsCount = User::where('role', 'student')->count();
-        $facultyCount = User::where('role', 'faculty')->count();
-        $deanCount = User::where('role', 'dean')->count();
-        $adminCount = User::where('role', 'admin')->count();
-
         // Get application statistics
         $totalApplications = GradeCompletionApplication::count();
         $pendingApplications = GradeCompletionApplication::whereNull('dean_status')->count();
         $approvedApplications = GradeCompletionApplication::where('dean_status', 'approved')->count();
         $rejectedApplications = GradeCompletionApplication::where('dean_status', 'rejected')->count();
-
-        // Get recent user activity (last 30 days)
-        $recentLogins = User::where('updated_at', '>=', Carbon::now()->subDays(30))
-            ->whereIn('role', ['dean', 'faculty'])
-            ->orderBy('updated_at', 'desc')
-            ->take(10)
-            ->get();
 
         // Get application trends for the last 7 days
         $applicationTrends = GradeCompletionApplication::selectRaw('DATE(created_at) as date, COUNT(*) as count')
@@ -85,16 +71,10 @@ class AdminController extends Controller
 
         return view('admin.dashboard', compact(
             'admin',
-            'totalUsers',
-            'studentsCount',
-            'facultyCount',
-            'deanCount',
-            'adminCount',
             'totalApplications',
             'pendingApplications',
             'approvedApplications',
             'rejectedApplications',
-            'recentLogins',
             'applicationTrends',
             'recentApprovals',
             'totalAnnouncements',
@@ -111,9 +91,47 @@ class AdminController extends Controller
             return redirect('/')->with('error', 'Please log in as administrator to access this page.');
         }
 
-        $users = User::orderBy('created_at', 'desc')->paginate(15);
+        // Start with base query
+        $query = User::query();
 
-        return view('admin.user-management', compact('admin', 'users'));
+        // Apply search filter if provided
+        $search = request('search');
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('student_id', 'like', "%{$search}%")
+                  ->orWhere('faculty_id', 'like', "%{$search}%")
+                  ->orWhere('dean_id', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply role filter if provided
+        $roleFilter = request('role');
+        if ($roleFilter && $roleFilter !== '') {
+            $query->where('role', $roleFilter);
+        }
+
+        // Get paginated users
+        $users = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        // Preserve query parameters in pagination
+        $users->appends(request()->query());
+
+        // Get user counts by role (total counts, not filtered)
+        $studentsCount = User::where('role', 'student')->count();
+        $facultyCount = User::where('role', 'faculty')->count();
+        $deanCount = User::where('role', 'dean')->count();
+        $adminCount = User::where('role', 'admin')->count();
+
+        return view('admin.user-management', compact(
+            'admin', 
+            'users', 
+            'studentsCount', 
+            'facultyCount', 
+            'deanCount', 
+            'adminCount'
+        ));
     }
 
     public function applicationTracking()
@@ -533,11 +551,7 @@ class AdminController extends Controller
         ];
 
         // Statistics calculations
-        $totalLogins = $loginActivity->count();
-        $totalUsers = User::count();
-        $activeUsers = User::where('updated_at', '>=', now()->subHours(24))->count();
         $totalApplications = GradeCompletionApplication::count();
-        $activeSessions = User::where('updated_at', '>=', now()->subMinutes(30))->count();
         $systemErrors = 0; // Placeholder
         $fileOperations = $totalApplications; // Use applications as file operations proxy
 
@@ -545,11 +559,7 @@ class AdminController extends Controller
             'admin', 
             'loginActivity', 
             'applicationLogs',
-            'totalLogins',
-            'totalUsers',
-            'activeUsers',
             'totalApplications',
-            'activeSessions',
             'systemErrors',
             'fileOperations',
             'pagination'
@@ -851,10 +861,6 @@ class AdminController extends Controller
             return redirect('/')->with('error', 'Please log in as administrator to access this page.');
         }
 
-        // Calculate user statistics
-        $totalUsers = User::count();
-        $activeUsers = User::whereIn('role', ['student', 'faculty', 'dean'])->count();
-
         // Generate monthly statistics
         $monthlyStats = [];
         for ($i = 11; $i >= 0; $i--) {
@@ -908,8 +914,6 @@ class AdminController extends Controller
             'monthlyStats',
             'gradeDistribution',
             'subjectStats',
-            'totalUsers',
-            'activeUsers',
             'recentReports',
             'reportStats'
         ));

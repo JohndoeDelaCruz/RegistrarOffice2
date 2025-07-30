@@ -27,38 +27,7 @@
 </div>
 
 <!-- Activity Overview -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-    <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h3 class="text-lg font-semibold text-gray-800">Total Logins</h3>
-                <p class="text-3xl font-bold text-blue-600">{{ $totalLogins }}</p>
-            </div>
-            <div class="bg-blue-100 p-3 rounded-full">
-                <i class="fas fa-sign-in-alt text-blue-600 text-xl"></i>
-            </div>
-        </div>
-        <div class="mt-4">
-            <span class="text-sm text-green-600 font-medium">+12%</span>
-            <span class="text-sm text-gray-500 ml-1">from last week</span>
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h3 class="text-lg font-semibold text-gray-800">Active Sessions</h3>
-                <p class="text-3xl font-bold text-green-600">{{ $activeSessions }}</p>
-            </div>
-            <div class="bg-green-100 p-3 rounded-full">
-                <i class="fas fa-users text-green-600 text-xl"></i>
-            </div>
-        </div>
-        <div class="mt-4">
-            <span class="text-sm text-gray-500">Currently online users</span>
-        </div>
-    </div>
-    
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
     <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center justify-between">
             <div>

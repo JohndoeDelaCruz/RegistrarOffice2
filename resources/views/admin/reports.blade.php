@@ -24,22 +24,7 @@
 </div>
 
 <!-- Quick Report Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-    <div class="bg-white rounded-lg shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow duration-200">
-        <div class="flex items-center justify-between">
-            <div>
-                <h3 class="text-lg font-semibold text-gray-800">User Activity</h3>
-                <p class="text-sm text-gray-600 mt-1">Login patterns & usage</p>
-            </div>
-            <div class="bg-blue-100 p-3 rounded-full">
-                <i class="fas fa-users text-blue-600 text-xl"></i>
-            </div>
-        </div>
-        <div class="mt-4">
-            <button class="generate-quick-report-btn text-blue-600 hover:text-blue-800 text-sm font-medium" data-report-type="user_activity">Generate Report →</button>
-        </div>
-    </div>
-    
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
     <div class="bg-white rounded-lg shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow duration-200">
         <div class="flex items-center justify-between">
             <div>
@@ -96,7 +81,6 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
                 <select name="report_type" id="report_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">Select Report Type</option>
-                    <option value="user_activity">User Activity Report</option>
                     <option value="grade_completion">Grade Completion Report</option>
                     <option value="approval_tracking">Approval Tracking Report</option>
                     <option value="system_usage">System Usage Report</option>
@@ -141,38 +125,6 @@
 
 <!-- Analytics Dashboard -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-    <!-- User Activity Chart -->
-    <div class="bg-white rounded-lg shadow-sm p-6" id="user-activity-card">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">User Activity Trends</h3>
-            <div class="flex gap-2">
-                <button onclick="maximizeChart('user-activity')" class="text-gray-500 hover:text-gray-700 transition-colors duration-200" title="Maximize">
-                    <i class="fas fa-expand-alt"></i>
-                </button>
-                <button onclick="downloadChart('user-activity')" class="text-gray-500 hover:text-gray-700 transition-colors duration-200" title="Download">
-                    <i class="fas fa-download"></i>
-                </button>
-            </div>
-        </div>
-        <div class="h-64 bg-gray-50 rounded-lg p-4 flex items-center justify-center">
-            <canvas id="userActivityChart" width="800" height="400"></canvas>
-        </div>
-        <div class="mt-4 grid grid-cols-3 gap-4 text-center">
-            <div>
-                <p class="text-2xl font-bold text-blue-600">{{ $totalUsers }}</p>
-                <p class="text-sm text-gray-600">Total Users</p>
-            </div>
-            <div>
-                <p class="text-2xl font-bold text-green-600">{{ $activeUsers }}</p>
-                <p class="text-sm text-gray-600">Active Today</p>
-            </div>
-            <div>
-                <p class="text-2xl font-bold text-purple-600">85%</p>
-                <p class="text-sm text-gray-600">Engagement Rate</p>
-            </div>
-        </div>
-    </div>
-    
     <!-- Grade Distribution Chart -->
     <div class="bg-white rounded-lg shadow-sm p-6" id="grade-distribution-card">
         <div class="flex justify-between items-center mb-4">
@@ -363,10 +315,6 @@
         <h3 class="text-lg font-semibold text-gray-800 mb-4">Popular Reports</h3>
         <div class="space-y-2">
             <div class="flex justify-between">
-                <span class="text-sm text-gray-600">User Activity:</span>
-                <span class="text-sm font-medium text-gray-800">32 downloads</span>
-            </div>
-            <div class="flex justify-between">
                 <span class="text-sm text-gray-600">Grade Analysis:</span>
                 <span class="text-sm font-medium text-gray-800">28 downloads</span>
             </div>
@@ -406,7 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     
     // Chart instances for downloading and maximizing
-    let userActivityChart;
     let gradeDistributionChart;
     let modalChart;
     let currentModalChartType = null;
@@ -427,89 +374,11 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Chart.js loaded, initializing charts...');
 
         // Check if canvas elements exist
-        const userActivityCtx = document.getElementById('userActivityChart');
         const gradeCtx = document.getElementById('gradeDistributionChart');
         
-        console.log('User Activity Canvas:', userActivityCtx);
         console.log('Grade Distribution Canvas:', gradeCtx);
 
-        // User Activity Chart Data (Last 30 days)
-        const userActivityData = generateUserActivityData();
-
-        // Initialize User Activity Line Chart
-        if (userActivityCtx) {
-            console.log('Creating user activity chart...');
-            try {
-                userActivityChart = new Chart(userActivityCtx.getContext('2d'), {
-                    type: 'line',
-                    data: userActivityData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: false
-                            },
-                            legend: {
-                                display: true,
-                                position: 'bottom'
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                titleColor: 'white',
-                                bodyColor: 'white',
-                                borderColor: '#3B82F6',
-                                borderWidth: 1
-                            }
-                        },
-                        scales: {
-                            x: {
-                                display: true,
-                                title: {
-                                    display: true,
-                                    text: 'Date'
-                                },
-                                grid: {
-                                    display: false
-                                }
-                            },
-                            y: {
-                                display: true,
-                                title: {
-                                    display: true,
-                                    text: 'Number of Logins'
-                                },
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.1)'
-                                }
-                            }
-                        },
-                        interaction: {
-                            mode: 'nearest',
-                            axis: 'x',
-                            intersect: false
-                        },
-                        elements: {
-                            point: {
-                                radius: 4,
-                                hoverRadius: 6
-                            },
-                            line: {
-                                tension: 0.2
-                            }
-                        }
-                    }
-                });
-                console.log('User activity chart created successfully!');
-            } catch (error) {
-                console.error('Error creating user activity chart:', error);
-            }
-        } else {
-            console.error('User activity canvas not found');
-        }        // Simple grade distribution data for testing
+        // Simple grade distribution data for testing
         const simpleGradeData = {
             labels: ['INC (Incomplete)', 'NFE (No Final Exam)', 'NG (No Grade)'],
             datasets: [{
@@ -565,50 +434,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             console.error('Grade distribution canvas not found');
         }
-    }
-
-    function generateUserActivityData() {
-        const labels = [];
-        const loginData = [];
-        const registrationData = [];
-        
-        // Generate last 30 days
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            labels.push(date.toLocaleDateString('en-PH', { 
-                month: 'short', 
-                day: 'numeric',
-                timeZone: 'Asia/Manila'
-            }));
-            
-            // Simulate login data with some variation
-            const baseLogins = 15 + Math.sin(i * 0.2) * 5;
-            const weekendFactor = date.getDay() === 0 || date.getDay() === 6 ? 0.6 : 1;
-            loginData.push(Math.max(0, Math.round(baseLogins * weekendFactor + Math.random() * 10)));
-            
-            // Simulate new registrations
-            registrationData.push(Math.max(0, Math.round(Math.random() * 5)));
-        }
-
-        return {
-            labels: labels,
-            datasets: [{
-                label: 'Daily Logins',
-                data: loginData,
-                borderColor: '#3B82F6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                fill: true,
-                tension: 0.4
-            }, {
-                label: 'New Registrations',
-                data: registrationData,
-                borderColor: '#10B981',
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                fill: false,
-                tension: 0.4
-            }]
-        };
     }
 
     function generateGradeDistributionData(gradeData) {
@@ -677,88 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         currentModalChartType = chartType;
         
-        if (chartType === 'user-activity') {
-            modalTitle.textContent = 'User Activity Trends - Last 30 Days';
-            
-            // Destroy existing modal chart if any
-            if (modalChart) {
-                modalChart.destroy();
-                modalChart = null;
-            }
-            
-            // Check if userActivityChart exists
-            if (!userActivityChart) {
-                console.error('User activity chart not found');
-                return;
-            }
-            
-            // Create maximized user activity chart
-            const ctx = modalCanvas.getContext('2d');
-            modalChart = new Chart(ctx, {
-                type: 'line',
-                data: userActivityChart.data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Daily Login Activity Over Last 30 Days',
-                            font: {
-                                size: 16
-                            }
-                        },
-                        legend: {
-                            display: true,
-                            position: 'bottom'
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: 'white',
-                            bodyColor: 'white'
-                        }
-                    },
-                    scales: {
-                        x: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: 'Date'
-                            }
-                        },
-                        y: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: 'Number of Logins'
-                            },
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-            
-            // Add stats
-            modalStats.innerHTML = `
-                <div class="grid grid-cols-3 gap-6 text-center">
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <p class="text-2xl font-bold text-blue-600">150</p>
-                        <p class="text-sm text-gray-600">Total Users</p>
-                    </div>
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <p class="text-2xl font-bold text-green-600">45</p>
-                        <p class="text-sm text-gray-600">Active Today</p>
-                    </div>
-                    <div class="bg-purple-50 p-4 rounded-lg">
-                        <p class="text-2xl font-bold text-purple-600">85%</p>
-                        <p class="text-sm text-gray-600">Engagement Rate</p>
-                    </div>
-                </div>
-            `;
-            
-        } else if (chartType === 'grade-distribution') {
+        if (chartType === 'grade-distribution') {
             modalTitle.textContent = 'Grade Distribution Analysis';
             
             // Destroy existing modal chart if any
@@ -862,10 +606,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let chart;
         let filename;
         
-        if (chartType === 'user-activity') {
-            chart = userActivityChart;
-            filename = 'user-activity-trends.png';
-        } else if (chartType === 'grade-distribution') {
+        if (chartType === 'grade-distribution') {
             chart = gradeDistributionChart;
             filename = 'grade-distribution.png';
         }
@@ -896,8 +637,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.downloadModalChart = function() {
         console.log('Downloading modal chart');
         if (modalChart && currentModalChartType) {
-            const filename = currentModalChartType === 'user-activity' ? 
-                'user-activity-trends-full.png' : 'grade-distribution-full.png';
+            const filename = 'grade-distribution-full.png';
             
             try {
                 const url = modalChart.toBase64Image('image/png', 1.0);

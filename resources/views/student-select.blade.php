@@ -14,12 +14,12 @@
             min-height: 100vh;
             margin: 0;
             padding: 0;
-            background: radial-gradient(ellipse at center, #ffffff 0%, #dbeafe 25%, #93c5fd 50%, #60a5fa 75%, #3b82f6 100%);
+            background: radial-gradient(ellipse at center, #e0f2fe 0%, #bfdbfe 20%, #60a5fa 40%, #3b82f6 60%, #2563eb 80%, #1d4ed8 100%);
             font-family: Arial, sans-serif;
         }
         .header {
             background: linear-gradient(45deg, #15803d 0%, #166534 100%);
-            color: white;
+            color: white;   
             padding: 20px 30px;
             display: flex;
             justify-content: space-between;
@@ -238,7 +238,7 @@
                         
                         <!-- Login Button -->
                         <div style="margin-top: 15px;">
-                            <button type="submit" class="login-btn">Login</button>
+                            <button type="submit" class="login-btn">Login Now</button>
                         </div>
 
                         <!-- Info Text -->

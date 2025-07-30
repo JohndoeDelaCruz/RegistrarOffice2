@@ -130,7 +130,7 @@
 
             <a href="{{ route('dean.approved-applications') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.approved-applications') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-check-circle w-5 text-center"></i>
-                <span class="font-bold">Approved Applications</span>
+                <span class="font-bold">Reviewed Applications</span>
             </a>
 
             <a href="{{ route('dean.announcement') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.announcement') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">

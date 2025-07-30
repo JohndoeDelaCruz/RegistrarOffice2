@@ -245,15 +245,52 @@ class AdminController extends Controller
             return redirect('/')->with('error', 'Please log in as administrator to access this page.');
         }
 
-        $application = GradeCompletionApplication::findOrFail($id);
+        $application = GradeCompletionApplication::with(['student', 'subject'])->findOrFail($id);
 
         if (!$application->supporting_document) {
             return redirect()->back()->with('error', 'No supporting document found for this application.');
         }
 
-        // In a real application, you would handle file viewing/download here
-        // For now, return a simple view showing document information
-        return view('admin.applications.document', compact('admin', 'application'));
+        // Generate document path
+        $documentPath = storage_path('app/public/' . $application->supporting_document);
+        
+        // Check if file exists
+        if (!file_exists($documentPath)) {
+            return redirect()->back()->with('error', 'Document file not found.');
+        }
+
+        // If download parameter is present, download the file
+        if (request()->has('download')) {
+            $originalName = $application->original_filename ?? $application->supporting_document;
+            return response()->download($documentPath, $originalName);
+        }
+
+        // For inline viewing, return the file directly
+        $fileExtension = strtolower(pathinfo($application->supporting_document, PATHINFO_EXTENSION));
+        $mimeType = $this->getMimeType($fileExtension);
+        
+        return response()->file($documentPath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . ($application->original_filename ?? basename($application->supporting_document)) . '"'
+        ]);
+    }
+    
+    private function getMimeType($extension)
+    {
+        $mimeTypes = [
+            'pdf' => 'application/pdf',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'bmp' => 'image/bmp',
+            'webp' => 'image/webp',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'txt' => 'text/plain',
+        ];
+        
+        return $mimeTypes[$extension] ?? 'application/octet-stream';
     }
 
     public function viewSignedDocument($id)
@@ -264,7 +301,7 @@ class AdminController extends Controller
             return redirect('/')->with('error', 'Please log in as administrator to access this page.');
         }
 
-        $application = GradeCompletionApplication::findOrFail($id);
+        $application = GradeCompletionApplication::with(['student', 'subject'])->findOrFail($id);
 
         if ($application->dean_status !== 'approved') {
             return redirect()->back()->with('error', 'This application has not been approved yet.');
@@ -274,9 +311,18 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'No signed document found for this application.');
         }
 
-        // In a real application, you would handle signed document viewing/download here
-        // For now, return a simple view showing signed document information
-        return view('admin.applications.signed-document', compact('admin', 'application'));
+        // Generate signed document URL
+        $signedDocumentName = 'signed_application_' . $application->id . '.pdf';
+        $documentUrl = asset('storage/signed-documents/' . $signedDocumentName);
+        
+        return view('admin.document-viewer', [
+            'admin' => $admin,
+            'application' => $application,
+            'documentUrl' => $documentUrl,
+            'fileName' => $signedDocumentName,
+            'fileExtension' => 'pdf',
+            'documentType' => 'signed'
+        ]);
     }
 
     public function systemLogs()

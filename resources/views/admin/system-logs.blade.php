@@ -492,7 +492,15 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `system-logs-${new Date().toISOString().split('T')[0]}.csv`;
+            // Use Philippines timezone for filename
+            const now = new Date();
+            const philippinesDate = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Asia/Manila',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(now);
+            a.download = `system-logs-${philippinesDate}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

@@ -195,30 +195,11 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <div class="flex justify-center space-x-2">
+                        <div class="flex justify-center">
                             <a href="{{ route('admin.applications.view', $application->id) }}" 
                                class="text-blue-600 hover:text-blue-900 transition-colors duration-200" 
                                title="View Details">
                                 <i class="fas fa-eye"></i>
-                            </a>
-                            @if($application->supporting_document)
-                            <a href="{{ route('admin.applications.document', $application->id) }}" 
-                               class="text-green-600 hover:text-green-900 transition-colors duration-200" 
-                               title="View Document">
-                                <i class="fas fa-file-alt"></i>
-                            </a>
-                            @endif
-                            @if($application->dean_status === 'approved')
-                            <a href="{{ route('admin.applications.signed-document', $application->id) }}" 
-                               class="text-purple-600 hover:text-purple-900 transition-colors duration-200" 
-                               title="View Signed Document">
-                                <i class="fas fa-file-signature"></i>
-                            </a>
-                            @endif
-                            <a href="{{ route('admin.applications.edit', $application->id) }}" 
-                               class="text-orange-600 hover:text-orange-900 transition-colors duration-200" 
-                               title="Edit Application">
-                                <i class="fas fa-edit"></i>
                             </a>
                         </div>
                     </td>

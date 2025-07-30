@@ -576,7 +576,11 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 29; i >= 0; i--) {
             const date = new Date();
             date.setDate(date.getDate() - i);
-            labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            labels.push(date.toLocaleDateString('en-PH', { 
+                month: 'short', 
+                day: 'numeric',
+                timeZone: 'Asia/Manila'
+            }));
             
             // Simulate login data with some variation
             const baseLogins = 15 + Math.sin(i * 0.2) * 5;

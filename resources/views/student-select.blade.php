@@ -25,7 +25,7 @@
             justify-content: space-between;
             align-items: center;
             position: relative;
-            min-height: 60px;
+            min-height: 50px;
         }
         .header-left, .header-right {
             display: flex;
@@ -186,18 +186,14 @@
 </head>
 <body>
     <!-- Header -->
+        <!-- Header -->
     <div class="header">
         <div class="header-left">
-            <i class="fas fa-university"></i>
-            <span>UNIVERSITY OF THE CORDILLERAS</span>
-        </div>
-        <div class="header-center">
-            <div class="logo">SchoolAutomate®</div>
-            <div class="tagline">Integrating technology to advance education</div>
+            <img src="{{ asset('images/UC_Official_Logo.png') }}" alt="University Logo" style="height: 75px; width: 250px;">
         </div>
         <div class="header-right">
-            <span>UNIVERSITY OF THE CORDILLERAS</span>
-            <i class="fas fa-university"></i>
+            <!-- Replace 'your-logo.png' with your actual logo filename -->
+            <img src="{{ asset('images/SCHOOLAUTOMATE.png') }}" alt="University Logo" style="height: 75px; width: 350px;">
         </div>
     </div>
 

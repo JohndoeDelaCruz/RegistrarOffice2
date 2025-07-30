@@ -21,16 +21,31 @@ class DeanController extends Controller
             return redirect('/')->with('error', 'Please log in as dean to access this page.');
         }
         
-        // Get pending applications count
-        $pendingApplicationsCount = GradeCompletionApplication::deanPending()->count();
+        // Get the dean's college from their course field
+        $deanCollege = $dean->course;
         
-        // Get student and faculty counts
-        $studentsCount = User::where('role', 'student')->count();
-        $facultyCount = User::where('role', 'faculty')->count();
+        // Get pending applications count for dean's department only
+        $pendingApplicationsCount = GradeCompletionApplication::deanPending()
+            ->whereHas('student', function($query) use ($deanCollege) {
+                $query->where('college', $deanCollege);
+            })
+            ->count();
         
-        // Get deadline statistics for approved applications
+        // Get student and faculty counts for dean's department only
+        $studentsCount = User::where('role', 'student')
+            ->where('college', $deanCollege)
+            ->count();
+            
+        $facultyCount = User::where('role', 'faculty')
+            ->where('college', $deanCollege) // Faculty use 'college' field for department assignment
+            ->count();
+        
+        // Get deadline statistics for approved applications from dean's department
         $approvedApplications = GradeCompletionApplication::where('dean_status', 'approved')
             ->whereNotNull('completion_deadline')
+            ->whereHas('student', function($query) use ($deanCollege) {
+                $query->where('college', $deanCollege);
+            })
             ->get();
             
         $overdueCount = $approvedApplications->filter(function($app) {
@@ -89,8 +104,14 @@ class DeanController extends Controller
     {
         $dean = $this->getLoggedInDean();
         
+        // Get the dean's college
+        $deanCollege = $dean->course;
+        
         $applications = GradeCompletionApplication::with(['student', 'subject'])
             ->deanPending()
+            ->whereHas('student', function($query) use ($deanCollege) {
+                $query->where('college', $deanCollege);
+            })
             ->orderBy('created_at', 'desc')
             ->get();
         
@@ -101,9 +122,16 @@ class DeanController extends Controller
     {
         $dean = $this->getLoggedInDean();
         
+        // Get the dean's college
+        $deanCollege = $dean->course;
+        
+        // Get both approved and rejected applications reviewed by this dean
         $applications = GradeCompletionApplication::with(['student', 'subject'])
             ->where('dean_reviewed_by', $dean->id)
-            ->where('dean_status', 'approved')
+            ->whereIn('dean_status', ['approved', 'rejected'])
+            ->whereHas('student', function($query) use ($deanCollege) {
+                $query->where('college', $deanCollege);
+            })
             ->orderBy('dean_reviewed_at', 'desc')
             ->get();
         

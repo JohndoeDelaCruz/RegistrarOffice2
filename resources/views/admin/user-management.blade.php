@@ -74,9 +74,6 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                     </th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                    </th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -110,25 +107,10 @@
                             Active
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <div class="flex justify-center space-x-2">
-                            <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="text-green-600 hover:text-green-900 transition-colors duration-200" title="Edit User">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            @if($user->role !== 'admin')
-                            <button class="text-red-600 hover:text-red-900 transition-colors duration-200" title="Delete User">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            @endif
-                        </div>
-                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
                         <i class="fas fa-users text-4xl mb-4"></i>
                         <p class="text-lg font-medium">No users found</p>
                         <p>Try adjusting your search criteria</p>

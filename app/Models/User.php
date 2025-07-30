@@ -33,7 +33,6 @@ class User extends Authenticatable
         'emergency_contact_name',
         'emergency_contact_phone',
         'emergency_contact_relationship',
-        'last_activity',
     ];
 
     /**
@@ -57,7 +56,6 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'date_of_birth' => 'date',
-            'last_activity' => 'datetime',
         ];
     }
 

@@ -81,11 +81,6 @@ class AdminController extends Controller
         $publishedAnnouncements = Announcement::where('status', 'published')->count();
         $draftAnnouncements = Announcement::where('status', 'draft')->count();
 
-        // Get active users statistics
-        $activeUsers = User::where('last_activity', '>=', Carbon::now()->subMinutes(5))->count();
-        $totalLoginsToday = User::whereDate('last_activity', Carbon::today())->count();
-        $activeSessions = User::where('last_activity', '>=', Carbon::now()->subMinutes(30))->count();
-
         return view('admin.dashboard', compact(
             'admin',
             'totalUsers',
@@ -102,10 +97,7 @@ class AdminController extends Controller
             'recentApprovals',
             'totalAnnouncements',
             'publishedAnnouncements',
-            'draftAnnouncements',
-            'activeUsers',
-            'totalLoginsToday',
-            'activeSessions'
+            'draftAnnouncements'
         ));
     }
 
@@ -1271,33 +1263,5 @@ class AdminController extends Controller
         } else {
             return $bytes . ' bytes';
         }
-    }
-
-    /**
-     * Get active users count for AJAX updates
-     */
-    public function getActiveUsersCount()
-    {
-        $admin = $this->getLoggedInAdmin();
-        
-        if (!$admin) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
-        // Get active users (last activity within 5 minutes)
-        $activeUsers = User::where('last_activity', '>=', now()->subMinutes(5))->count();
-        
-        // Get total logins today
-        $totalLoginsToday = User::whereDate('last_activity', today())->count();
-        
-        // Get active sessions (last activity within 30 minutes)
-        $activeSessions = User::where('last_activity', '>=', now()->subMinutes(30))->count();
-
-        return response()->json([
-            'active_users' => $activeUsers,
-            'total_logins_today' => $totalLoginsToday,
-            'active_sessions' => $activeSessions,
-            'timestamp' => now()->format('Y-m-d H:i:s')
-        ]);
     }
 }

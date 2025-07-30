@@ -5,52 +5,48 @@
 @section('content')
 <!-- Page Header -->
 <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">User Management</h1>
-            <p class="text-gray-600">Manage all system users and their access levels</p>
-        </div>
-        <div class="mt-4 sm:mt-0">
-            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                <i class="fas fa-plus mr-2"></i>Add New User
-            </button>
-        </div>
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">User Management</h1>
+        <p class="text-gray-600">Manage all system users and their access levels</p>
     </div>
 </div>
 
 <!-- Search and Filters -->
 <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Search Users</label>
-            <div class="relative">
-                <input type="text" placeholder="Search by name, email, or ID..." 
-                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+    <form method="GET" action="{{ route('admin.user-management') }}">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Search Users</label>
+                <div class="relative">
+                    <input type="text" name="search" value="{{ request('search') }}" 
+                           placeholder="Search by name, email, or ID..." 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Role</label>
+                <select name="role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">All Roles</option>
+                    <option value="student" {{ request('role') == 'student' ? 'selected' : '' }}>Students</option>
+                    <option value="faculty" {{ request('role') == 'faculty' ? 'selected' : '' }}>Faculty</option>
+                    <option value="dean" {{ request('role') == 'dean' ? 'selected' : '' }}>Dean</option>
+                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Administrators</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Actions</label>
+                <div class="flex gap-2">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200">
+                        <i class="fas fa-search mr-2"></i>Search
+                    </button>
+                    <a href="{{ route('admin.user-management') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 inline-flex items-center">
+                        <i class="fas fa-redo mr-2"></i>Reset
+                    </a>
+                </div>
             </div>
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Role</label>
-            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">All Roles</option>
-                <option value="student">Students</option>
-                <option value="faculty">Faculty</option>
-                <option value="dean">Dean</option>
-                <option value="admin">Administrators</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Actions</label>
-            <div class="flex gap-2">
-                <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200">
-                    <i class="fas fa-search mr-2"></i>Search
-                </button>
-                <button class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200">
-                    <i class="fas fa-redo mr-2"></i>Reset
-                </button>
-            </div>
-        </div>
-    </div>
+    </form>
 </div>
 
 <!-- Users Table -->
@@ -124,7 +120,7 @@
     <!-- Pagination -->
     @if($users->hasPages())
     <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-        {{ $users->links() }}
+        {{ $users->appends(request()->query())->links() }}
     </div>
     @endif
 </div>
@@ -136,7 +132,7 @@
             <i class="fas fa-user-graduate text-blue-600 text-2xl"></i>
         </div>
         <h3 class="text-lg font-semibold text-gray-800">Students</h3>
-        <p class="text-3xl font-bold text-blue-600">{{ $users->where('role', 'student')->count() }}</p>
+        <p class="text-3xl font-bold text-blue-600">{{ $studentsCount }}</p>
     </div>
     
     <div class="bg-white rounded-lg shadow-sm p-6 text-center">
@@ -144,7 +140,7 @@
             <i class="fas fa-chalkboard-teacher text-green-600 text-2xl"></i>
         </div>
         <h3 class="text-lg font-semibold text-gray-800">Faculty</h3>
-        <p class="text-3xl font-bold text-green-600">{{ $users->where('role', 'faculty')->count() }}</p>
+        <p class="text-3xl font-bold text-green-600">{{ $facultyCount }}</p>
     </div>
     
     <div class="bg-white rounded-lg shadow-sm p-6 text-center">
@@ -152,7 +148,7 @@
             <i class="fas fa-user-tie text-purple-600 text-2xl"></i>
         </div>
         <h3 class="text-lg font-semibold text-gray-800">Dean</h3>
-        <p class="text-3xl font-bold text-purple-600">{{ $users->where('role', 'dean')->count() }}</p>
+        <p class="text-3xl font-bold text-purple-600">{{ $deanCount }}</p>
     </div>
     
     <div class="bg-white rounded-lg shadow-sm p-6 text-center">
@@ -160,7 +156,32 @@
             <i class="fas fa-shield-alt text-red-600 text-2xl"></i>
         </div>
         <h3 class="text-lg font-semibold text-gray-800">Admins</h3>
-        <p class="text-3xl font-bold text-red-600">{{ $users->where('role', 'admin')->count() }}</p>
+        <p class="text-3xl font-bold text-red-600">{{ $adminCount }}</p>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[name="search"]');
+    const roleSelect = document.querySelector('select[name="role"]');
+    const form = searchInput.closest('form');
+    
+    // Auto-submit form when role filter changes
+    roleSelect.addEventListener('change', function() {
+        form.submit();
+    });
+    
+    // Optional: Submit form when user stops typing (debounced)
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            // Only auto-submit if there's text or if clearing the search
+            if (searchInput.value.length >= 3 || searchInput.value.length === 0) {
+                form.submit();
+            }
+        }, 500); // Wait 500ms after user stops typing
+    });
+});
+</script>
 @endsection

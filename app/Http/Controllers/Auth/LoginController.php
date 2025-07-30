@@ -15,30 +15,13 @@ class LoginController extends Controller
         $request->validate([
             'login_id' => 'required|string',
             'password' => 'required|string',
-            'login_type' => 'required|in:student,faculty,dean,admin',
         ]);
 
-        $user = null;
-        $loginType = $request->login_type;
-
-        // Find user based on login type
-        if ($loginType === 'student') {
-            // For students, allow login with either student_id OR email
-            $user = User::where('role', 'student')
-                       ->where(function($query) use ($request) {
-                           $query->where('student_id', $request->login_id)
-                                 ->orWhere('email', $request->login_id);
-                       })
-                       ->first();
-        } else {
-            // For faculty and dean, check both email and student_id (which contains their ID number)
-            $user = User::where('role', $loginType)
-                       ->where(function($query) use ($request) {
-                           $query->where('email', $request->login_id)
-                                 ->orWhere('student_id', $request->login_id);
-                       })
-                       ->first();
-        }
+        // Automatically find user by email or student_id (works for all user types)
+        // This allows students, faculty, dean, and admin to use either their email or ID
+        $user = User::where('email', $request->login_id)
+                   ->orWhere('student_id', $request->login_id)
+                   ->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
             // Use Laravel's built-in authentication
@@ -50,25 +33,26 @@ class LoginController extends Controller
                 'user_role' => $user->role
             ]);
             
-            // Redirect based on role
+            // Automatically redirect to appropriate dashboard based on user's role
             switch ($user->role) {
                 case 'student':
-                    return redirect('/student/dashboard')->with('success', 'Login successful!');
+                    return redirect('/student/dashboard')->with('success', 'Welcome back, ' . $user->name . '!');
                 case 'faculty':
-                    return redirect('/faculty/dashboard')->with('success', 'Login successful!');
+                    return redirect('/faculty/dashboard')->with('success', 'Welcome back, ' . $user->name . '!');
                 case 'dean':
-                    return redirect('/dean/dashboard')->with('success', 'Login successful!');
+                    return redirect('/dean/dashboard')->with('success', 'Welcome back, ' . $user->name . '!');
                 case 'admin':
-                    return redirect('/admin/dashboard')->with('success', 'Login successful!');
+                    return redirect('/admin/dashboard')->with('success', 'Welcome back, ' . $user->name . '!');
                 default:
-                    return redirect('/student/dashboard')->with('success', 'Login successful!');
+                    // Fallback to student dashboard if role is undefined
+                    return redirect('/student/dashboard')->with('success', 'Welcome back, ' . $user->name . '!');
             }
         }
 
-        // Failed login
+        // Failed login - more user-friendly error message
         return back()->withErrors([
-            'login' => 'Invalid credentials or user type.',
-        ])->withInput($request->only('login_id', 'login_type'));
+            'login' => 'Invalid email/ID or password. Please check your credentials and try again.',
+        ])->withInput($request->only('login_id'));
     }
 
     public function logout(Request $request)

@@ -85,31 +85,6 @@
             background: rgba(186, 230, 253, 0.4);
             border-radius: 0 0 20px 20px;
         }
-        .login-types {
-            margin-bottom: 40px;
-            text-align: center;
-        }
-        .login-type-btn {
-            background: #e5e7eb;
-            color: #374151;
-            border: none;
-            padding: 10px 18px;
-            margin: 0 3px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 14px;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-        }
-        .login-type-btn.active {
-            background: #1d4ed8;
-            color: white;
-            transform: scale(1.05);
-        }
-        .login-type-btn:hover:not(.active) {
-            background: #d1d5db;
-            transform: scale(1.02);
-        }
         .form-table {
             width: 100%;
             border-collapse: separate;
@@ -230,35 +205,24 @@
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                Student/Parent/New Student Login
+                Grade Completion Portal - Login
             </div>
             
-            <form action="/student-login" method="POST" class="login-form">
+            <form action="/login" method="POST" class="login-form">
                 @csrf
-
-                <!-- Login Type Selection -->
-                <div class="login-types">
-                    <button type="button" onclick="setLoginType('student')" id="btn-student" class="login-type-btn active">Student</button>
-                    <button type="button" onclick="setLoginType('faculty')" id="btn-faculty" class="login-type-btn">Faculty</button>
-                    <button type="button" onclick="setLoginType('dean')" id="btn-dean" class="login-type-btn">Dean</button>
-                    <button type="button" onclick="setLoginType('admin')" id="btn-admin" class="login-type-btn">Admin</button>
-                </div>
-
-                <!-- Hidden field to track login type -->
-                <input type="hidden" name="login_type" id="login-type" value="student">
 
                 <!-- Login Form Table -->
                 <div style="display: flex; justify-content: center; width: 100%; margin-top: 20px;">
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
-                        <!-- Student ID Number Row -->
+                        <!-- Email/ID Row -->
                         <div style="display: flex; align-items: center;">
-                            <div class="form-label" id="login-label">Student ID Number</div>
+                            <div class="form-label">Email or ID Number:</div>
                             <input 
                                 type="text" 
                                 name="login_id" 
                                 id="login-input"
                                 value="{{ old('login_id') }}"
-                                placeholder="00-0000-000"
+                                placeholder="student@uc.edu.ph or 00-0000-000"
                                 class="form-input"
                                 required
                             >
@@ -266,11 +230,11 @@
                         
                         <!-- Password Row -->
                         <div style="display: flex; align-items: center;">
-                            <div class="form-label">Password</div>
+                            <div class="form-label">Password:</div>
                             <input 
                                 type="password" 
                                 name="password" 
-                                placeholder="******"
+                                placeholder="Enter your password"
                                 class="form-input"
                                 required
                             >
@@ -278,17 +242,26 @@
                         
                         <!-- Login Button -->
                         <div style="margin-top: 15px;">
-                            <button type="submit" class="login-btn">Login Now</button>
+                            <button type="submit" class="login-btn">Login</button>
                         </div>
+
+                        <!-- Info Text -->
+                    
                     </div>
                 </div>
 
                 <!-- Error Messages -->
                 @if ($errors->any())
-                    <div style="background: #fee2e2; border: none; color: #dc2626; padding: 8px; margin-top: 15px; font-size: 13px;">
+                    <div style="background: #fee2e2; border: none; color: #dc2626; padding: 8px; margin-top: 15px; font-size: 13px; border-radius: 8px; text-align: center;">
                         @foreach ($errors->all() as $error)
                             <p style="margin: 0;">{{ $error }}</p>
                         @endforeach
+                    </div>
+                @endif
+
+                @if (session('success'))
+                    <div style="background: #d1fae5; border: none; color: #065f46; padding: 8px; margin-top: 15px; font-size: 13px; border-radius: 8px; text-align: center;">
+                        <p style="margin: 0;">{{ session('success') }}</p>
                     </div>
                 @endif
             </form>
@@ -296,44 +269,10 @@
     </div>
 
     <script>
-        function setLoginType(type) {
-            // Update hidden field
-            document.getElementById('login-type').value = type;
-            
-            // Update button styles
-            document.querySelectorAll('.login-type-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            document.getElementById('btn-' + type).classList.add('active');
-            
-            // Update label and placeholder
-            const label = document.getElementById('login-label');
-            const input = document.getElementById('login-input');
-            
-            switch(type) {
-                case 'student':
-                    label.textContent = 'Student ID Number:';
-                    input.placeholder = '00-0000-000';
-                    input.type = 'text';
-                    break;
-                case 'faculty':
-                    label.textContent = 'Email/ID:';
-                    input.placeholder = 'faculty@uc.edu.ph or FAC-2020-001';
-                    input.type = 'text';
-                    break;
-                case 'dean':
-                    label.textContent = 'Email/ID:';
-                    input.placeholder = 'dean@uc.edu.ph or DEAN-2025-001';
-                    input.type = 'text';
-                    break;
-                case 'admin':
-                    label.textContent = 'Email/ID:';
-                    input.placeholder = 'admin@uc.edu.ph or ADM-2025-001';
-                    input.type = 'text';
-                    break;
-            }
-        }
+        // Auto-focus on the login input for better user experience
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('login-input').focus();
+        });
     </script>
 </body>
 </html>

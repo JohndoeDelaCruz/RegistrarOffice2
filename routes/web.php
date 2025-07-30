@@ -27,7 +27,7 @@ Route::get('/dean', function () {
 });
 
 // Login Routes
-Route::post('/student-login', [LoginController::class, 'login'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Student Dashboard Routes

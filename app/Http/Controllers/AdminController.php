@@ -45,7 +45,9 @@ class AdminController extends Controller
 
         // Get application statistics
         $totalApplications = GradeCompletionApplication::count();
-        $pendingApplications = GradeCompletionApplication::whereNull('dean_status')->count();
+        $pendingApplications = GradeCompletionApplication::where(function($query) {
+            $query->whereNull('dean_status')->orWhere('dean_status', 'pending');
+        })->count();
         $approvedApplications = GradeCompletionApplication::where('dean_status', 'approved')->count();
         $rejectedApplications = GradeCompletionApplication::where('dean_status', 'rejected')->count();
 
@@ -143,7 +145,9 @@ class AdminController extends Controller
         }
 
         // Get application statistics
-        $pendingApplications = GradeCompletionApplication::where('dean_status', 'pending')->count();
+        $pendingApplications = GradeCompletionApplication::where(function($query) {
+            $query->whereNull('dean_status')->orWhere('dean_status', 'pending');
+        })->count();
         $approvedApplications = GradeCompletionApplication::where('dean_status', 'approved')->count();
         $rejectedApplications = GradeCompletionApplication::where('dean_status', 'rejected')->count();
 
@@ -153,7 +157,9 @@ class AdminController extends Controller
         // Apply status filter if provided
         $statusFilter = request('status');
         if ($statusFilter === 'pending') {
-            $query->where('dean_status', 'pending');
+            $query->where(function($q) {
+                $q->whereNull('dean_status')->orWhere('dean_status', 'pending');
+            });
         } elseif ($statusFilter === 'approved') {
             $query->where('dean_status', 'approved');
         } elseif ($statusFilter === 'rejected') {
@@ -1190,7 +1196,9 @@ class AdminController extends Controller
             'total_applications' => GradeCompletionApplication::count(),
             'approved' => GradeCompletionApplication::where('dean_status', 'approved')->count(),
             'rejected' => GradeCompletionApplication::where('dean_status', 'rejected')->count(),
-            'pending' => GradeCompletionApplication::whereNull('dean_status')->count()
+            'pending' => GradeCompletionApplication::where(function($query) {
+                $query->whereNull('dean_status')->orWhere('dean_status', 'pending');
+            })->count()
         ];
     }
 

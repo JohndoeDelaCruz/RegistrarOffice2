@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Student Dashboard - Registrar Office</title>
+    <title>Student Dashboard - Grade Completion Portal</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/UC_Official_Seal.png') }}">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -65,8 +68,8 @@
             <button onclick="toggleMobileMenu()" class="lg:hidden p-1 rounded hover:bg-white/10 transition-colors">
                 <i class="fas fa-bars text-xl"></i>
             </button>
-            <i class="fas fa-university text-xl"></i>
-            <span class="font-semibold text-xl">UC Registrar</span>
+            <img src="{{ asset('images/UC_Official_Seal.png') }}" alt="University Logo" class="h-8 w-auto">
+            <span class="font-semibold text-xl">Grade Completion Portal</span>
         </div>
         <div class="flex items-center gap-2 relative">
             <span class="text-sm font-medium hidden sm:block">

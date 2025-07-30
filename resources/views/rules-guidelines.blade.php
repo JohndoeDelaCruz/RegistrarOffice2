@@ -10,7 +10,7 @@
             <i class="fas fa-book text-uc-green text-2xl mr-3"></i>
             <h1 class="text-3xl font-bold text-uc-green">University Registrar Rules & Guidelines</h1>
         </div>
-        <p class="text-gray-600 text-lg">Welcome to the UC Registrar system. Please review the following rules and guidelines.</p>
+        <p class="text-gray-600 text-lg">Welcome to the Grade Completion Portal system. Please review the following rules and guidelines.</p>
     </div>
 
     <!-- About INC Grades Section -->

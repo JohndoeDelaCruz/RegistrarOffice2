@@ -17,9 +17,9 @@ class AdminController extends Controller
 {
     private function getLoggedInAdmin()
     {
-        // First try to get from Laravel's built-in auth
-        if (auth()->check() && auth()->user()->role === 'admin') {
-            return auth()->user();
+        // First try to get from Laravel's built-in auth using Auth facade
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->role === 'admin') {
+            return \Illuminate\Support\Facades\Auth::user();
         }
         
         // Then try to get from session

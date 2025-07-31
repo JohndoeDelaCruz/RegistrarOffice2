@@ -10,16 +10,6 @@
             <h1 class="text-2xl font-bold text-gray-800 mb-2">Reports & Analytics</h1>
             <p class="text-gray-600">Generate comprehensive reports and view system analytics</p>
         </div>
-        <div class="mt-4 sm:mt-0">
-            <div class="flex gap-2">
-                <button id="custom-report-btn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200">
-                    <i class="fas fa-chart-line mr-2"></i>Custom Report
-                </button>
-                <button id="export-all-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200">
-                    <i class="fas fa-download mr-2"></i>Export All
-                </button>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -707,42 +697,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Preview report button
     document.getElementById('preview-report-btn').addEventListener('click', function() {
         showAlert('info', 'Preview functionality would show a report preview here.');
-    });
-
-    // Custom report button
-    document.getElementById('custom-report-btn').addEventListener('click', function() {
-        fetch('{{ route("admin.reports.custom-report") }}', {
-            method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            showAlert('info', data.message);
-        })
-        .catch(error => {
-            showAlert('error', 'Error opening custom report builder.');
-        });
-    });
-
-    // Export all button
-    document.getElementById('export-all-btn').addEventListener('click', function() {
-        fetch('{{ route("admin.reports.export-all") }}', {
-            method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            showAlert('success', data.message);
-        })
-        .catch(error => {
-            showAlert('error', 'Error exporting reports.');
-        });
     });
 
     // Download report buttons

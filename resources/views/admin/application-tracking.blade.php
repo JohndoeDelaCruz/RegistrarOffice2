@@ -12,10 +12,7 @@
         </div>
         <div class="mt-4 sm:mt-0">
             <div class="flex gap-2">
-                <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200">
-                    <i class="fas fa-download mr-2"></i>Export
-                </button>
-                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                <button onclick="refreshApplications()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
                     <i class="fas fa-sync mr-2"></i>Refresh
                 </button>
             </div>
@@ -386,6 +383,77 @@
 
 <script>
 let currentApplicationId = null;
+
+// Refresh Applications functionality
+function refreshApplications() {
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    
+    // Show loading state
+    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Refreshing...';
+    button.disabled = true;
+    
+    // Show a brief notification
+    showNotification('Refreshing applications...', 'info');
+    
+    // Reload the page to get fresh data
+    setTimeout(() => {
+        window.location.reload();
+    }, 500);
+}
+
+// Notification helper function
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${getNotificationClasses(type)}`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas fa-${getNotificationIcon(type)} mr-2"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 3000);
+}
+
+function getNotificationClasses(type) {
+    switch (type) {
+        case 'success':
+            return 'bg-green-600 text-white';
+        case 'error':
+            return 'bg-red-600 text-white';
+        case 'warning':
+            return 'bg-yellow-600 text-white';
+        case 'info':
+        default:
+            return 'bg-blue-600 text-white';
+    }
+}
+
+function getNotificationIcon(type) {
+    switch (type) {
+        case 'success':
+            return 'check-circle';
+        case 'error':
+            return 'exclamation-circle';
+        case 'warning':
+            return 'exclamation-triangle';
+        case 'info':
+        default:
+            return 'info-circle';
+    }
+}
 
 function openReminderModal(applicationId, studentName, subjectCode) {
     currentApplicationId = applicationId;

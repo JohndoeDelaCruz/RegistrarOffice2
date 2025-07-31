@@ -701,10 +701,40 @@ document.addEventListener('keydown', function(e) {
                             class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200">
                         Cancel
                     </button>
-                    <button onclick="sendReminder()" 
-                            class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors duration-200">
-                        <i class="fas fa-paper-plane mr-2"></i>Send Reminder
+                    <button onclick="confirmSendReminder()" 
+                            id="send-reminder-btn"
+                            class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors duration-200 relative">
+                        <span class="btn-text">
+                            <i class="fas fa-paper-plane mr-2"></i>Send Reminder
+                        </span>
+                        <div class="spinner absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-300">
+                            <div class="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></div>
+                        </div>
                     </button>
+                </div>
+
+                <!-- In-page Confirmation -->
+                <div id="reminder-confirmation" class="hidden mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm text-yellow-700">
+                                <strong>Confirm Send Reminder:</strong> This will send a notification to the dean about this pending application.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex justify-end space-x-2">
+                        <button onclick="cancelSendReminder()" 
+                                class="bg-gray-300 text-gray-700 px-3 py-1 text-sm rounded hover:bg-gray-400 transition-colors">
+                            Cancel
+                        </button>
+                        <button onclick="sendReminder()" 
+                                class="bg-orange-600 text-white px-3 py-1 text-sm rounded hover:bg-orange-700 transition-colors">
+                            <i class="fas fa-check mr-1"></i>Confirm Send
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -755,7 +785,48 @@ function openReminderModal(applicationId, studentName, subjectCode) {
 function closeReminderModal() {
     document.getElementById('reminderModal').classList.add('hidden');
     document.body.style.overflow = 'auto';
+    
+    // Reset confirmation state
+    cancelSendReminder();
+    
+    // Reset form
+    document.getElementById('reminderType').value = 'pending_review';
+    document.getElementById('reminderMessage').value = '';
+    
     currentApplicationId = null;
+}
+
+function confirmSendReminder() {
+    console.log('confirmSendReminder() called');
+    
+    // Show in-page confirmation
+    const confirmationElement = document.getElementById('reminder-confirmation');
+    const buttonElement = document.getElementById('send-reminder-btn');
+    
+    console.log('Confirmation element:', confirmationElement);
+    console.log('Button element:', buttonElement);
+    
+    if (confirmationElement) {
+        confirmationElement.classList.remove('hidden');
+        console.log('Confirmation box should now be visible');
+    } else {
+        console.error('Confirmation element not found!');
+    }
+    
+    if (buttonElement) {
+        buttonElement.disabled = true;
+        buttonElement.classList.add('opacity-50');
+        console.log('Button disabled and made semi-transparent');
+    } else {
+        console.error('Button element not found!');
+    }
+}
+
+function cancelSendReminder() {
+    // Hide in-page confirmation
+    document.getElementById('reminder-confirmation').classList.add('hidden');
+    document.getElementById('send-reminder-btn').disabled = false;
+    document.getElementById('send-reminder-btn').classList.remove('opacity-50');
 }
 
 function sendReminder() {
@@ -764,11 +835,21 @@ function sendReminder() {
     const type = document.getElementById('reminderType').value;
     const message = document.getElementById('reminderMessage').value || 'Please review the pending grade completion application.';
 
-    // Show loading state
-    const sendButton = event.target;
-    const originalText = sendButton.innerHTML;
-    sendButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+    // Show loading state with button spinner
+    const sendButton = document.getElementById('send-reminder-btn');
+    const btnText = sendButton.querySelector('.btn-text');
+    const spinner = sendButton.querySelector('.spinner');
+    
     sendButton.disabled = true;
+    btnText.style.opacity = '0';
+    spinner.style.opacity = '1';
+
+    // Show loading toast
+    if (typeof showInfoToast === 'function') {
+        showInfoToast('Sending reminder notification...');
+    } else if (typeof window.toastManager !== 'undefined') {
+        window.toastManager.show('Sending reminder notification...', 'info');
+    }
 
     fetch(`/admin/applications/${currentApplicationId}/send-reminder`, {
         method: 'POST',
@@ -783,21 +864,108 @@ function sendReminder() {
     })
     .then(response => response.json())
     .then(data => {
-        sendButton.innerHTML = originalText;
+        // Reset button state
         sendButton.disabled = false;
+        btnText.style.opacity = '1';
+        spinner.style.opacity = '0';
 
         if (data.success) {
-            alert('✅ ' + data.message);
+            // Show success toast and close modal
+            if (typeof showSuccessToast === 'function') {
+                showSuccessToast('✅ ' + data.message);
+            } else if (typeof window.toastManager !== 'undefined') {
+                window.toastManager.show(data.message, 'success');
+            } else {
+                // Fallback: Create a simple toast notification
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50';
+                toast.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>✅ ${data.message}</span>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">×</button>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 5000);
+            }
+            
             closeReminderModal();
+            
+            // Hide confirmation
+            document.getElementById('reminder-confirmation').classList.add('hidden');
+            
+            // Optionally refresh the applications table
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
         } else {
-            alert('❌ ' + data.message);
+            // Show error toast
+            if (typeof showErrorToast === 'function') {
+                showErrorToast('❌ ' + data.message);
+            } else if (typeof window.toastManager !== 'undefined') {
+                window.toastManager.show(data.message, 'error');
+            } else {
+                // Fallback: Create a simple error toast
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50';
+                toast.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>❌ ${data.message}</span>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">×</button>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 5000);
+            }
+            cancelSendReminder(); // Reset confirmation state
         }
     })
     .catch(error => {
-        sendButton.innerHTML = originalText;
+        // Reset button state
         sendButton.disabled = false;
+        btnText.style.opacity = '1';
+        spinner.style.opacity = '0';
+        
         console.error('Error:', error);
-        alert('❌ Failed to send reminder. Please try again.');
+        if (typeof showErrorToast === 'function') {
+            showErrorToast('❌ Failed to send reminder. Please try again.');
+        } else if (typeof window.toastManager !== 'undefined') {
+            window.toastManager.show('Failed to send reminder. Please try again.', 'error');
+        } else {
+            // Fallback: Create a simple error toast
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50';
+            toast.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>❌ Failed to send reminder. Please try again.</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">×</button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 5000);
+        }
+        cancelSendReminder(); // Reset confirmation state
     });
 }
 
@@ -908,6 +1076,79 @@ document.addEventListener('keydown', function(e) {
         if (!document.getElementById('reminderHistoryModal').classList.contains('hidden')) {
             closeReminderHistoryModal();
         }
+    }
+});
+
+// Ensure toast functions are available (debugging)
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Toast functions check:');
+    console.log('showSuccessToast:', typeof showSuccessToast);
+    console.log('showErrorToast:', typeof showErrorToast);
+    console.log('showInfoToast:', typeof showInfoToast);
+    console.log('window.toastManager:', typeof window.toastManager);
+    
+    // If toast functions are not available, force load them
+    if (typeof showSuccessToast === 'undefined') {
+        console.warn('Toast functions not found - loading fallback...');
+        
+        // Add toast container if missing
+        if (!document.getElementById('toast-container')) {
+            const container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'fixed top-4 right-4 z-50 max-w-sm space-y-2';
+            document.body.appendChild(container);
+        }
+        
+        // Define fallback toast functions
+        window.showSuccessToast = function(message) {
+            createFallbackToast(message, 'success');
+        };
+        
+        window.showErrorToast = function(message) {
+            createFallbackToast(message, 'error');
+        };
+        
+        window.showInfoToast = function(message) {
+            createFallbackToast(message, 'info');
+        };
+        
+        window.createFallbackToast = function(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgColor = 'bg-blue-500';
+            let icon = '🔵';
+            if (type === 'success') { bgColor = 'bg-green-500'; icon = '✅'; }
+            if (type === 'error') { bgColor = 'bg-red-500'; icon = '❌'; }
+            if (type === 'warning') { bgColor = 'bg-yellow-500'; icon = '⚠️'; }
+            
+            toast.className = `${bgColor} text-white p-4 rounded-lg shadow-lg transform translate-x-full opacity-0 transition-all duration-300 ease-in-out flex items-center gap-2`;
+            toast.innerHTML = `
+                <span>${icon}</span>
+                <span class="flex-1">${message}</span>
+                <button onclick="this.parentElement.remove()" class="text-white hover:text-gray-200">×</button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 10);
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 5000);
+        };
+        
+        console.log('Fallback toast functions loaded');
     }
 });
 </script>

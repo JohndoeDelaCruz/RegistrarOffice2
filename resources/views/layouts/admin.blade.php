@@ -8,7 +8,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/UC_Official_Seal.png') }}">
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?v={{ time() }}"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -233,5 +233,103 @@
     </script>
     
     @stack('scripts')
+
+    <!-- Toast Notifications Component -->
+    <x-toast />
+    
+    <!-- Loading Component -->
+    <x-loading />
+
+    <!-- Override browser alerts for better UX -->
+    <script>
+        // Override the alert function to use toast notifications instead
+        window.originalAlert = window.alert;
+        window.alert = function(message) {
+            console.log('Alert intercepted:', message);
+            
+            // Check if it's a success message
+            if (message.includes('✅') || message.includes('successfully') || message.includes('success')) {
+                if (typeof showSuccessToast === 'function') {
+                    showSuccessToast(message);
+                } else if (typeof window.toastManager !== 'undefined') {
+                    window.toastManager.show(message.replace('✅ ', ''), 'success');
+                } else {
+                    // Fallback toast
+                    createCustomToast(message, 'success');
+                }
+            }
+            // Check if it's an error message  
+            else if (message.includes('❌') || message.includes('error') || message.includes('failed') || message.includes('Error')) {
+                if (typeof showErrorToast === 'function') {
+                    showErrorToast(message);
+                } else if (typeof window.toastManager !== 'undefined') {
+                    window.toastManager.show(message.replace('❌ ', ''), 'error');
+                } else {
+                    // Fallback toast
+                    createCustomToast(message, 'error');
+                }
+            }
+            // Default to info toast
+            else {
+                if (typeof showInfoToast === 'function') {
+                    showInfoToast(message);
+                } else if (typeof window.toastManager !== 'undefined') {
+                    window.toastManager.show(message, 'info');
+                } else {
+                    // Fallback toast
+                    createCustomToast(message, 'info');
+                }
+            }
+        };
+
+        // Fallback toast creator
+        window.createCustomToast = function(message, type) {
+            // Create container if it doesn't exist
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'fixed top-4 right-4 z-50 max-w-sm space-y-2';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            let bgColor = 'bg-blue-500';
+            let icon = 'ℹ️';
+            
+            if (type === 'success') { bgColor = 'bg-green-500'; icon = '✅'; }
+            else if (type === 'error') { bgColor = 'bg-red-500'; icon = '❌'; }
+            else if (type === 'warning') { bgColor = 'bg-yellow-500'; icon = '⚠️'; }
+
+            toast.className = `${bgColor} text-white p-4 rounded-lg shadow-lg transform translate-x-full opacity-0 transition-all duration-300 ease-in-out`;
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-lg">${icon}</span>
+                    <span class="flex-1 text-sm">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-gray-200 text-lg">×</button>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Show animation
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 10);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 5000);
+        };
+
+        console.log('Alert override installed - browser alerts will now show as toast notifications');
+    </script>
 </body>
 </html>

@@ -279,5 +279,11 @@
             }
         });
     </script>
+
+    <!-- Toast Notifications Component -->
+    <x-toast />
+    
+    <!-- Loading Component -->
+    <x-loading />
 </body>
 </html>

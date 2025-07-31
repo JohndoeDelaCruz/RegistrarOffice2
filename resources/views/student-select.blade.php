@@ -8,256 +8,113 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/UC_Official_Seal.png') }}">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            background: radial-gradient(ellipse at center, #e0f2fe 0%, #bfdbfe 20%, #60a5fa 40%, #3b82f6 60%, #2563eb 80%, #1d4ed8 100%);
-            font-family: Arial, sans-serif;
-        }
-        .header {
-            background: linear-gradient(45deg, #15803d 0%, #166534 100%);
-            color: white;   
-            padding: 20px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            min-height: 50px;
-        }
-        .header-left, .header-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .header-center {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        .header-center .logo {
-            font-weight: bold;
-            font-size: 16px;
-            color: #fbbf24;
-        }
-        .header-center .tagline {
-            font-size: 12px;
-            margin-top: 2px;
-            color: #e5e7eb;
-        }
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: calc(100vh - 100px);
-            padding: 40px 20px 20px 20px;
-        }
-        .login-card {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            width: 100%;
-            max-width: 650px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .login-header {
-            background: #f97316;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            border-radius: 20px 20px 0 0;
-        }
-        .login-form {
-            padding: 50px;
-            background: rgba(186, 230, 253, 0.4);
-            border-radius: 0 0 20px 20px;
-        }
-        .form-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin: 0 auto;
-        }
-        .form-table td {
-            padding: 0;
-            margin: 0;
-        }
-        .form-row-table {
-            margin-bottom: 25px;
-        }
-        .form-row-table td {
-            vertical-align: middle;
-        }
-        .form-row-table:first-child {
-            margin-bottom: 25px;
-        }
-        .form-label {
-            background: #0891b2;
-            color: white;
-            padding: 12px 18px;
-            font-weight: bold;
-            width: 200px;
-            text-align: center;
-            font-size: 16px;
-            border-radius: 25px 0 0 25px;
-            white-space: nowrap;
-        }
-        .form-input {
-            width: 300px;
-            padding: 12px 18px;
-            border: none;
-            background: #f0f9ff;
-            font-size: 16px;
-            outline: none;
-            color: #475569;
-            box-sizing: border-box;
-            border-radius: 0 25px 25px 0;
-        }
-        .form-input::placeholder {
-            color: #94a3b8;
-        }
-        .form-input:focus {
-            background: white;
-        }
-        .login-btn {
-            background: radial-gradient(ellipse at center, #ffffff 0%, #dbeafe 30%, #93c5fd 60%, #3b82f6 100%);
-            color: #1e293b;
-            border: none;
-            padding: 14px 50px;
-            border-radius: 25px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            display: block;
-            margin: 35px auto 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            transform: translateY(0px);
-        }
-        .login-btn:hover {
-            background: radial-gradient(ellipse at center, #f8fafc 0%, #bfdbfe 30%, #60a5fa 60%, #2563eb 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        .login-btn:active {
-            transform: translateY(0px);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        @media (max-width: 640px) {
-            .header {
-                padding: 15px 20px;
-                min-height: 50px;
-            }
-            .header-left, .header-right {
-                font-size: 14px;
-            }
-            .header-center .logo {
-                font-size: 14px;
-            }
-            .header-center .tagline {
-                font-size: 10px;
-            }
-            .form-label {
-                min-width: 120px;
-                font-size: 14px;
-            }
-            .login-card {
-                margin: 10px;
-            }
-            .login-container {
-                min-height: calc(100vh - 80px);
-                padding: 20px 10px;
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'uc-green': '#15803d',
+                        'uc-green-dark': '#166534',
+                    },
+                    backgroundImage: {
+                        'custom-gradient': 'radial-gradient(ellipse at center, #e0f2fe 0%, #bfdbfe 20%, #60a5fa 40%, #3b82f6 60%, #2563eb 80%, #1d4ed8 100%)',
+                        'header-gradient': 'linear-gradient(45deg, #15803d 0%, #166534 100%)',
+                        'btn-gradient': 'radial-gradient(ellipse at center, #ffffff 0%, #dbeafe 30%, #93c5fd 60%, #3b82f6 100%)',
+                        'btn-hover-gradient': 'radial-gradient(ellipse at center, #f8fafc 0%, #bfdbfe 30%, #60a5fa 60%, #2563eb 100%)',
+                    }
+                }
             }
         }
-    </style>
+    </script>
 </head>
-<body>
+<body class="min-h-screen bg-custom-gradient font-sans">
     <!-- Header -->
-        <!-- Header -->
-    <div class="header">
-        <div class="header-left">
-            <img src="{{ asset('images/UC_Official_Logo.png') }}" alt="University Logo" style="height: 75px; width: 250px;">
+    <div class="bg-header-gradient text-white px-6 sm:px-8 py-5 flex flex-col sm:flex-row justify-between items-center min-h-[80px] sm:min-h-[100px]">
+        <div class="flex items-center gap-2 mb-3 sm:mb-0">
+            <img src="{{ asset('images/UC_Official_Logo.png') }}" alt="University Logo" 
+                 class="h-12 sm:h-16 lg:h-[75px] w-auto max-w-[200px] sm:max-w-[250px]">
         </div>
-        <div class="header-right">
-            <!-- Replace 'your-logo.png' with your actual logo filename -->
-            <img src="{{ asset('images/SCHOOLAUTOMATE.png') }}" alt="University Logo" style="height: 75px; width: 350px;">
+        <div class="flex items-center gap-2">
+            <img src="{{ asset('images/SCHOOLAUTOMATE.png') }}" alt="SchoolAutomate Logo" 
+                 class="h-12 sm:h-16 lg:h-[75px] w-auto max-w-[250px] sm:max-w-[350px]">
         </div>
     </div>
 
     <!-- Login Container -->
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                Grade Completion Portal - Login
+    <div class="flex justify-center items-start min-h-[calc(100vh-100px)] px-4 sm:px-6 py-8 sm:py-10">
+        <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl">
+            <!-- Login Header -->
+            <div class="bg-orange-500 text-white p-5 sm:p-6 text-center">
+                <h1 class="text-lg sm:text-xl lg:text-2xl font-bold">Grade Completion Portal - Login</h1>
             </div>
             
-            <form action="/login" method="POST" class="login-form">
+            <!-- Login Form -->
+            <form action="/login" method="POST" class="p-6 sm:p-8 lg:p-12 bg-sky-200/40">
                 @csrf
 
-                <!-- Login Form Table -->
-                <div style="display: flex; justify-content: center; width: 100%; margin-top: 20px;">
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
-                        <!-- Email/ID Row -->
-                        <div style="display: flex; align-items: center;">
-                            <div class="form-label">Email or ID Number:</div>
-                            <input 
-                                type="text" 
-                                name="login_id" 
-                                id="login-input"
-                                value="{{ old('login_id') }}"
-                                placeholder="student@uc.edu.ph or 00-0000-000"
-                                class="form-input"
-                                required
-                            >
-                        </div>
-                        
-                        <!-- Password Row -->
-                        <div style="display: flex; align-items: center;">
-                            <div class="form-label">Password:</div>
-                            <input 
-                                type="password" 
-                                name="password" 
-                                placeholder="Enter your password"
-                                class="form-input"
-                                required
-                            >
-                        </div>
-                        
-                        <!-- Login Button -->
-                        <div style="margin-top: 15px;">
-                            <button type="submit" class="login-btn">Login Now</button>
-                        </div>
-
-                        <!-- Info Text -->
-                    
+                <div class="flex flex-col items-center gap-6 sm:gap-8 mt-4">
+                    <!-- Email/ID Row -->
+                    <div class="flex flex-col sm:flex-row items-center w-full max-w-lg">
+                        <label class="bg-cyan-600 text-white px-4 py-3 font-bold text-center text-sm sm:text-base 
+                                      rounded-l-full sm:rounded-l-3xl rounded-r-full sm:rounded-r-none 
+                                      w-full sm:w-48 mb-0 sm:mb-0 whitespace-nowrap">
+                            Email or ID Number:
+                        </label>
+                        <input 
+                            type="text" 
+                            name="login_id" 
+                            id="login-input"
+                            value="{{ old('login_id') }}"
+                            placeholder="student@uc.edu.ph or 00-0000-000"
+                            class="w-full sm:w-72 px-4 py-3 border-none bg-sky-50 text-slate-600 
+                                   rounded-r-full sm:rounded-r-3xl rounded-l-full sm:rounded-l-none 
+                                   focus:bg-white focus:outline-none text-sm sm:text-base mt-0 sm:mt-0"
+                            required
+                        >
                     </div>
+                    
+                    <!-- Password Row -->
+                    <div class="flex flex-col sm:flex-row items-center w-full max-w-lg">
+                        <label class="bg-cyan-600 text-white px-4 py-3 font-bold text-center text-sm sm:text-base 
+                                      rounded-l-full sm:rounded-l-3xl rounded-r-full sm:rounded-r-none 
+                                      w-full sm:w-48 mb-0 sm:mb-0">
+                            Password:
+                        </label>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            placeholder="Enter your password"
+                            class="w-full sm:w-72 px-4 py-3 border-none bg-sky-50 text-slate-600 
+                                   rounded-r-full sm:rounded-r-3xl rounded-l-full sm:rounded-l-none 
+                                   focus:bg-white focus:outline-none text-sm sm:text-base mt-0 sm:mt-0"
+                            required
+                        >
+                    </div>
+                    
+                    <!-- Login Button -->
+                    <button type="submit" 
+                            class="bg-btn-gradient hover:bg-btn-hover-gradient text-slate-800 font-bold 
+                                   px-8 sm:px-12 py-3 sm:py-4 rounded-full text-base sm:text-lg 
+                                   shadow-lg hover:shadow-xl transform hover:-translate-y-1 
+                                   transition-all duration-300 mt-4">
+                        Login Now
+                    </button>
                 </div>
 
                 <!-- Error Messages -->
                 @if ($errors->any())
-                    <div style="background: #fee2e2; border: none; color: #dc2626; padding: 8px; margin-top: 15px; font-size: 13px; border-radius: 8px; text-align: center;">
+                    <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg mt-6 text-center">
                         @foreach ($errors->all() as $error)
-                            <p style="margin: 0;">{{ $error }}</p>
+                            <p class="text-sm">{{ $error }}</p>
                         @endforeach
                     </div>
                 @endif
 
                 @if (session('success'))
-                    <div style="background: #d1fae5; border: none; color: #065f46; padding: 8px; margin-top: 15px; font-size: 13px; border-radius: 8px; text-align: center;">
-                        <p style="margin: 0;">{{ session('success') }}</p>
+                    <div class="bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-lg mt-6 text-center">
+                        <p class="text-sm">{{ session('success') }}</p>
                     </div>
                 @endif
             </form>

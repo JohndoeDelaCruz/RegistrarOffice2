@@ -47,6 +47,8 @@ class DeanController extends Controller
             ->whereHas('student', function($query) use ($deanCollege) {
                 $query->where('college', $deanCollege);
             })
+            ->with(['student', 'subject'])
+            ->orderBy('completion_deadline', 'asc')
             ->get();
             
         $overdueCount = $approvedApplications->filter(function($app) {
@@ -81,7 +83,8 @@ class DeanController extends Controller
             'approachingDeadlineCount',
             'activeCount',
             'recentNotifications',
-            'unreadNotificationsCount'
+            'unreadNotificationsCount',
+            'approvedApplications'
         ));
     }
 

@@ -8,7 +8,7 @@
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start">
         <div class="mb-4 sm:mb-0">
             <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Welcome back, {{ $admin->name ?? 'Administrator' }}!</h1>
-            <p class="text-gray-600">University of Cebu Registrar - Administrative Control Panel</p>
+            <p class="text-gray-600">University of the Cordilleras - Administrative Control Panel</p>
         </div>
         <div class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 sm:px-4 sm:py-2">
             <span class="text-sm font-medium text-red-800">{{ now()->format('F j, Y') }}</span>

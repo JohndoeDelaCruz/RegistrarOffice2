@@ -203,7 +203,7 @@
                         <div class="bg-gray-50 rounded-lg p-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-comment mr-2"></i>
-                                Dean Remarks <span class="text-gray-500">(Optional)</span>
+                                Dean Remarks
                             </label>
                             <textarea 
                                 id="deanRemarks" 

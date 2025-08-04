@@ -117,6 +117,12 @@ class DeanController extends Controller
         return view('dean.profile', compact('dean'));
     }
 
+    public function calendar()
+    {
+        $dean = $this->getLoggedInDean();
+        return view('dean.calendar', compact('dean'));
+    }
+
     public function gradeCompletionApplications()
     {
         $dean = $this->getLoggedInDean();

@@ -75,6 +75,7 @@ Route::prefix('dean')->name('dean.')->group(function () {
     Route::post('/announcement/create', [DeanController::class, 'createAnnouncement'])->name('announcement.create');
     Route::post('/announcement/{announcement}/publish', [DeanController::class, 'publishAnnouncement'])->name('announcement.publish');
     Route::delete('/announcement/{announcement}', [DeanController::class, 'deleteAnnouncement'])->name('announcement.delete');
+    Route::get('/calendar', [DeanController::class, 'calendar'])->name('calendar');
     Route::get('/profile', [DeanController::class, 'profile'])->name('profile');
     Route::get('/grade-completion-applications', [DeanController::class, 'gradeCompletionApplications'])->name('grade-completion-applications');
     Route::get('/approved-applications', [DeanController::class, 'approvedApplications'])->name('approved-applications');

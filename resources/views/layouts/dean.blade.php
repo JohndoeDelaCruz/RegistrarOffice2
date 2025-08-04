@@ -141,6 +141,11 @@
                 <span class="font-bold">Announcements</span>
             </a>
 
+            <a href="{{ route('dean.calendar') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.calendar') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
+                <i class="fas fa-calendar w-5 text-center"></i>
+                <span class="font-bold">Calendar</span>
+            </a>
+
             <a href="{{ route('dean.notifications') }}" class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.notifications') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-bell w-5 text-center"></i>
                 <span class="font-bold">Notifications</span>
@@ -215,6 +220,13 @@
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.announcement') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
                 <i class="fas fa-bullhorn w-5 text-center"></i>
                 <span class="font-bold">Announcements</span>
+            </a>
+
+            <a href="{{ route('dean.calendar') }}" 
+               onclick="closeMobileMenu()"
+               class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('dean.calendar') ? 'bg-white/15 text-white border-l-4 border-l-teal-300' : '' }}">
+                <i class="fas fa-calendar w-5 text-center"></i>
+                <span class="font-bold">Calendar</span>
             </a>
 
             <a href="{{ route('dean.notifications') }}" 

@@ -30,13 +30,18 @@ class StudentController extends Controller
             }
         }
         
-        // Fallback for demo purposes - this should ideally redirect to login
-        return User::where('role', 'student')->whereNotNull('track')->first();
+        // Return null if no authenticated student found
+        return null;
     }
 
     public function dashboard()
     {
         $student = $this->getLoggedInStudent();
+        
+        // If no student found, redirect to login
+        if (!$student) {
+            return redirect('/')->with('error', 'Please log in as student to access this page.');
+        }
         
         // Get student's grade completion applications with deadline information
         $applications = GradeCompletionApplication::where('student_id', $student->id)
@@ -70,6 +75,11 @@ class StudentController extends Controller
     {
         $student = $this->getLoggedInStudent();
         
+        // If no student found, redirect to login
+        if (!$student) {
+            return redirect('/')->with('error', 'Please log in as student to access this page.');
+        }
+        
         // Get published announcements for students or all audiences
         $announcements = Announcement::published()
             ->forAudience('students')
@@ -82,6 +92,11 @@ class StudentController extends Controller
     public function gradeCompletion()
     {
         $student = $this->getLoggedInStudent();
+        
+        // If no student found, redirect to login
+        if (!$student) {
+            return redirect('/')->with('error', 'Please log in as student to access this page.');
+        }
         
         // Get subjects with INC, NFE, or NG grades that need completion
         $incompleteSubjects = \App\Models\Subject::whereHas('grades', function ($query) use ($student) {
@@ -107,6 +122,12 @@ class StudentController extends Controller
     public function profile()
     {
         $student = $this->getLoggedInStudent();
+        
+        // If no student found, redirect to login
+        if (!$student) {
+            return redirect('/')->with('error', 'Please log in as student to access this page.');
+        }
+        
         return view('student.profile', compact('student'));
     }
 
@@ -132,6 +153,11 @@ class StudentController extends Controller
     public function updateProfile(Request $request)
     {
         $student = $this->getLoggedInStudent();
+        
+        // If no student found, redirect to login
+        if (!$student) {
+            return redirect('/')->with('error', 'Please log in as student to access this page.');
+        }
         
         $request->validate([
             'name' => 'required|string|max:255',
@@ -169,6 +195,11 @@ class StudentController extends Controller
         ]);
 
         $student = $this->getLoggedInStudent();
+        
+        // If no student found, redirect to login
+        if (!$student) {
+            return redirect('/')->with('error', 'Please log in as student to access this page.');
+        }
         
         // Check if student has INC, NFE, or NG grade for this subject
         $grade = StudentGrade::where('user_id', $student->id)

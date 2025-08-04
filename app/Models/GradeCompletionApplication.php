@@ -118,7 +118,7 @@ class GradeCompletionApplication extends Model
             return null;
         }
         
-        return now()->diffInDays($this->completion_deadline, false);
+        return floor(now()->diffInDays($this->completion_deadline, false));
     }
 
     public function getDeadlineStatusAttribute()

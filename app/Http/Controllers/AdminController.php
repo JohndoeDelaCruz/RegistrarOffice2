@@ -31,13 +31,18 @@ class AdminController extends Controller
             }
         }
         
-        // Fallback for demo purposes - get any admin user
-        return User::where('role', 'admin')->first();
+        // Return null if no authenticated admin found
+        return null;
     }
 
     public function dashboard()
     {
         $admin = $this->getLoggedInAdmin();
+        
+        // If no admin found, redirect to login
+        if (!$admin) {
+            return redirect('/')->with('error', 'Please log in as admin to access this page.');
+        }
         
         if (!$admin) {
             return redirect('/')->with('error', 'Please log in as administrator to access this page.');

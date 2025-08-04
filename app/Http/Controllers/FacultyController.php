@@ -27,14 +27,18 @@ class FacultyController extends Controller
             }
         }
         
-        // Fallback for demo purposes - but log this for debugging
-        \Log::warning('FacultyController: Using fallback faculty selection. This might indicate a login issue.');
-        return User::where('role', 'faculty')->first();
+        // Return null if no authenticated faculty found
+        return null;
     }
 
     public function dashboard()
     {
         $faculty = $this->getLoggedInFaculty();
+        
+        // If no faculty found, redirect to login
+        if (!$faculty) {
+            return redirect('/')->with('error', 'Please log in as faculty to access this page.');
+        }
         
         // Get pending grade completion applications count for faculty's college students only
         $pendingGradeApplications = GradeCompletionApplication::where('dean_status', 'approved')

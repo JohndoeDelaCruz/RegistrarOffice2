@@ -120,7 +120,21 @@ class DeanController extends Controller
     public function calendar()
     {
         $dean = $this->getLoggedInDean();
-        return view('dean.calendar', compact('dean'));
+        
+        // Check if dean is logged in
+        if (!$dean) {
+            return redirect()->route('login')->with('error', 'Please log in as a dean to access the calendar.');
+        }
+        
+        // Get all reviewed applications (approved and rejected) for the calendar
+        $applications = GradeCompletionApplication::with(['student', 'subject'])
+            ->where('dean_reviewed_by', $dean->id)
+            ->whereNotNull('dean_reviewed_at')
+            ->whereIn('dean_status', ['approved', 'rejected'])
+            ->orderBy('dean_reviewed_at', 'desc')
+            ->get();
+        
+        return view('dean.calendar', compact('dean', 'applications'));
     }
 
     public function gradeCompletionApplications()

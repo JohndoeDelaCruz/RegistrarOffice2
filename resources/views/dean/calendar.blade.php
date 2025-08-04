@@ -113,6 +113,54 @@
         </div>
     </div>
 
+    <!-- Recent Activities -->
+    @if(isset($applications) && $applications->count() > 0)
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">
+            <i class="fas fa-history text-gray-600 mr-2"></i>
+            Recent Application Reviews
+        </h3>
+        <div class="space-y-3 max-h-96 overflow-y-auto">
+            @foreach($applications->take(10) as $application)
+            <div class="flex items-start p-3 rounded-lg {{ $application->dean_status === 'approved' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200' }}">
+                <div class="flex-shrink-0 mr-3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center {{ $application->dean_status === 'approved' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }}">
+                        <i class="fas {{ $application->dean_status === 'approved' ? 'fa-check' : 'fa-times' }} text-sm"></i>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-900">
+                            {{ $application->student ? $application->student->name : 'Unknown Student' }} - {{ $application->subject ? $application->subject->code : 'Unknown Subject' }}
+                        </p>
+                        <span class="text-xs text-gray-500">
+                            {{ $application->dean_reviewed_at ? $application->dean_reviewed_at->format('M j, Y g:i A') : 'Unknown Date' }}
+                        </span>
+                    </div>
+                    <p class="text-xs {{ $application->dean_status === 'approved' ? 'text-green-700' : 'text-red-700' }} mt-1">
+                        <i class="fas {{ $application->dean_status === 'approved' ? 'fa-check-circle' : 'fa-times-circle' }} mr-1"></i>
+                        {{ $application->dean_status === 'approved' ? 'Approved' : 'Rejected' }}
+                        @if($application->dean_remarks)
+                            - {{ Str::limit($application->dean_remarks, 50) }}
+                        @endif
+                    </p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @else
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="text-center py-8">
+            <div class="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-calendar-alt text-gray-400 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">No Application Reviews Yet</h3>
+            <p class="text-gray-600">Your application review history will appear here once you start reviewing applications.</p>
+        </div>
+    </div>
+    @endif
+
 </div>
 
 <style>
@@ -127,6 +175,8 @@
     font-weight: 500;
     border: 1px solid #e5e7eb;
     background-color: #ffffff;
+    position: relative;
+    padding: 0.25rem;
 }
 
 .calendar-day:hover {
@@ -152,6 +202,65 @@
     border-color: #2563eb;
 }
 
+.calendar-day.has-events {
+    border-color: #10b981;
+    background-color: #f0f9ff;
+}
+
+.calendar-day.has-events:hover {
+    background-color: #e0f7fa;
+    transform: scale(1.02);
+}
+
+.day-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.day-number {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.events-container {
+    display: flex;
+    gap: 2px;
+    margin-top: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.event-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    font-size: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-approved {
+    background-color: #10b981;
+}
+
+.event-rejected {
+    background-color: #ef4444;
+}
+
+.event-more {
+    background-color: #6b7280;
+    color: white;
+    font-weight: bold;
+    width: 8px;
+    height: 8px;
+    font-size: 6px;
+}
+
 .calendar-container {
     max-width: 100%;
     overflow-x: auto;
@@ -161,13 +270,48 @@
     .calendar-day {
         font-size: 0.875rem;
         min-height: 2.5rem;
+        padding: 0.125rem;
     }
+    
+    .day-number {
+        font-size: 0.75rem;
+    }
+    
+    .event-dot {
+        width: 4px;
+        height: 4px;
+    }
+    
+    .event-more {
+        width: 6px;
+        height: 6px;
+        font-size: 5px;
+    }
+}
+
+/* Static calendar days styling */
+.calendar-day:not(.has-events) {
+    flex-direction: column;
+    justify-content: center;
 }
 </style>
 
 <script>
 let currentMonth = 7; // August (0-based)
 let currentYear = 2025;
+
+// Application data from the server
+const applications = {!! json_encode($applications ? $applications->map(function($app) {
+    return [
+        'id' => $app->id,
+        'student_name' => $app->student ? $app->student->name : 'Unknown Student',
+        'subject_code' => $app->subject ? $app->subject->code : 'Unknown Subject',
+        'dean_status' => $app->dean_status,
+        'dean_reviewed_at' => $app->dean_reviewed_at ? $app->dean_reviewed_at->format('Y-m-d') : null,
+        'dean_reviewed_at_display' => $app->dean_reviewed_at ? $app->dean_reviewed_at->format('M j, Y g:i A') : 'Unknown Date',
+        'dean_remarks' => $app->dean_remarks
+    ];
+}) : []) !!};
 
 function changeMonth(direction) {
     currentMonth += direction;
@@ -215,7 +359,16 @@ function generateCalendar(year, month) {
     for (let day = 1; day <= daysInMonth; day++) {
         const dayDiv = document.createElement('div');
         dayDiv.className = 'calendar-day';
-        dayDiv.textContent = day;
+        
+        // Create day content container
+        const dayContent = document.createElement('div');
+        dayContent.className = 'day-content';
+        
+        // Add day number
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = day;
+        dayContent.appendChild(dayNumber);
         
         // Check if this is today
         const today = new Date();
@@ -223,7 +376,44 @@ function generateCalendar(year, month) {
             dayDiv.classList.add('today');
         }
         
-        dayDiv.onclick = () => selectDay(dayDiv);
+        // Check for applications on this day
+        const dayDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayApplications = applications.filter(app => app.dean_reviewed_at === dayDate);
+        
+        if (dayApplications.length > 0) {
+            dayDiv.classList.add('has-events');
+            
+            // Add event indicators
+            const eventsContainer = document.createElement('div');
+            eventsContainer.className = 'events-container';
+            
+            dayApplications.slice(0, 3).forEach(app => {
+                const eventDot = document.createElement('div');
+                eventDot.className = `event-dot ${app.dean_status === 'approved' ? 'event-approved' : 'event-rejected'}`;
+                eventDot.title = `${app.student_name} - ${app.subject_code} (${app.dean_status})`;
+                eventsContainer.appendChild(eventDot);
+            });
+            
+            if (dayApplications.length > 3) {
+                const moreDot = document.createElement('div');
+                moreDot.className = 'event-dot event-more';
+                moreDot.textContent = '+';
+                moreDot.title = `${dayApplications.length - 3} more events`;
+                eventsContainer.appendChild(moreDot);
+            }
+            
+            dayContent.appendChild(eventsContainer);
+            
+            // Add click handler for viewing events
+            dayDiv.onclick = () => {
+                selectDay(dayDiv);
+                showDayEvents(dayApplications, day, monthNames[month], year);
+            };
+        } else {
+            dayDiv.onclick = () => selectDay(dayDiv);
+        }
+        
+        dayDiv.appendChild(dayContent);
         calendarContainer.appendChild(dayDiv);
     }
     
@@ -252,12 +442,69 @@ function selectDay(dayElement) {
     }
 }
 
+function showDayEvents(dayApplications, day, month, year) {
+    const modalHtml = `
+        <div id="dayEventsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden">
+                <div class="bg-uc-green text-white p-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-bold">
+                            <i class="fas fa-calendar-day mr-2"></i>
+                            ${month} ${day}, ${year}
+                        </h3>
+                        <button onclick="closeDayEventsModal()" class="text-white hover:text-gray-200">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-96">
+                    <h4 class="font-semibold text-gray-800 mb-3">Application Reviews (${dayApplications.length})</h4>
+                    <div class="space-y-3">
+                        ${dayApplications.map(app => `
+                            <div class="p-3 rounded-lg border ${app.dean_status === 'approved' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <p class="font-medium text-gray-900">${app.student_name}</p>
+                                        <p class="text-sm text-gray-600">${app.subject_code}</p>
+                                        <p class="text-xs ${app.dean_status === 'approved' ? 'text-green-700' : 'text-red-700'} mt-1">
+                                            ${app.dean_reviewed_at_display}
+                                        </p>
+                                        ${app.dean_remarks ? `<p class="text-xs text-gray-600 mt-1">"${app.dean_remarks}"</p>` : ''}
+                                    </div>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${app.dean_status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                        <i class="fas ${app.dean_status === 'approved' ? 'fa-check' : 'fa-times'} mr-1"></i>
+                                        ${app.dean_status === 'approved' ? 'Approved' : 'Rejected'}
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function closeDayEventsModal() {
+    const modal = document.getElementById('dayEventsModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
 // Add click events to existing calendar days
 document.addEventListener('DOMContentLoaded', function() {
     const calendarDays = document.querySelectorAll('.calendar-day');
     calendarDays.forEach(day => {
-        day.onclick = () => selectDay(day);
+        if (!day.onclick) {
+            day.onclick = () => selectDay(day);
+        }
     });
+    
+    // Generate calendar for current month
+    generateCalendar(currentYear, currentMonth);
 });
 </script>
 

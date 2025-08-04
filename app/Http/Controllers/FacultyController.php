@@ -101,6 +101,11 @@ class FacultyController extends Controller
     {
         $faculty = $this->getLoggedInFaculty();
         
+        // Check if faculty is logged in
+        if (!$faculty) {
+            return redirect()->route('login')->with('error', 'Please log in as faculty to access student checklist.');
+        }
+        
         // Get students from faculty's college only
         $students = User::where('role', 'student')
                        ->where('college', $faculty->college)
@@ -113,6 +118,11 @@ class FacultyController extends Controller
     public function studentChecklistDetail($studentId)
     {
         $faculty = $this->getLoggedInFaculty();
+        
+        // Check if faculty is logged in
+        if (!$faculty) {
+            return redirect()->route('login')->with('error', 'Please log in as faculty to access student details.');
+        }
         
         // Get the specific student from faculty's college only
         $student = User::where('role', 'student')
@@ -168,6 +178,12 @@ class FacultyController extends Controller
     public function profile()
     {
         $faculty = $this->getLoggedInFaculty();
+        
+        // Check if faculty is logged in
+        if (!$faculty) {
+            return redirect()->route('login')->with('error', 'Please log in as faculty to access your profile.');
+        }
+        
         return view('faculty.profile', compact('faculty'));
     }
 

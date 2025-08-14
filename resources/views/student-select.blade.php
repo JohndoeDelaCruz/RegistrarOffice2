@@ -104,10 +104,17 @@
         }
         
         .btn-loading .spinner {
+            opacity: 1;
+        }
+        
+        .login-btn .spinner {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
         }
     </style>
 </head>
@@ -178,12 +185,12 @@
                     <!-- Login Button -->
                     <button type="submit" 
                             id="login-btn"
-                            class="bg-btn-gradient hover:bg-btn-hover-gradient text-slate-800 font-bold 
+                            class="login-btn bg-btn-gradient hover:bg-btn-hover-gradient text-slate-800 font-bold 
                                    px-8 sm:px-12 py-3 sm:py-4 rounded-full text-base sm:text-lg 
                                    shadow-lg hover:shadow-xl transform hover:-translate-y-1 
                                    transition-all duration-300 mt-4 relative overflow-hidden">
                         <span class="btn-text">Login Now</span>
-                        <div class="spinner absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-300"></div>
+                        <div class="spinner"></div>
                     </button>
                 </div>
 
@@ -314,14 +321,14 @@
 
             showButtonLoading() {
                 this.loginBtn.disabled = true;
-                this.loginBtn.style.pointerEvents = 'none';
+                this.loginBtn.classList.add('btn-loading');
                 this.btnText.style.opacity = '0';
                 this.btnSpinner.style.opacity = '1';
             }
 
             hideButtonLoading() {
                 this.loginBtn.disabled = false;
-                this.loginBtn.style.pointerEvents = 'auto';
+                this.loginBtn.classList.remove('btn-loading');
                 this.btnText.style.opacity = '1';
                 this.btnSpinner.style.opacity = '0';
             }

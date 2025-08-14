@@ -23,9 +23,12 @@
             theme: {
                 extend: {
                     colors: {
-                        'uc-green': '#2d7738',
-                        'uc-green-dark': '#1e5226',
+                        'uc-green': '#15803d',
+                        'uc-green-dark': '#166534',
                         'uc-bg': '#b8e6c1',
+                    },
+                    backgroundImage: {
+                        'header-gradient': 'linear-gradient(45deg, #15803d 0%, #166534 100%)',
                     }
                 }
             }
@@ -62,56 +65,23 @@
     <div id="mobile-overlay" class="mobile-overlay fixed inset-0 bg-black/50 z-40 lg:hidden" onclick="toggleMobileMenu()"></div>
 
     <!-- Top Header -->
-    <div class="bg-uc-green text-white px-8 py-5 flex justify-between items-center fixed top-0 left-0 right-0 z-50 min-h-16">
-        <div class="flex items-center gap-3">
+    <div class="bg-header-gradient text-white px-6 sm:px-8 py-5 flex flex-col sm:flex-row justify-between items-center fixed top-0 left-0 right-0 z-50 min-h-[80px] sm:min-h-[100px]">
+        <div class="flex items-center gap-3 mb-2 sm:mb-0">
             <!-- Mobile Menu Button -->
-            <button onclick="toggleMobileMenu()" class="lg:hidden p-1 rounded hover:bg-white/10 transition-colors">
+            <button onclick="toggleMobileMenu()" class="lg:hidden p-1 rounded hover:bg-white/10 transition-colors mr-2">
                 <i class="fas fa-bars text-xl"></i>
             </button>
-            <img src="{{ asset('images/UC_Official_Seal.png') }}" alt="University Logo" class="h-8 w-auto">
-            <span class="font-semibold text-xl">Grade Completion Portal</span>
+            <img src="{{ asset('images/UC_Official_Logo.png') }}" alt="University Logo" 
+                 class="h-12 sm:h-16 lg:h-[75px] w-auto max-w-[200px] sm:max-w-[250px]">
         </div>
-        <div class="flex items-center gap-2 relative">
-            <span class="text-sm font-medium hidden sm:block">
-                @isset($student)
-                    {{ $student->name }}
-                @else
-                    Student Name
-                @endisset
-            </span>
-            <span class="text-sm font-medium sm:hidden">
-                @isset($student)
-                    {{ explode(' ', $student->name)[0] }}
-                @else
-                    Student
-                @endisset
-            </span>
-            <button onclick="toggleUserDropdown()" class="p-1 rounded hover:bg-white/10 transition-colors">
-                <i class="fas fa-chevron-down"></i>
-            </button>
-            
-            <!-- User Dropdown Menu -->
-            <div id="userDropdown" class="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 hidden z-50">
-                <div class="py-1">
-                    <a href="{{ route('student.profile') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-user mr-3 w-4 h-4"></i>
-                        Profile
-                    </a>
-                    <div class="border-t border-gray-100"></div>
-                    <form action="{{ route('logout') }}" method="POST" class="block">
-                        @csrf
-                        <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
-                            <i class="fas fa-sign-out-alt mr-3 w-4 h-4"></i>
-                            Log Out
-                        </button>
-                    </form>
-                </div>
-            </div>
+        <div class="flex items-center gap-2">
+            <img src="{{ asset('images/SCHOOLAUTOMATE.png') }}" alt="SchoolAutomate Logo" 
+                 class="h-12 sm:h-16 lg:h-[75px] w-auto max-w-[250px] sm:max-w-[350px]">
         </div>
     </div>
 
     <!-- Desktop Sidebar -->
-    <div style="background: #6393c1;" class="text-white w-64 h-screen fixed left-0 top-16 overflow-y-auto hidden lg:block z-30 shadow-xl">
+    <div style="background: #6393c1;" class="text-white w-64 h-screen fixed left-0 top-[80px] sm:top-[100px] overflow-y-auto hidden lg:block z-30 shadow-xl">
         <nav class="mt-4">
             <a href="{{ route('student.dashboard') }}" 
                class="flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 border-b border-white/10 {{ request()->routeIs('student.dashboard') ? 'bg-white/15 text-white border-l-4 border-l-orange-300' : '' }}">
@@ -152,7 +122,7 @@
     </div>
 
     <!-- Mobile Sidebar -->
-    <div id="mobile-sidebar" style="background: #6393c1;" class="sidebar-mobile text-white w-64 h-screen fixed left-0 top-16 overflow-y-auto lg:hidden z-50 shadow-xl">
+    <div id="mobile-sidebar" style="background: #6393c1;" class="sidebar-mobile text-white w-64 h-screen fixed left-0 top-[80px] sm:top-[100px] overflow-y-auto lg:hidden z-50 shadow-xl">
         <nav class="mt-4">
             <a href="{{ route('student.dashboard') }}" 
                onclick="closeMobileMenu()"
@@ -198,7 +168,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="lg:ml-64 pt-20 min-h-screen bg-custom">
+    <div class="lg:ml-64 pt-[80px] sm:pt-[100px] min-h-screen bg-custom">
         <!-- Content Header -->
         <div class="bg-white px-4 sm:px-6 lg:px-8 py-4 lg:py-5 border-b border-gray-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -260,22 +230,6 @@
         window.addEventListener('resize', function() {
             if (window.innerWidth >= 1024) {
                 closeMobileMenu();
-            }
-        });
-
-        // User dropdown functionality
-        function toggleUserDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            dropdown.classList.toggle('hidden');
-        }
-
-        // Close user dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('userDropdown');
-            const userButton = event.target.closest('[onclick="toggleUserDropdown()"]');
-            
-            if (!dropdown.contains(event.target) && !userButton && !dropdown.classList.contains('hidden')) {
-                dropdown.classList.add('hidden');
             }
         });
     </script>

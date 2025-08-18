@@ -56,6 +56,29 @@
             visibility: visible;
         }
         .bg-custom { background-color: #95bce2; }
+        
+        /* Enhanced sidebar scrolling */
+        .sidebar-scrollable {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+        
+        .sidebar-scrollable::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar-scrollable::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .sidebar-scrollable::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .sidebar-scrollable::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body class="font-inter bg-custom min-h-screen">
@@ -83,7 +106,7 @@
     </div>
 
     <!-- Desktop Sidebar -->
-    <div style="background: #6393c1;" class="text-white w-64 h-screen fixed left-0 top-[80px] sm:top-[100px] overflow-y-auto hidden lg:block z-30 shadow-xl">
+    <div style="background: #6393c1;" class="sidebar-scrollable text-white w-64 fixed left-0 top-[80px] sm:top-[100px] bottom-0 overflow-y-auto hidden lg:block z-30 shadow-xl">
         <!-- Header -->
         <div class="p-6 border-b border-green-600">
             <div class="flex items-center space-x-3">
@@ -156,7 +179,7 @@
     </div>
 
     <!-- Mobile Sidebar -->
-    <div id="mobile-sidebar" style="background: #6393c1;" class="sidebar-mobile text-white w-64 h-screen fixed left-0 top-[80px] sm:top-[100px] overflow-y-auto lg:hidden z-50 shadow-xl">
+    <div id="mobile-sidebar" style="background: #6393c1;" class="sidebar-mobile sidebar-scrollable text-white w-64 fixed left-0 top-[80px] sm:top-[100px] bottom-0 overflow-y-auto lg:hidden z-50 shadow-xl">
         <!-- Header -->
         <div class="p-6 border-b border-green-600">
             <div class="flex items-center space-x-3">

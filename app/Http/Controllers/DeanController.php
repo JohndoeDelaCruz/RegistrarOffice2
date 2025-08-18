@@ -133,8 +133,16 @@ class DeanController extends Controller
             ->whereIn('dean_status', ['approved', 'rejected'])
             ->orderBy('dean_reviewed_at', 'desc')
             ->get();
+            
+        // Get approved applications with deadlines for calendar display
+        $approvedApplicationsWithDeadlines = GradeCompletionApplication::with(['student', 'subject'])
+            ->where('dean_reviewed_by', $dean->id)
+            ->where('dean_status', 'approved')
+            ->whereNotNull('completion_deadline')
+            ->orderBy('completion_deadline', 'asc')
+            ->get();
         
-        return view('dean.calendar', compact('dean', 'applications'));
+        return view('dean.calendar', compact('dean', 'applications', 'approvedApplicationsWithDeadlines'));
     }
 
     public function gradeCompletionApplications()

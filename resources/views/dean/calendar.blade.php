@@ -23,6 +23,36 @@
 
     <!-- Calendar Component -->
     <div class="bg-white rounded-lg shadow-md p-6">
+        <!-- Calendar Legend -->
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                Calendar Legend
+            </h4>
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full bg-red-600 mr-2"></div>
+                    <span class="text-gray-700">Overdue Deadline</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                    <span class="text-gray-700">Approaching Deadline</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                    <span class="text-gray-700">Active Deadline</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                    <span class="text-gray-700">Approved Review</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                    <span class="text-gray-700">Rejected Review</span>
+                </div>
+            </div>
+        </div>
+        
         <div class="calendar-container">
             <!-- Calendar Navigation -->
             <div class="flex items-center justify-between mb-6">
@@ -99,6 +129,87 @@
             </div>
         </div>
     </div>
+
+    <!-- Upcoming Deadlines Summary -->
+    @if(isset($approvedApplicationsWithDeadlines) && $approvedApplicationsWithDeadlines->count() > 0)
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">
+            <i class="fas fa-clock text-orange-600 mr-2"></i>
+            Upcoming Grade Completion Deadlines
+        </h3>
+        
+        @php
+            $upcomingDeadlines = $approvedApplicationsWithDeadlines->filter(function($app) {
+                return $app->completion_deadline && $app->completion_deadline->isFuture();
+            })->take(10);
+            
+            $overdueDeadlines = $approvedApplicationsWithDeadlines->filter(function($app) {
+                return $app->completion_deadline && $app->completion_deadline->isPast();
+            })->take(5);
+        @endphp
+        
+        @if($overdueDeadlines->count() > 0)
+        <div class="mb-6">
+            <h4 class="font-semibold text-red-600 mb-3 flex items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Overdue Deadlines ({{ $overdueDeadlines->count() }})
+            </h4>
+            <div class="space-y-2">
+                @foreach($overdueDeadlines as $app)
+                <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-900">{{ $app->student->name ?? 'Unknown Student' }}</p>
+                        <p class="text-sm text-gray-600">{{ $app->subject->code ?? 'Unknown Subject' }} (Grade: {{ $app->current_grade }})</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-red-600">{{ $app->completion_deadline->format('M j, Y') }}</p>
+                        <p class="text-xs text-red-500">{{ abs($app->getDaysUntilDeadline()) }} days overdue</p>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+        
+        @if($upcomingDeadlines->count() > 0)
+        <div>
+            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                <i class="fas fa-calendar-alt mr-2"></i>
+                Upcoming Deadlines ({{ $upcomingDeadlines->count() }})
+            </h4>
+            <div class="space-y-2">
+                @foreach($upcomingDeadlines as $app)
+                @php
+                    $daysUntil = $app->getDaysUntilDeadline();
+                    $statusClass = $daysUntil <= 7 ? 'border-yellow-200 bg-yellow-50' : ($daysUntil <= 30 ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-gray-50');
+                    $textClass = $daysUntil <= 7 ? 'text-yellow-600' : ($daysUntil <= 30 ? 'text-blue-600' : 'text-gray-600');
+                @endphp
+                <div class="flex items-center justify-between p-3 border rounded-lg {{ $statusClass }}">
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-900">{{ $app->student->name ?? 'Unknown Student' }}</p>
+                        <p class="text-sm text-gray-600">{{ $app->subject->code ?? 'Unknown Subject' }} (Grade: {{ $app->current_grade }})</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium {{ $textClass }}">{{ $app->completion_deadline->format('M j, Y') }}</p>
+                        <p class="text-xs {{ $textClass }}">{{ $daysUntil }} days remaining</p>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+        
+        @if($upcomingDeadlines->count() == 0 && $overdueDeadlines->count() == 0)
+        <div class="text-center py-8">
+            <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+            </div>
+            <h4 class="text-lg font-semibold text-gray-800 mb-2">No Active Deadlines</h4>
+            <p class="text-gray-600">All approved applications are either completed or have no active deadlines.</p>
+        </div>
+        @endif
+    </div>
+    @endif
 
     <!-- Today's Date Highlight -->
     <div class="bg-uc-green/10 border border-uc-green/20 rounded-lg p-4">
@@ -252,6 +363,18 @@
     background-color: #ef4444;
 }
 
+.event-deadline-overdue {
+    background-color: #dc2626;
+}
+
+.event-deadline-approaching {
+    background-color: #f59e0b;
+}
+
+.event-deadline-active {
+    background-color: #3b82f6;
+}
+
 .event-more {
     background-color: #6b7280;
     color: white;
@@ -310,6 +433,20 @@ const applications = {!! json_encode($applications ? $applications->map(function
         'dean_reviewed_at' => $app->dean_reviewed_at ? $app->dean_reviewed_at->format('Y-m-d') : null,
         'dean_reviewed_at_display' => $app->dean_reviewed_at ? $app->dean_reviewed_at->format('M j, Y g:i A') : 'Unknown Date',
         'dean_remarks' => $app->dean_remarks
+    ];
+}) : []) !!};
+
+// Approved applications with deadlines for calendar display
+const approvedDeadlines = {!! json_encode(isset($approvedApplicationsWithDeadlines) ? $approvedApplicationsWithDeadlines->map(function($app) {
+    return [
+        'id' => $app->id,
+        'student_name' => $app->student ? $app->student->name : 'Unknown Student',
+        'subject_code' => $app->subject ? $app->subject->code : 'Unknown Subject',
+        'completion_deadline' => $app->completion_deadline ? $app->completion_deadline->format('Y-m-d') : null,
+        'completion_deadline_display' => $app->completion_deadline ? $app->completion_deadline->format('M j, Y g:i A') : 'No deadline',
+        'current_grade' => $app->current_grade,
+        'deadline_status' => $app->deadline_status,
+        'days_until_deadline' => $app->getDaysUntilDeadline()
     ];
 }) : []) !!};
 
@@ -379,26 +516,49 @@ function generateCalendar(year, month) {
         // Check for applications on this day
         const dayDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const dayApplications = applications.filter(app => app.dean_reviewed_at === dayDate);
+        const dayDeadlines = approvedDeadlines.filter(app => app.completion_deadline === dayDate);
         
-        if (dayApplications.length > 0) {
+        const totalEvents = dayApplications.length + dayDeadlines.length;
+        
+        if (totalEvents > 0) {
             dayDiv.classList.add('has-events');
             
             // Add event indicators
             const eventsContainer = document.createElement('div');
             eventsContainer.className = 'events-container';
             
-            dayApplications.slice(0, 3).forEach(app => {
+            // Add deadline events first (higher priority)
+            dayDeadlines.slice(0, 3).forEach(app => {
                 const eventDot = document.createElement('div');
-                eventDot.className = `event-dot ${app.dean_status === 'approved' ? 'event-approved' : 'event-rejected'}`;
-                eventDot.title = `${app.student_name} - ${app.subject_code} (${app.dean_status})`;
+                let eventClass = 'event-deadline-active';
+                
+                if (app.deadline_status === 'overdue') {
+                    eventClass = 'event-deadline-overdue';
+                } else if (app.deadline_status === 'approaching') {
+                    eventClass = 'event-deadline-approaching';
+                }
+                
+                eventDot.className = `event-dot ${eventClass}`;
+                eventDot.title = `DEADLINE: ${app.student_name} - ${app.subject_code} (${app.completion_deadline_display})`;
                 eventsContainer.appendChild(eventDot);
             });
             
-            if (dayApplications.length > 3) {
+            // Add review events
+            const remainingSlots = 3 - dayDeadlines.length;
+            if (remainingSlots > 0) {
+                dayApplications.slice(0, remainingSlots).forEach(app => {
+                    const eventDot = document.createElement('div');
+                    eventDot.className = `event-dot ${app.dean_status === 'approved' ? 'event-approved' : 'event-rejected'}`;
+                    eventDot.title = `REVIEW: ${app.student_name} - ${app.subject_code} (${app.dean_status})`;
+                    eventsContainer.appendChild(eventDot);
+                });
+            }
+            
+            if (totalEvents > 3) {
                 const moreDot = document.createElement('div');
                 moreDot.className = 'event-dot event-more';
                 moreDot.textContent = '+';
-                moreDot.title = `${dayApplications.length - 3} more events`;
+                moreDot.title = `${totalEvents - 3} more events`;
                 eventsContainer.appendChild(moreDot);
             }
             
@@ -407,7 +567,7 @@ function generateCalendar(year, month) {
             // Add click handler for viewing events
             dayDiv.onclick = () => {
                 selectDay(dayDiv);
-                showDayEvents(dayApplications, day, monthNames[month], year);
+                showDayEvents(dayApplications, dayDeadlines, day, monthNames[month], year);
             };
         } else {
             dayDiv.onclick = () => selectDay(dayDiv);
@@ -442,10 +602,12 @@ function selectDay(dayElement) {
     }
 }
 
-function showDayEvents(dayApplications, day, month, year) {
+function showDayEvents(dayApplications, dayDeadlines, day, month, year) {
+    const totalEvents = dayApplications.length + dayDeadlines.length;
+    
     const modalHtml = `
         <div id="dayEventsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden">
+            <div class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] overflow-hidden">
                 <div class="bg-uc-green text-white p-4">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-bold">
@@ -458,27 +620,93 @@ function showDayEvents(dayApplications, day, month, year) {
                     </div>
                 </div>
                 <div class="p-4 overflow-y-auto max-h-96">
-                    <h4 class="font-semibold text-gray-800 mb-3">Application Reviews (${dayApplications.length})</h4>
-                    <div class="space-y-3">
-                        ${dayApplications.map(app => `
-                            <div class="p-3 rounded-lg border ${app.dean_status === 'approved' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <p class="font-medium text-gray-900">${app.student_name}</p>
-                                        <p class="text-sm text-gray-600">${app.subject_code}</p>
-                                        <p class="text-xs ${app.dean_status === 'approved' ? 'text-green-700' : 'text-red-700'} mt-1">
-                                            ${app.dean_reviewed_at_display}
-                                        </p>
-                                        ${app.dean_remarks ? `<p class="text-xs text-gray-600 mt-1">"${app.dean_remarks}"</p>` : ''}
-                                    </div>
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${app.dean_status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                        <i class="fas ${app.dean_status === 'approved' ? 'fa-check' : 'fa-times'} mr-1"></i>
-                                        ${app.dean_status === 'approved' ? 'Approved' : 'Rejected'}
-                                    </span>
-                                </div>
+                    ${dayDeadlines.length > 0 ? `
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                                Grade Completion Deadlines (${dayDeadlines.length})
+                            </h4>
+                            <div class="space-y-3">
+                                ${dayDeadlines.map(app => {
+                                    let statusClass = 'bg-blue-50 border-blue-200 text-blue-700';
+                                    let statusIcon = 'fa-calendar-check';
+                                    let statusText = 'Due Today';
+                                    
+                                    if (app.deadline_status === 'overdue') {
+                                        statusClass = 'bg-red-50 border-red-200 text-red-700';
+                                        statusIcon = 'fa-exclamation-triangle';
+                                        statusText = 'OVERDUE';
+                                    } else if (app.deadline_status === 'approaching') {
+                                        statusClass = 'bg-yellow-50 border-yellow-200 text-yellow-700';
+                                        statusIcon = 'fa-clock';
+                                        statusText = 'Approaching';
+                                    }
+                                    
+                                    return `
+                                        <div class="p-3 rounded-lg border ${statusClass}">
+                                            <div class="flex items-start justify-between">
+                                                <div class="flex-1">
+                                                    <p class="font-medium text-gray-900">${app.student_name}</p>
+                                                    <p class="text-sm text-gray-600">${app.subject_code} (Current: ${app.current_grade})</p>
+                                                    <p class="text-xs ${app.deadline_status === 'overdue' ? 'text-red-600' : (app.deadline_status === 'approaching' ? 'text-yellow-600' : 'text-blue-600')} mt-1">
+                                                        Deadline: ${app.completion_deadline_display}
+                                                    </p>
+                                                    ${app.days_until_deadline !== null ? `
+                                                        <p class="text-xs text-gray-600 mt-1">
+                                                            ${app.days_until_deadline < 0 ? 
+                                                                `${Math.abs(app.days_until_deadline)} days overdue` : 
+                                                                `${app.days_until_deadline} days remaining`
+                                                            }
+                                                        </p>
+                                                    ` : ''}
+                                                </div>
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusClass.replace('bg-', 'bg-').replace('border-', 'border-').replace('text-', 'text-')}">
+                                                    <i class="fas ${statusIcon} mr-1"></i>
+                                                    ${statusText}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
                             </div>
-                        `).join('')}
-                    </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${dayApplications.length > 0 ? `
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-file-alt text-gray-600 mr-2"></i>
+                                Application Reviews (${dayApplications.length})
+                            </h4>
+                            <div class="space-y-3">
+                                ${dayApplications.map(app => `
+                                    <div class="p-3 rounded-lg border ${app.dean_status === 'approved' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <p class="font-medium text-gray-900">${app.student_name}</p>
+                                                <p class="text-sm text-gray-600">${app.subject_code}</p>
+                                                <p class="text-xs ${app.dean_status === 'approved' ? 'text-green-700' : 'text-red-700'} mt-1">
+                                                    Reviewed: ${app.dean_reviewed_at_display}
+                                                </p>
+                                                ${app.dean_remarks ? `<p class="text-xs text-gray-600 mt-1">"${app.dean_remarks}"</p>` : ''}
+                                            </div>
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${app.dean_status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                                <i class="fas ${app.dean_status === 'approved' ? 'fa-check' : 'fa-times'} mr-1"></i>
+                                                ${app.dean_status === 'approved' ? 'Approved' : 'Rejected'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${totalEvents === 0 ? `
+                        <div class="text-center py-8">
+                            <i class="fas fa-calendar text-gray-400 text-3xl mb-3"></i>
+                            <p class="text-gray-600">No events on this day</p>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
         </div>
@@ -496,6 +724,9 @@ function closeDayEventsModal() {
 
 // Add click events to existing calendar days
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Applications:', applications);
+    console.log('Approved Deadlines:', approvedDeadlines);
+    
     const calendarDays = document.querySelectorAll('.calendar-day');
     calendarDays.forEach(day => {
         if (!day.onclick) {
